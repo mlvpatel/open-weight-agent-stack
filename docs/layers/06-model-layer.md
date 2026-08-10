@@ -25,6 +25,10 @@ Turns weights into tokens per second. The runtime choice is hardware-shaped (see
 | llama.cpp | CPU, Metal, Vulkan, CUDA via GGUF | [github.com/ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) |
 | MLX | Apple Silicon | [github.com/ml-explore/mlx](https://github.com/ml-explore/mlx) |
 | LM Studio | Desktop GUI over MLX and llama.cpp | [lmstudio.ai](https://lmstudio.ai/) |
+| gpt-oss 120b / 20b | OpenAI's Apache-2.0 MoE pair; the 120b runs on one 80 GB GPU | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
+| More open families | OLMo 3 · Granite 4.1 · Ling 3.0 · Hunyuan · MiniMax · Falcon · LFM edge | [Section 27](../../MANUAL.md#27-sources-and-verification) |
+| Open coding models | Qwen3-Coder-Next · KAT-Coder · Devstral · Laguna | [Qwen3-Coder-Next](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
+| NVFP4 checkpoints | NVIDIA's prequantised open flagships for Blackwell | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Model cards | Every model fact, first-hand | [Section 27](../../MANUAL.md#27-sources-and-verification) |
 
 ## Wiring it in

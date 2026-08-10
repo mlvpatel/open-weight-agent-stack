@@ -51,7 +51,7 @@ download the artefact that matches your stack instead of converting after the fa
 |---|---|---|
 | GGUF | llama.cpp · Ollama · LM Studio · Jan | The CPU, Metal, and Vulkan family; one file format across every platform |
 | AWQ / GPTQ | vLLM · SGLang · TensorRT-LLM | GPU-server formats; AWQ usually holds quality better at 4-bit |
-| FP8 | vLLM · SGLang · TensorRT-LLM (Ada, Hopper, or newer) | Near-lossless; the serving default when the GPU supports it. FP4 arrives with Blackwell-class GPUs |
+| FP8 | vLLM · SGLang · TensorRT-LLM (Ada, Hopper, or newer) | Near-lossless; the serving default when the GPU supports it. FP4 arrives with Blackwell-class GPUs; NVIDIA publishes ready NVFP4 checkpoints of open flagships |
 | MLX | MLX · LM Studio on Apple Silicon | Pre-converted checkpoints live on Hugging Face under mlx-community |
 
 | Your setup | Runtime to use | Realistic ceiling | Notes |
@@ -68,6 +68,9 @@ download the artefact that matches your stack instead of converting after the fa
 | **Intel Arc / Core Ultra** | IPEX-LLM · OpenVINO · Vulkan | 7-14B at 4-bit | Improving quickly; verify your model is supported |
 | **Windows, any GPU** | LM Studio / Ollama native, or **WSL2** for the Linux stack | As per GPU row | WSL2 is how you get vLLM/SGLang on Windows |
 | **CPU only** | llama.cpp | 3-8B, 3-7 tok/s | Fine for batch; too slow for interactive chat |
+| **NVIDIA DGX Spark** | SGLang · vLLM · Ollama | 70B-class at 4-bit | GB10, 128 GB unified memory; the desktop supercomputer tier |
+| **NVIDIA Jetson (edge)** | llama.cpp · TensorRT-LLM | 3-13B on-device | Orin and Thor modules; agents at the edge, no rack required |
+| **Cloud accelerators** | Managed runtimes | By instance | TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5 |
 | **Rented GPU** | Same as NVIDIA rows | Whatever you pay for | RunPod · Modal · Lambda · vast.ai, hourly, no capex |
 | **No local hardware** | API only | Frontier | Skip the serving layer entirely; sections 5 to 21 still apply |
 
@@ -1486,7 +1489,9 @@ flowchart LR
         MD5["Llama · community licence"]
         MD6["GLM-4.5-Air · fast tier · MIT"]
         MD7["DeepSeek V4 Flash · cheap · MIT"]
-        MD8["Qwen 3.5 27B · self-host · Apache-2.0"]
+        MD8["Qwen 3.6 27B · self-host · Apache-2.0"]
+        MD9["GPT-OSS · OLMo 3 · Granite 4.1 · Ling 3.0<br/>Hunyuan · MiniMax M2.x · Falcon · LFM edge"]
+        MD10["Coding: Qwen3-Coder-Next · KAT-Coder<br/>Devstral · Laguna"]
     end
     subgraph CAT_SV["Model serving"]
         SV1["★ SGLang · RadixAttention"]
@@ -1514,7 +1519,7 @@ flowchart LR
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
     class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
-    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,EM2,EM3,EM4,VS2,VS3,VS4,VS5,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
+    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
 ```
 
 ---
@@ -1523,16 +1528,18 @@ flowchart LR
 
 The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, Qwen 3.8 Max 2.4T, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
 
-**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), GLM-4.5-Air, Qwen 3.5 27B, where a single node is genuinely enough.
+**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.
 
-Route by task shape. Assume every row is measured on your own eval set before it ships.
+Route by task shape. Assume every row is measured on your own eval set before it ships. Vendors
+refresh open models as dated checkpoints (DeepSeek's Flash-0731, for instance); production pins the
+exact checkpoint ID, never the family name (section 25).
 
 | Task | Open-weight | Frontier API | Notes |
 |---|---|---|---|
-| Extraction, classification, routing | GLM-4.5-Air · Qwen 3.5 9B · Phi-4-mini · Gemma 3 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier. |
+| Extraction, classification, routing | GLM-4.5-Air · Qwen 3.5 9B · Phi-4-mini · Gemma 4 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier. |
 | General agentic + tool calling | Kimi K3 · Qwen 3.8 Max | Claude Sonnet 5 | K3 scores 57 on the Artificial Analysis Intelligence Index (60 in its max configuration); Kimi is explicitly tuned for tool loops. |
 | Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice actually shows up in output quality. |
-| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 | Claude Opus 5 | V4 Pro ~80.6% SWE-bench Verified; GLM-5.2 strong on terminal-style benchmarks. |
+| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro ~80.6% SWE-bench Verified; GLM-5.2 strong on terminal-style benchmarks. |
 | High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active at roughly $0.14/$0.28 per M tokens. |
 | Long context | Qwen 3.8 Max · Kimi K3 | Claude Opus 5 (1M) | All are 1M-class. Prefill cost still scales with what you actually send. |
 | Vision, documents, charts | Qwen 3.8 Max | Claude Opus 5 | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
@@ -1551,6 +1558,8 @@ gateways such as LiteLLM and OpenRouter bridge the two.
 | Frontier first-party | Anthropic (Claude) · OpenAI · Google (Gemini) · xAI (Grok) · Mistral La Plateforme · DeepSeek API | Highest capability; each vendor's newest models first |
 | Open-weight hosts | Groq · Cerebras · Together AI · Fireworks · DeepInfra · Replicate · Baseten · Hugging Face Inference | Open models without your own GPUs; Groq and Cerebras for extreme tokens-per-second |
 | Routers and gateways | OpenRouter (one key, many providers) · LiteLLM (self-hosted proxy, one interface) | Provider failover, cost routing, one bill |
+| Managed Kubernetes with accelerators | EKS + Trainium/Inferentia · GKE + TPU · AKS + ND-series GPUs | Bring the containerised stack, rent the silicon; the same compose services, scheduled |
+| NVIDIA NIM | build.nvidia.com catalogue · prebuilt optimised containers | Hosted API to try, downloadable microservices to self-host on any NVIDIA hardware |
 | Enterprise cloud endpoints | AWS Bedrock · Google Vertex AI · Microsoft Foundry · AWS SageMaker · Azure ML | Cloud-native IAM, billing, data residency, compliance paperwork |
 
 Rule of thumb: prototype against a router, ship against one or two providers directly, and keep the
@@ -1785,7 +1794,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 | **OpenHands** ★ | Open source | The most autonomous of the group, runs in Docker with full read-write on a sandboxed filesystem, browses, executes, ships a feature end to end |
 | **SWE-agent** | Open source | Research lineage; benchmark-oriented |
 | **Goose** | Open source (Linux Foundation) | Vendor-neutral governance; extensible |
-| **Devin · Replit Agent** | Paid SaaS | Hosted, no local setup |
+| **Devin · Jules · Replit Agent** | Paid SaaS | Hosted, no local setup |
 
 ### 24.5 How to choose
 
@@ -1902,7 +1911,20 @@ their cards before relying on them months from now.
 | DeepSeek V4 Flash | 284B / 13B active · MIT · $0.14 in / $0.28 out per M tokens, increase announced | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) |
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
 | GLM-4.5-Air | Fast tier · MIT | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
-| Qwen 3.5 27B / 9B | Apache-2.0 · self-host serving documented on card | [Model card](https://huggingface.co/Qwen/Qwen3.5-27B) |
+| Qwen 3.6 27B / 3.5 9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
+| Gemma 4 | 12B instruction-tuned entry of the Apache-2.0 generation | [Model card](https://huggingface.co/google/gemma-4-12B-it) |
+| OLMo 3 | Fully open (weights, data, code) · Apache-2.0 | [Model card](https://huggingface.co/allenai/Olmo-3-1025-7B) |
+| Granite 4.1 | IBM's enterprise family · Apache-2.0 | [Model card](https://huggingface.co/ibm-granite/granite-4.1-30b) |
+| Ling 3.0 flash | Ant Group MoE · MIT | [Model card](https://huggingface.co/inclusionAI/Ling-3.0-flash) |
+| Hunyuan Hy3 | Tencent · Apache-2.0 | [Model card](https://huggingface.co/tencent/Hy3) |
+| MiniMax M2.7 | Custom MiniMax licence; check before commercial use | [Model card](https://huggingface.co/MiniMaxAI/MiniMax-M2.7) |
+| LFM2.5 (edge) | Liquid AI's edge family · LFM Open Licence | [Model card](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
+| Qwen3-Coder-Next | Open coding specialist · Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
+| KAT-Coder V2.5 | Agentic coding MoE · Apache-2.0 | [Model card](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
+| Devstral Small | Mistral's open coding model · Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2507) |
+| Laguna S 2.1 | poolside's coding model · OpenMDW licence | [Model card](https://huggingface.co/poolside/Laguna-S-2.1) |
+| NVFP4 checkpoints | NVIDIA's prequantised open flagships | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://www.llama.com/llama4/license/) |
 | Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Terms](https://ai.google.dev/gemma/terms) |
 | Phi-4 / Phi-4-mini | MIT · 14B / 3.8B | [Model card](https://huggingface.co/microsoft/phi-4) |
@@ -1923,6 +1945,10 @@ their cards before relying on them months from now.
 | The OpenAI-compatible API is the serving lingua franca | vLLM documents its OpenAI-compatible server (/v1/chat/completions and friends) | [vLLM serving docs](https://docs.vllm.ai/en/latest/serving/online_serving/) |
 | PagedAttention ends KV fragmentation | Paged, virtual-memory-style KV allocation; the mechanism behind vLLM's batching density | [Paper](https://arxiv.org/abs/2309.06180) |
 | Speculative decoding preserves output quality | Draft-and-verify decoding with an acceptance rule that keeps the target model's distribution | [Paper](https://arxiv.org/abs/2211.17192) |
+| NVIDIA NIM catalogue | Hosted trials and downloadable optimised inference containers | [build.nvidia.com](https://build.nvidia.com/models) |
+| DGX Spark | GB10, 128 GB unified memory desktop | [nvidia.com](https://www.nvidia.com/en-us/products/workstations/dgx-spark/) |
+| Jetson modules | Edge inference hardware | [developer.nvidia.com](https://developer.nvidia.com/embedded/jetson-modules) |
+| Cloud accelerators | TPU (GCP) and Trainium (AWS) product pages | [cloud.google.com/tpu](https://cloud.google.com/tpu) · [aws.amazon.com](https://aws.amazon.com/ai/machine-learning/trainium/) |
 
 ### 27.3 Standards, protocols and benchmarks
 
