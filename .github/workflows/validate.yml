@@ -109,7 +109,6 @@ jobs:
             --max-retries 3
             --retry-wait-time 10
             --accept 200,201,202,204,206,301,302,308
-            --exclude-mail
             MANUAL.md README.md docs/
           fail: true
           # 403 and 429 are no longer accepted as success. A rate-limited or
