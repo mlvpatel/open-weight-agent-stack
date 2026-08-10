@@ -48,10 +48,23 @@ So you know what has been done and can look for gaps in it rather than reporting
 - **Dependencies pinned by lockfile** with a committed CycloneDX SBOM.
 - **A read-only default workflow token**, with write permissions granted per job only where needed.
 - **Branch protection on `main`** requiring five status checks to pass. Note that administrator enforcement is deliberately off, because with a single maintainer, enabling it creates a lockout risk that is worse than the threat it mitigates.
-- **Reproducible builds.** Diagram rendering is byte-identical across runs, and CI fails when a committed derived file differs from a fresh build, so an unexplained change to published output is visible.
+- **Reproducible builds.** Diagram rendering is byte-identical across runs, and CI fails when a committed derived file differs from a fresh build, so an unexplained change to published output is visible. That now includes `site/mermaid.min.js`, the vendored browser bundle, which is checked byte-for-byte against the mermaid release pinned in the lockfile.
+- **The renderer is tested against injection.** `scripts/test_render_security.py` asserts that markdown cannot produce an event handler, an executable URL scheme, or any element outside a small allow-list. It exists because an earlier version of the renderer was vulnerable to exactly that.
 
 ## Known accepted risk
 
 `scripts/puppeteer.json` disables the Chromium sandbox during diagram rendering, because the renderer runs in a CI container where the kernel features the sandbox depends on are unavailable. The reasoning, and the condition under which that trade would stop being acceptable, are documented in [`scripts/SANDBOX.md`](scripts/SANDBOX.md).
 
 If you believe that condition has been met, that is an in-scope report.
+
+## Updating the vendored browser bundle
+
+When mermaid publishes a security fix, the published site needs the new bundle, not just the new lockfile entry. CI enforces that the two agree, so the sequence is:
+
+```bash
+npm install                                              # or merge the Dependabot pull request
+cp node_modules/mermaid/dist/mermaid.min.js site/mermaid.min.js
+npm run sbom
+```
+
+Skipping the copy turns the build red rather than silently shipping the old bundle.

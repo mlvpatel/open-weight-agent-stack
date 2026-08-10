@@ -17,18 +17,52 @@ import re
 from .manual import slug
 
 
+# Only these may appear in an href. Anything else becomes inert text.
+# javascript: and data: are the executable ones; vbscript: still works in some
+# embedded engines. A relative path or fragment has no scheme at all.
+_SAFE_SCHEME = re.compile(r"^(?:https?:|mailto:|#|/|\.{0,2}/|[\w.-]+\.md|[\w.-]+/)", re.I)
+
+
+def _href(raw: str) -> str | None:
+    """Return an attribute-safe href, or None if the URL is not safe to emit.
+
+    The escaping here must include quotes. An earlier version escaped with
+    quote=False and interpolated the result straight into href="...", so a link
+    whose URL contained a double quote closed the attribute and everything after
+    it became markup: [x](" onmouseover="alert(1)) produced a live event handler
+    on the published site. That is stored XSS, and it is why this function
+    exists instead of a regex replacement string.
+    """
+    url = raw.strip()
+    if not url or not _SAFE_SCHEME.match(url):
+        return None
+    return html.escape(url, quote=True)
+
+
 def _inline(text: str) -> str:
     """Inline markdown to HTML. Code spans are extracted first so their
     contents are never re-interpreted as markup."""
     spans: list[str] = []
 
     def stash(m):
-        spans.append(f"<code>{html.escape(m.group(1))}</code>")
+        spans.append(f"<code>{html.escape(m.group(1), quote=True)}</code>")
         return f"\x00{len(spans) - 1}\x00"
 
     text = re.sub(r"`([^`]+)`", stash, text)
-    text = html.escape(text, quote=False)
-    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
+    # quote=True, always. Link text is interpolated into markup too.
+    text = html.escape(text, quote=True)
+
+    def link(m):
+        label, raw = m.group(1), m.group(2)
+        # The URL arrives already entity-escaped by the pass above, so a quote
+        # is &quot; here and cannot terminate the attribute. Unescape only to
+        # judge the scheme, then re-escape for output.
+        href = _href(html.unescape(raw))
+        if href is None:
+            return label          # unsafe scheme: keep the words, drop the link
+        return f'<a href="{href}">{label}</a>'
+
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<![\w*])\*([^*\n]+)\*(?![\w*])", r"<em>\1</em>", text)
     return re.sub(r"\x00(\d+)\x00", lambda m: spans[int(m.group(1))], text)

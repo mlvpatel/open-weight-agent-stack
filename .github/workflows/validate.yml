@@ -83,6 +83,20 @@ jobs:
           cache: npm
       - name: install pinned toolchain
         run: npm ci --no-audit --no-fund
+      - name: vendored bundle matches the pinned mermaid release
+        run: |
+          src=node_modules/mermaid/dist/mermaid.min.js
+          if [ ! -f "$src" ]; then
+            echo "::error::$src is missing, so the vendored bundle cannot be verified."
+            exit 1
+          fi
+          if ! cmp -s "$src" site/mermaid.min.js; then
+            echo "::error::site/mermaid.min.js differs from the mermaid version in package-lock.json."
+            echo "Refresh it with: cp $src site/mermaid.min.js"
+            exit 1
+          fi
+          echo "vendored bundle matches mermaid $(node -p "require('./node_modules/mermaid/package.json').version")"
+
       - name: regenerate the site from MANUAL.md
         run: python3 scripts/build_site.py
       - name: committed site matches regeneration
@@ -104,6 +118,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: renderer resists injection
+        run: python3 scripts/test_render_security.py
       - name: watcher debounce behaves as documented
         run: python3 scripts/test_watch_upstream.py
       - name: internal anchors, relative links, and stated counts
