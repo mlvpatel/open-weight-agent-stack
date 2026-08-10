@@ -133,6 +133,10 @@ section 1, and the numbered sections that follow open each layer up.
 | 11 | Observability | Trace and measure | Eval | Langfuse · Phoenix · OpenTelemetry · Grafana + Loki · Helicone |
 | 12 | Deployment | Wherever you can run it | Loop | Mac/MLX · single GPU · multi-GPU node · CPU only · WSL2 · Docker · Kubernetes · rented GPU · API only |
 
+Each layer has a deeper companion file in the GitHub repository, with decision guidance and a link
+for every tool named: [github.com/mlvpatel/open-weight-agent-stack](https://github.com/mlvpatel/open-weight-agent-stack/tree/main/docs/layers).
+Suggestions and corrections are welcome there; the bar for a change is a primary source.
+
 ---
 
 ## 4. The design method: HLD, LLD and the rules

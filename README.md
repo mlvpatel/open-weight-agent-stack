@@ -43,12 +43,24 @@ The full four-level breakdown lives in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.
 | Why it broke, first hour | [Section 26.1](MANUAL.md#261-when-it-breaks-the-first-hour-table) |
 | Every claim's primary source | [Section 27](MANUAL.md#27-sources-and-verification) |
 
+## Go one layer deeper
+
+Every layer of the stack has a companion file with decision guidance, wiring notes, and a link for every tool named: **[docs/layers/](docs/layers/)**.
+
+| | | | |
+|---|---|---|---|
+| [0 · Identity](docs/layers/00-identity-and-access.md) | [1 · Clients](docs/layers/01-clients.md) | [2 · Frontend](docs/layers/02-frontend-and-edge.md) | [3 · Orchestrator](docs/layers/03-orchestrator.md) |
+| [4 · Knowledge decision](docs/layers/04-knowledge-decision.md) | [5 · RAG pipeline](docs/layers/05-rag-pipeline.md) | [6 · Model layer](docs/layers/06-model-layer.md) | [7 · Tools via MCP](docs/layers/07-tools-via-mcp.md) |
+| [8 · Code agent](docs/layers/08-code-agent.md) | [9 · Memory and cache](docs/layers/09-memory-and-cache.md) | [10 · Guardrails and evals](docs/layers/10-guardrails-and-evals.md) | [11 · Observability](docs/layers/11-observability.md) |
+| [12 · Deployment](docs/layers/12-deployment.md) | | | |
+
 ## Repository map
 
 ```
 MANUAL.md            The manual. Single source of truth; all diagrams render on GitHub.
 docs/ARCHITECTURE.md The system in C4: context, containers, components, code.
 site/                The manual as a designed single-page site (GitHub Pages).
+docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 diagrams/svg/        The same diagrams rendered to SVG.
 scripts/             Regenerate diagrams from the manual; render themed SVGs.
