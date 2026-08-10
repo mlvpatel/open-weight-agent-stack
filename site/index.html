@@ -485,6 +485,38 @@
 
   footer { background: var(--surface-2); }
   .foot-in { color: var(--muted); text-align: center; }
+
+  /* ============ vibrancy layer ============ */
+  h1 {
+    background: linear-gradient(92deg, #1d1d1f 0%, #0071e3 45%, #8944ab 75%, #bf4800 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: #1d1d1f;
+  }
+  .stat:nth-child(1) dd { color: #0071e3; }
+  .stat:nth-child(2) dd { color: #8944ab; }
+  .stat:nth-child(3) dd { color: #bf4800; }
+  .stat:nth-child(4) dd { color: #e30000; }
+  .stat:nth-child(5) dd { color: #248a3d; }
+  .stats { background: linear-gradient(180deg, #f7f9fc, #eef1f6); border-radius: 18px; }
+  .plate { background: linear-gradient(180deg, #f7f9fc 0%, #eef1f6 100%); }
+  .sec-head h2 { color: #1d1d1f; }
+  .eyebrow {
+    background: linear-gradient(90deg, #0071e3, #8944ab);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .badge-ring { background: #e8f0fe; color: #0066cc; }
+  .callout-info { background: linear-gradient(180deg, #f2f7ff, #e9f1fd); }
+  .callout-info svg { color: #0071e3; }
+  .table-wrap { border-color: #dfe3ea; }
+  thead th { background: #f2f6fc; }
+  .pick { background: #0071e3; color: #ffffff; }
+  .toc a.active, .toc a[aria-current="true"] { color: #0071e3; }
+  footer { background: linear-gradient(180deg, #f5f5f7, #e8f0fe); }
+
+  /* diagram labels: render with the same generic sans mermaid measures with */
+  .plate-body svg { font-family: sans-serif !important; letter-spacing: 0; }
+  .plate-body svg foreignObject div, .plate-body svg foreignObject span,
+  .plate-body svg text { font-family: sans-serif !important; letter-spacing: 0 !important; }
 </style>
 
 <a class="skip" href="#main">Skip to content</a>
@@ -630,7 +662,7 @@
 
       <figure class="plate" style="margin-top: var(--s5)">
         <figcaption><span class="fno">Fig. 02</span><span>Pick your path in four questions</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     Q0{"Do you have a GPU&lt;br/&gt;or Apple Silicon?"}
     Q0 --&gt;|"Apple Silicon"| MAC{"How much&lt;br/&gt;unified memory?"}
@@ -649,10 +681,10 @@ flowchart TB
     OTHER --&gt;|"Linux"| O1["AMD: ROCm&lt;br/&gt;Intel: IPEX-LLM"]
     OTHER --&gt;|"Windows"| O2["llama.cpp Vulkan&lt;br/&gt;ROCm only on select new AMD HW"]
 
-    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef mac fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef nv fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef other fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef q fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef mac fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef nv fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef other fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef none fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class Q0,MAC,NV,OTHER q
@@ -794,7 +826,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 04</span><span>System overview</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph L1["1 · Clients"]
         direction LR
@@ -911,16 +943,16 @@ flowchart TB
     O2 -.-&gt;|new cases| EV
     EV -.-&gt;|prompt, model and index changes| PLAN
 
-    classDef client fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
-    classDef fe fill:#fff8f0,stroke:#bf4800,color:#5c2e00
-    classDef orch fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef rag fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef llm fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef tool fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef client fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef fe fill:#ffeeda,stroke:#bf4800,color:#5c2e00
+    classDef orch fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef rag fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef llm fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef tool fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
     classDef obs fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
 
     class C1,C2,C3,C4 client
     class F1,F2,GW,RESP fe
@@ -946,7 +978,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 05</span><span>One turn, end to end</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 sequenceDiagram
     autonumber
     actor U as User
@@ -1028,7 +1060,7 @@ sequenceDiagram
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 06</span><span>Orchestrator states</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 stateDiagram-v2
     [*] --&gt; Intake
     Intake --&gt; Planning : goal parsed
@@ -1100,7 +1132,7 @@ stateDiagram-v2
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 07</span><span>Ingestion and query paths</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart LR
     subgraph ING["Ingestion · offline batch"]
         direction TB
@@ -1149,11 +1181,11 @@ flowchart LR
     Q9 --&gt;|no| Q11
     Q11 -.-&gt;|one retry with broader filters| Q3
 
-    classDef ingest fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef query fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef ingest fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef query fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
 
     class I1,I2,I3,I4,I5 ingest
     class I6,I7 store
@@ -1196,7 +1228,7 @@ flowchart LR
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 08</span><span>Route by task shape</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     S["Incoming step"] --&gt; C1{"Structured extraction&lt;br/&gt;or classification?"}
     C1 --&gt;|yes| SMALL["Fast tier&lt;br/&gt;GLM-4.5-Air · Qwen 3.5 9B&lt;br/&gt;constrained decoding to JSON"]
@@ -1222,10 +1254,10 @@ flowchart TB
     CLOUD --&gt; OUT
     Q --&gt;|VETO · budget spent| ESC["Escalate to a human&lt;br/&gt;never loop a third time"]
 
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef model fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef out fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef check fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef model fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef out fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef check fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class C1,C2,C3,C4,Q decision
     class SMALL,LONG,REASON,CODE,GEN,UP,CLOUD model
@@ -1258,7 +1290,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 09</span><span>Anatomy of one turn</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph TURN["One turn · assembled in this order"]
         direction TB
@@ -1288,10 +1320,10 @@ flowchart TB
     PREC -.-&gt;|enforced by ordering and fences| P5
     B2 -.-&gt;|graded independently| JUDGE
 
-    classDef contract fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef policy fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef out fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef contract fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef untrusted fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef policy fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef out fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class P1,P2,P6 contract
     class P3,P4 untrusted
@@ -1320,7 +1352,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 10</span><span>What crosses into the window</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph UNTRUSTED["Untrusted input · data, never instructions"]
         direction LR
@@ -1371,10 +1403,10 @@ flowchart TB
     ACT -.-&gt; LEDGER
     DENY -.-&gt; LEDGER
 
-    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef trusted fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef untrusted fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef trusted fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
     classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class U1,U2,U3,U4,REENTER untrusted
@@ -1403,7 +1435,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 11</span><span>Lifetimes, shortest to longest</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart LR
     subgraph T1["Tier 1 · Turn scope"]
         M1["Scratchpad&lt;br/&gt;current reasoning · tool results&lt;br/&gt;lifetime: one request"]
@@ -1429,8 +1461,8 @@ flowchart LR
     AG --&gt; M5
     M5 -.-&gt;|feeds evals and dashboards| EVAL["Eval and analytics"]
 
-    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef agent fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef agent fill:#dff3e6,stroke:#248a3d,color:#0f3d23
     class M1,M2,M3,M4,M5 mem
     class AG,EVAL agent
 </pre></div>
@@ -1452,7 +1484,7 @@ flowchart LR
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 12</span><span>Inline guards, offline gates</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph INLINE["Inline · every request · milliseconds"]
         direction TB
@@ -1508,12 +1540,12 @@ flowchart TB
     E6 --&gt;|VETO with named remediation| FIX["Block release&lt;br/&gt;failing test carried into the fix"]
     SHIP -.-&gt;|new baseline| E1
 
-    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef eval fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef eval fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef sig fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
     class G1,G2,G3 guard
     class E1,E2,E3,E4,E5,E7,EJ eval
@@ -1575,7 +1607,7 @@ flowchart TB
 
       <figure class="plate">
         <figcaption><span class="fno">Fig. 13</span><span>Single GPU, single node, multi-node</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph A["A · Single GPU · 24 to 48 GB"]
         direction TB
@@ -1605,8 +1637,8 @@ flowchart TB
     B -.-&gt; RULE
     C -.-&gt; SPLIT
 
-    classDef tier fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef note fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef tier fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef note fill:#fff3c2,stroke:#997404,color:#5c2e00
     class A1,A2,A3,B1,B2,B3,C1,C2,C3 tier
     class RULE,SPLIT note
 </pre></div>
@@ -1642,7 +1674,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 14</span><span>Derived copies and their delete paths</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     S1["Document corpus"]
     S2["User conversations"]
@@ -1668,10 +1700,10 @@ flowchart TB
     end
     RI1 --&gt; RI2 --&gt; RI3 --&gt; RI4
 
-    classDef src fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef mig fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef src fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef mig fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class S1,S2 src
     class X store
@@ -1738,7 +1770,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 15</span><span>Admission, spend and change control</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     REQ["Incoming requests"]
     BUD{"Budget check&lt;br/&gt;per user and per tenant"}
@@ -1779,11 +1811,11 @@ flowchart TB
     V3 --&gt;|yes| V4
     V3 --&gt;|no| V5
 
-    classDef flow fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef flow fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
 
     class REQ,QUEUE,BATCH,V1,V2 flow
     class BUD,ADMIT,V3 decision
@@ -1835,7 +1867,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 16</span><span>Who is acting, on whose behalf, with how much</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph IDP["Identity · the source of truth for who"]
         direction LR
@@ -1875,10 +1907,10 @@ flowchart TB
     T2 -.-&gt;|supplies the scope| E4
     T3 --&gt; AUDIT
 
-    classDef id fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef tok fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef pep fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef id fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef tok fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef pep fill:#ffeeda,stroke:#d97706,color:#78350f
     classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class U,SVC,AG id
@@ -1944,7 +1976,7 @@ flowchart TB
 
       <figure class="plate" style="margin-top: var(--s5)">
         <figcaption><span class="fno">Fig. 18</span><span>Two write paths, gated</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart LR
     subgraph WRITE["Memory writes · gated before promotion"]
         direction TB
@@ -1968,11 +2000,11 @@ flowchart LR
     W2 --&gt;|unverifiable| W4
     S1 --&gt; S2 --&gt; S3 --&gt; S4
 
-    classDef flow fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef flow fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
 
     class W1,S1 flow
     class W2 decision
@@ -1999,7 +2031,7 @@ flowchart LR
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 19</span><span>Where one agent turn goes, and what moves it</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
@@ -2024,9 +2056,9 @@ flowchart TB
 
     L1 --&gt; L2 --&gt; L3 --&gt; L4 --&gt; L5 --&gt; L6 --&gt; L7
 
-    classDef step fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef hot fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef lever fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef step fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef hot fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef lever fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
     class L1,L2,L3,L4,L7 step
     class L5,L6 hot
@@ -2154,7 +2186,7 @@ flowchart TB
       </div>
       <figure class="plate">
         <figcaption><span class="fno">Fig. 22</span><span>Which harness, whose infrastructure</span></figcaption>
-        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#f5f5f7","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#f2faf4","tertiaryColor":"#fff8f0","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#f5f5f7","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#f5f5f7","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#fbfbfd","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#e8e8ed","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff9e6","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#f5f5f7","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#e8e8ed","compositeBorder":"#d2d2d7","altBackground":"#f5f5f7","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
+        <div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44}}}%%
 flowchart TB
     Q1{"Does the agent need deep OS access?&lt;br/&gt;filesystem · shell · repos"}
     Q1 --&gt;|yes| CASDK["Claude Agent SDK&lt;br/&gt;Claude Code as a library&lt;br/&gt;harness only · you host"]
@@ -2170,9 +2202,9 @@ flowchart TB
     Q4 --&gt;|AWS| BR["Bedrock AgentCore&lt;br/&gt;AWS-native IAM and billing"]
     Q4 --&gt;|neither| OAI["OpenAI Agents SDK&lt;br/&gt;lightweight handoffs · voice&lt;br/&gt;swap models freely"]
 
-    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef pick fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef alt fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef q fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef pick fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef alt fill:#e8f0fe,stroke:#0071e3,color:#003a70
     class Q1,Q2,Q3,Q4 q
     class CASDK,CMA pick
     class ADK,BR,OAI,OWN alt
@@ -2531,5 +2563,14 @@ flowchart TB
       sections.forEach(function (sec) { obs.observe(sec); });
     }
   } catch (e) {}
+})();
+</script>
+
+<script src="mermaid.min.js"></script>
+<script>
+(function () {
+  try {
+    if (window.mermaid) { window.mermaid.initialize({ startOnLoad: true }); }
+  } catch (e) { /* diagrams degrade to text, page stays readable */ }
 })();
 </script>

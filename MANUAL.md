@@ -90,10 +90,10 @@ flowchart TB
     OTHER -->|"Linux"| O1["AMD: ROCm<br/>Intel: IPEX-LLM"]
     OTHER -->|"Windows"| O2["llama.cpp Vulkan<br/>ROCm only on select new AMD HW"]
 
-    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef mac fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef nv fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef other fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef q fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef mac fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef nv fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef other fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef none fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class Q0,MAC,NV,OTHER q
@@ -329,16 +329,16 @@ flowchart TB
     O2 -.->|new cases| EV
     EV -.->|prompt, model and index changes| PLAN
 
-    classDef client fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
-    classDef fe fill:#fff8f0,stroke:#bf4800,color:#5c2e00
-    classDef orch fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef rag fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef llm fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef tool fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef client fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef fe fill:#ffeeda,stroke:#bf4800,color:#5c2e00
+    classDef orch fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef rag fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef llm fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef tool fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
     classDef obs fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
 
     class C1,C2,C3,C4 client
     class F1,F2,GW,RESP fe
@@ -578,11 +578,11 @@ flowchart LR
     Q9 -->|no| Q11
     Q11 -.->|one retry with broader filters| Q3
 
-    classDef ingest fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef query fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef ingest fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef query fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
 
     class I1,I2,I3,I4,I5 ingest
     class I6,I7 store
@@ -625,10 +625,10 @@ flowchart TB
     CLOUD --> OUT
     Q -->|VETO · budget spent| ESC["Escalate to a human<br/>never loop a third time"]
 
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef model fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef out fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef check fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef model fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef out fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef check fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class C1,C2,C3,C4,Q decision
     class SMALL,LONG,REASON,CODE,GEN,UP,CLOUD model
@@ -679,10 +679,10 @@ flowchart TB
     PREC -.->|enforced by ordering and fences| P5
     B2 -.->|graded independently| JUDGE
 
-    classDef contract fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef policy fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef out fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef contract fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef untrusted fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef policy fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef out fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class P1,P2,P6 contract
     class P3,P4 untrusted
@@ -759,10 +759,10 @@ flowchart TB
     ACT -.-> LEDGER
     DENY -.-> LEDGER
 
-    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef trusted fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef untrusted fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef trusted fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
     classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class U1,U2,U3,U4,REENTER untrusted
@@ -820,8 +820,8 @@ flowchart LR
     AG --> M5
     M5 -.->|feeds evals and dashboards| EVAL["Eval and analytics"]
 
-    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef agent fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef agent fill:#dff3e6,stroke:#248a3d,color:#0f3d23
     class M1,M2,M3,M4,M5 mem
     class AG,EVAL agent
 ```
@@ -921,12 +921,12 @@ flowchart TB
     E6 -->|VETO with named remediation| FIX["Block release<br/>failing test carried into the fix"]
     SHIP -.->|new baseline| E1
 
-    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef eval fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef eval fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef sig fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
     class G1,G2,G3 guard
     class E1,E2,E3,E4,E5,E7,EJ eval
@@ -974,8 +974,8 @@ flowchart TB
     B -.-> RULE
     C -.-> SPLIT
 
-    classDef tier fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef note fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef tier fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef note fill:#fff3c2,stroke:#997404,color:#5c2e00
     class A1,A2,A3,B1,B2,B3,C1,C2,C3 tier
     class RULE,SPLIT note
 ```
@@ -1036,10 +1036,10 @@ flowchart TB
     end
     RI1 --> RI2 --> RI3 --> RI4
 
-    classDef src fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
-    classDef mig fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef src fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef control fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef mig fill:#e8f0fe,stroke:#0071e3,color:#003a70
 
     class S1,S2 src
     class X store
@@ -1139,11 +1139,11 @@ flowchart TB
     V3 -->|yes| V4
     V3 -->|no| V5
 
-    classDef flow fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef flow fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
 
     class REQ,QUEUE,BATCH,V1,V2 flow
     class BUD,ADMIT,V3 decision
@@ -1232,10 +1232,10 @@ flowchart TB
     T2 -.->|supplies the scope| E4
     T3 --> AUDIT
 
-    classDef id fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef tok fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef pep fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef id fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef tok fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef pep fill:#ffeeda,stroke:#d97706,color:#78350f
     classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
 
     class U,SVC,AG id
@@ -1321,11 +1321,11 @@ flowchart LR
     W2 -->|unverifiable| W4
     S1 --> S2 --> S3 --> S4
 
-    classDef flow fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef flow fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef bad fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef good fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#efe3f9,stroke:#8944ab,color:#3f2c52
 
     class W1,S1 flow
     class W2 decision
@@ -1370,9 +1370,9 @@ flowchart TB
 
     L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
 
-    classDef step fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef hot fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef lever fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef step fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef hot fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef lever fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
     class L1,L2,L3,L4,L7 step
     class L5,L6 hot
@@ -1510,7 +1510,7 @@ flowchart LR
         FE5["Chainlit"]
     end
 
-    classDef pick fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef pick fill:#dff3e6,stroke:#248a3d,color:#0f3d23
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
     class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
@@ -1612,9 +1612,9 @@ flowchart TB
     Q4 -->|AWS| BR["Bedrock AgentCore<br/>AWS-native IAM and billing"]
     Q4 -->|neither| OAI["OpenAI Agents SDK<br/>lightweight handoffs · voice<br/>swap models freely"]
 
-    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
-    classDef pick fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef alt fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef q fill:#fff3c2,stroke:#997404,color:#5c2e00
+    classDef pick fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef alt fill:#e8f0fe,stroke:#0071e3,color:#003a70
     class Q1,Q2,Q3,Q4 q
     class CASDK,CMA pick
     class ADK,BR,OAI,OWN alt
