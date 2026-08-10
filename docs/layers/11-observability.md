@@ -25,6 +25,7 @@ Every turn emits a trace: each model call with prompt version, tokens, latency a
 | Helicone | Usage and cost at the gateway | [helicone.ai](https://www.helicone.ai/) |
 | W&B Weave | Hosted tracing and evals | [wandb.ai](https://wandb.ai/) |
 | Braintrust | Hosted eval platform | [braintrust.dev](https://www.braintrust.dev/) |
+| LangSmith | Tracing and evals, LangChain-native | [langchain.com/langsmith](https://www.langchain.com/langsmith) |
 
 ## Wiring it in
 

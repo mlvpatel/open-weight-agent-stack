@@ -3,7 +3,7 @@
 # The Open-Weight Agent Stack
 
 **A performance-first build manual for agentic AI on open-weight models.**
-Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 diagrams, 119 primary-source links.
+Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 diagrams, 123 primary-source links.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![pages](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml)
@@ -61,6 +61,7 @@ MANUAL.md            The manual. Single source of truth; all diagrams render on 
 docs/ARCHITECTURE.md The system in C4: context, containers, components, code.
 site/                The manual as a designed single-page site (GitHub Pages).
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
+docs/MODELS.md       Twenty open-weight families, licence postures, org links.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 diagrams/svg/        The same diagrams rendered to SVG.
 scripts/             Regenerate diagrams from the manual; render themed SVGs.
@@ -82,7 +83,7 @@ python3 scripts/extract_diagrams.py && bash scripts/render_diagrams.sh
 ## How this repo stays honest
 
 - **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit "indicative" marker.
-- **CI enforces it**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles all 18 diagrams and checks all 119 external links.
+- **CI enforces it**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles all 18 diagrams and checks all 123 external links.
 - **Corrections are the most valued contribution.** Quote the current text, give the fix, cite a primary source. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence and citation

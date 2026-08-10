@@ -856,7 +856,7 @@ Evals do not replace tests; they sit above them. Seven levels, cheapest and fast
 3. Replay integration tests. Record real model responses once, replay them in CI: full-pipeline coverage at zero token cost.
 4. Eval suites. The golden dataset with graded rubrics and a calibrated judge, run against the live model.
 5. Simulation. A persona model plays the user across multi-turn flows; assert on outcomes, never on exact wording.
-6. Red-team suites. Adversarial prompts mapped to the ASI risks (section 19): injection, exfiltration, tool misuse. Any failure blocks release.
+6. Red-team suites. Adversarial prompts mapped to the ASI risks (section 19): injection, exfiltration, tool misuse. Autonomous pentest agents (Strix, open source) run these in CI. Any failure blocks release.
 7. Chaos drills. Kill the model server, inject 429s, corrupt a tool response; verify fallbacks and budgets hold.
 
 | CI stage | Runs | Budget |
@@ -1070,7 +1070,7 @@ store must stay rebuildable from the source of truth (section 15).
 | Class | Options | Reach for it when | Driver and compatibility notes |
 |---|---|---|---|
 | Relational, the system of record | Postgres · MySQL · SQLite | Sessions, users, jobs, billing: anything with invariants | SQLAlchemy or asyncpg in Python · Prisma or Drizzle in TypeScript · JDBC in Java |
-| Vector | pgvector · Qdrant · Milvus · LanceDB · Chroma | pgvector comfortably to around 10M vectors; dedicated engines beyond that or for heavy filtered search | Qdrant and Milvus ship gRPC and REST clients for every stack language |
+| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | pgvector comfortably to around 10M vectors; dedicated engines beyond that or for heavy filtered search | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
 | Key-value and cache | Redis · Valkey | Semantic cache, embedding cache keyed by content hash, rate limits, queues, session scratch | redis-py and ioredis; Valkey is the open fork and protocol-compatible |
 | Document | MongoDB · Postgres JSONB | Payloads with no stable schema; MERN teams already fluent in it | JSONB covers most document needs without adding a second database |
 | Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query genuinely needs multi-hop traversal |
@@ -1423,7 +1423,7 @@ flowchart LR
         OB2["Phoenix"]
         OB3["OpenTelemetry · wire format"]
         OB4["Grafana plus Loki"]
-        OB5["Helicone · W&B Weave · Braintrust"]
+        OB5["LangSmith · Helicone · W&B Weave · Braintrust"]
         OB6["Prometheus · Alertmanager"]
     end
     subgraph CAT_EV["Evals"]
@@ -1474,6 +1474,7 @@ flowchart LR
         VS3["pgvector · one less service"]
         VS4["LanceDB · embedded"]
         VS5["Chroma · prototyping"]
+        VS6["Weaviate · hybrid built in"]
     end
     subgraph CAT_EM["Embeddings"]
         EM1["★ BGE-M3 · multilingual · dense + sparse"]
@@ -1519,7 +1520,7 @@ flowchart LR
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
     class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
-    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
+    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,VS6,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
 ```
 
 ---
@@ -1949,6 +1950,7 @@ their cards before relying on them months from now.
 | DGX Spark | GB10, 128 GB unified memory desktop | [nvidia.com](https://www.nvidia.com/en-us/products/workstations/dgx-spark/) |
 | Jetson modules | Edge inference hardware | [developer.nvidia.com](https://developer.nvidia.com/embedded/jetson-modules) |
 | Cloud accelerators | TPU (GCP) and Trainium (AWS) product pages | [cloud.google.com/tpu](https://cloud.google.com/tpu) · [aws.amazon.com](https://aws.amazon.com/ai/machine-learning/trainium/) |
+| Strix | Open-source autonomous pentest agent, Apache-2.0; runs red-team suites in CI | [github.com/usestrix/strix](https://github.com/usestrix/strix) |
 
 ### 27.3 Standards, protocols and benchmarks
 
@@ -1974,7 +1976,7 @@ Every link below resolves to the project's official home.
 
 | Layer | Verified links |
 |---|---|
-| Serving and runtimes | [vLLM](https://github.com/vllm-project/vllm) · [SGLang](https://github.com/sgl-project/sglang) · [llama.cpp](https://github.com/ggml-org/llama.cpp) · [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) · [MLX](https://github.com/ml-explore/mlx) · [mlx-community](https://huggingface.co/mlx-community) · [Ollama](https://github.com/ollama/ollama) · [LM Studio](https://lmstudio.ai) · [Ray](https://github.com/ray-project/ray) |
+| Serving and runtimes | [vLLM](https://github.com/vllm-project/vllm) · [SGLang](https://github.com/sgl-project/sglang) · [llama.cpp](https://github.com/ggml-org/llama.cpp) · [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) · [MLX](https://github.com/ml-explore/mlx) · [mlx-community](https://huggingface.co/mlx-community) · [Ollama](https://github.com/ollama/ollama) · [LM Studio](https://lmstudio.ai) · [Ray](https://github.com/ray-project/ray) · [Weaviate](https://github.com/weaviate/weaviate) · [Haystack](https://github.com/deepset-ai/haystack) · [LangSmith](https://www.langchain.com/langsmith) |
 | Orchestration and SDKs | [Mastra](https://github.com/mastra-ai/mastra) · [LangGraph](https://github.com/langchain-ai/langgraph) · [CrewAI](https://github.com/crewAIInc/crewAI) · [Pydantic AI](https://github.com/pydantic/pydantic-ai) · [Vercel AI SDK](https://github.com/vercel/ai) · [OpenAI Agents SDK](https://github.com/openai/openai-agents-python) · [Google ADK](https://github.com/google/adk-python) · [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) · [AWS Strands](https://github.com/strands-agents/sdk-python) · [smolagents](https://github.com/huggingface/smolagents) · [LangChain4j](https://github.com/langchain4j/langchain4j) · [Spring AI](https://github.com/spring-projects/spring-ai) · [Temporal](https://github.com/temporalio/temporal) |
 | Retrieval and data | [Qdrant](https://github.com/qdrant/qdrant) · [Milvus](https://github.com/milvus-io/milvus) · [pgvector](https://github.com/pgvector/pgvector) · [LanceDB](https://github.com/lancedb/lancedb) · [Chroma](https://github.com/chroma-core/chroma) · [BGE-M3](https://huggingface.co/BAAI/bge-m3) · [Docling](https://github.com/docling-project/docling) · [Unstructured](https://github.com/Unstructured-IO/unstructured) · [RAGFlow](https://github.com/infiniflow/ragflow) · [Airflow](https://github.com/apache/airflow) · [Prefect](https://github.com/PrefectHQ/prefect) · [Dagster](https://github.com/dagster-io/dagster) |
 | Evals, guardrails, observability | [Ragas](https://github.com/explodinggradients/ragas) · [Promptfoo](https://github.com/promptfoo/promptfoo) · [DeepEval](https://github.com/confident-ai/deepeval) · [Langfuse](https://github.com/langfuse/langfuse) · [Phoenix](https://github.com/Arize-ai/phoenix) · [Outlines](https://github.com/dottxt-ai/outlines) · [Guardrails AI](https://github.com/guardrails-ai/guardrails) · [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) |

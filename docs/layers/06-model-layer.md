@@ -30,6 +30,7 @@ Turns weights into tokens per second. The runtime choice is hardware-shaped (see
 | Open coding models | Qwen3-Coder-Next · KAT-Coder · Devstral · Laguna | [Qwen3-Coder-Next](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | NVFP4 checkpoints | NVIDIA's prequantised open flagships for Blackwell | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Model cards | Every model fact, first-hand | [Section 27](../../MANUAL.md#27-sources-and-verification) |
+| Family directory | Twenty families with org links and licence postures | [docs/MODELS.md](../MODELS.md) |
 
 ## Wiring it in
 

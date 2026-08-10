@@ -29,6 +29,7 @@ Parse documents into structure-aware chunks, embed them, retrieve by hybrid sear
 | Milvus | Very large corpora | [github.com/milvus-io/milvus](https://github.com/milvus-io/milvus) |
 | LanceDB | Embedded, serverless | [github.com/lancedb/lancedb](https://github.com/lancedb/lancedb) |
 | Chroma | Prototyping | [github.com/chroma-core/chroma](https://github.com/chroma-core/chroma) |
+| Weaviate | Hybrid search built in, GraphQL API | [github.com/weaviate/weaviate](https://github.com/weaviate/weaviate) |
 | RAGFlow | Batteries-included RAG platform | [github.com/infiniflow/ragflow](https://github.com/infiniflow/ragflow) |
 | Ragas | RAG-specific eval metrics | [github.com/explodinggradients/ragas](https://github.com/explodinggradients/ragas) |
 

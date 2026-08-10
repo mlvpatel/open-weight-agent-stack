@@ -24,6 +24,7 @@ Guards run in milliseconds on every request: schema enforcement, injection scree
 | Ragas | RAG-specific metrics | [github.com/explodinggradients/ragas](https://github.com/explodinggradients/ragas) |
 | Promptfoo | Eval as CI gate | [github.com/promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) |
 | DeepEval | Pytest-style LLM tests | [github.com/confident-ai/deepeval](https://github.com/confident-ai/deepeval) |
+| Strix | Autonomous pentest agent for the red-team level, Apache-2.0 | [github.com/usestrix/strix](https://github.com/usestrix/strix) |
 
 ## Wiring it in
 
