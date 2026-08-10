@@ -1,0 +1,35 @@
+flowchart TB
+    S1["Document corpus"]
+    S2["User conversations"]
+    DRV["Derivation<br/>chunk · embed · extract facts · cache · log"]
+    X[("Derived copies · six of them<br/>vector index · keyword index · long-term memory<br/>answer cache · traces · eval datasets")]
+    ERASE["Erasure request<br/>subject or document"]
+    FAN["Fan out by subject id<br/>tombstone, then purge each store"]
+    VERIFY["Re-query every store to confirm<br/>deletion is not done until it is proven"]
+
+    S1 --> DRV
+    S2 --> DRV
+    DRV --> X
+    ERASE --> FAN
+    FAN --> X
+    X --> VERIFY
+
+    subgraph REIDX["Re-embedding migration · when the embedding model changes"]
+        direction TB
+        RI1["Build the new index alongside the old"]
+        RI2["Dual read · compare recall on the golden set"]
+        RI3["Cut over · retain the old index"]
+        RI4["Drop the old index once recall holds"]
+    end
+    RI1 --> RI2 --> RI3 --> RI4
+
+    classDef src fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef mig fill:#f0f7ff,stroke:#0071e3,color:#003a70
+
+    class S1,S2 src
+    class X store
+    class DRV src
+    class ERASE,FAN,VERIFY control
+    class RI1,RI2,RI3,RI4 mig

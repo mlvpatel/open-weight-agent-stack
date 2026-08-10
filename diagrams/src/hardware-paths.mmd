@@ -1,0 +1,29 @@
+flowchart TB
+    Q0{"Do you have a GPU<br/>or Apple Silicon?"}
+    Q0 -->|"Apple Silicon"| MAC{"How much<br/>unified memory?"}
+    Q0 -->|"NVIDIA"| NV{"How much VRAM?"}
+    Q0 -->|"AMD or Intel"| OTHER{"Which OS?"}
+    Q0 -->|"Neither"| NONE["API only, or rent a GPU<br/>RunPod · Modal · Lambda"]
+
+    MAC -->|"16 GB"| M1["MLX · 7 to 8B<br/>fast tier only"]
+    MAC -->|"32 GB"| M2["MLX · 14 to 32B<br/>best local dev setup"]
+    MAC -->|"64 GB+"| M3["MLX · up to 70B<br/>unified memory advantage"]
+
+    NV -->|"8 to 12 GB"| N1["Ollama · llama.cpp<br/>7 to 8B"]
+    NV -->|"16 to 24 GB"| N2["vLLM · SGLang<br/>14 to 32B · real batching"]
+    NV -->|"48 GB+"| N3["SGLang · TensorRT-LLM<br/>70B and beyond"]
+
+    OTHER -->|"Linux"| O1["AMD: ROCm<br/>Intel: IPEX-LLM"]
+    OTHER -->|"Windows"| O2["llama.cpp Vulkan<br/>ROCm only on select new AMD HW"]
+
+    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef mac fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef nv fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef other fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef none fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
+
+    class Q0,MAC,NV,OTHER q
+    class M1,M2,M3 mac
+    class N1,N2,N3 nv
+    class O1,O2 other
+    class NONE none

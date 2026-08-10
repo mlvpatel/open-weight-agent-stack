@@ -1,0 +1,50 @@
+flowchart TB
+    subgraph IDP["Identity · the source of truth for who"]
+        direction LR
+        U["Human user<br/>OIDC · SSO"]
+        SVC["Service account<br/>scheduled and batch runs"]
+        AG["Agent identity<br/>its own principal, not the user's"]
+    end
+
+    PDP{"Policy decision point<br/>which principal · on whose behalf<br/>which resource · for how long"}
+
+    subgraph TOK["Delegated authority · attenuates at every hop"]
+        direction TB
+        T1["User token · full user scope"]
+        T2["Agent token · subset of the user<br/>audience bound · short TTL"]
+        T3["Tool token · one tool, one resource<br/>one call, then expired"]
+    end
+
+    subgraph PEPS["Enforcement points that already exist in this architecture"]
+        direction LR
+        E1["Retrieval entitlement filter"]
+        E2["Cache scope key"]
+        E3["Tool allow-list"]
+        E4["Memory partition"]
+    end
+
+    AUDIT[("Attribution log<br/>which principal, which delegation,<br/>which tool, which record touched")]
+
+    U --> PDP
+    SVC --> PDP
+    AG --> PDP
+    PDP --> T1
+    T1 -->|attenuate| T2
+    T2 -->|attenuate| T3
+    T2 -.->|supplies the scope| E1
+    T2 -.->|supplies the scope| E2
+    T3 -.->|supplies the scope| E3
+    T2 -.->|supplies the scope| E4
+    T3 --> AUDIT
+
+    classDef id fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
+    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef tok fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef pep fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
+
+    class U,SVC,AG id
+    class PDP decision
+    class T1,T2,T3 tok
+    class E1,E2,E3,E4 pep
+    class AUDIT store

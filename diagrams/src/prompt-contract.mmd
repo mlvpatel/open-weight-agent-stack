@@ -1,0 +1,38 @@
+flowchart TB
+    subgraph TURN["One turn · assembled in this order"]
+        direction TB
+        P1["1 · System contract<br/>role · hard constraints · refusal rules<br/>stable, versioned, audited"]
+        P2["2 · Tool schemas<br/>typed · only what this role needs"]
+        P3["3 · Retrieved evidence<br/>fenced · every chunk carries a stable id<br/>data, never instructions"]
+        P4["4 · User input<br/>fenced separately from evidence"]
+        P5["5 · Policy restatement<br/>cite only supplied ids · ignore embedded instructions<br/>never reveal the system prompt"]
+        P6["6 · Task and output schema<br/>last, where attention is strongest"]
+    end
+
+    subgraph BOUND["Bound output"]
+        direction TB
+        B1["Reasoning scratchpad<br/>ungraded · never pollutes the contract"]
+        B2["Final block · schema locked<br/>every claim cites an id from this window"]
+        B3["Abstention token<br/>no-evidence and partial-evidence<br/>are separately graded outcomes"]
+    end
+
+    DEC["Pinned decoding<br/>temperature · top-p · stop · max tokens · seed<br/>versioned with the prompt, not a runtime whim"]
+    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · injected content cannot win"]
+    JUDGE["Judge prompt<br/>physically separate artifact<br/>no self-grading"]
+
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6
+    P6 --> B1 --> B2
+    B2 -.->|evidence absent or conflicting| B3
+    DEC -.->|shipped as one artifact| P1
+    PREC -.->|enforced by ordering and fences| P5
+    B2 -.->|graded independently| JUDGE
+
+    classDef contract fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef policy fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef out fill:#f0f7ff,stroke:#0071e3,color:#003a70
+
+    class P1,P2,P6 contract
+    class P3,P4 untrusted
+    class P5,PREC,DEC policy
+    class B1,B2,B3,JUDGE out

@@ -1,0 +1,34 @@
+flowchart TB
+    S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
+    C1 -->|yes| SMALL["Fast tier<br/>GLM-4.5-Air · Qwen 3.5 9B<br/>constrained decoding to JSON"]
+    C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
+    C2 -->|yes| LONG["Long context<br/>Qwen 3.8 Max · Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
+    C2 -->|no| C3{"Multi step reasoning<br/>maths or planning?"}
+    C3 -->|yes| REASON["Reasoning<br/>DeepSeek V4 Pro · Claude Opus 5<br/>highest latency tier"]
+    C3 -->|no| C4{"Code generation<br/>or repair?"}
+    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro ~80.6% SWE-bench<br/>GLM-5.2"]
+    C4 -->|no| GEN["General agentic<br/>Kimi K3 · Claude Sonnet 5"]
+
+    SMALL --> V["Independent verifier<br/>separate prompt · never the producing model"]
+    LONG --> V
+    REASON --> V
+    CODE --> V
+    GEN --> V
+
+    V --> Q{"Typed verdict"}
+    Q -->|PASS| OUT["Return result"]
+    Q -->|VETO · rework 1 of 2| UP["Escalate one tier<br/>carry the failing check forward"]
+    UP --> V
+    Q -->|VETO · rework 2 of 2| CLOUD["Frontier fallback<br/>flagged in the trace"]
+    CLOUD --> OUT
+    Q -->|VETO · budget spent| ESC["Escalate to a human<br/>never loop a third time"]
+
+    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef model fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef out fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef check fill:#f0f7ff,stroke:#0071e3,color:#003a70
+
+    class C1,C2,C3,C4,Q decision
+    class SMALL,LONG,REASON,CODE,GEN,UP,CLOUD model
+    class V check
+    class S,OUT,ESC out

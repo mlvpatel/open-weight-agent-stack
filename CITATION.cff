@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this manual, cite it as below."
+title: "The Open-Weight Agent Stack: A Performance-First Build Manual"
+authors:
+  - family-names: "Patel"
+    given-names: "Malav"
+type: dataset
+license: CC-BY-4.0
+repository-code: "https://github.com/mlvpatel/open-weight-agent-stack"

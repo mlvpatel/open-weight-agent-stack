@@ -1,0 +1,54 @@
+stateDiagram-v2
+    [*] --> Intake
+    Intake --> Planning : goal parsed
+
+    Planning --> Retrieving : needs documents
+    Planning --> ToolUse : needs live data or action
+    Planning --> Coding : needs code written or run
+    Planning --> Generating : model knowledge is enough
+
+    Retrieving --> Generating : context assembled
+    Retrieving --> Planning : nothing relevant found
+
+    ToolUse --> Observing : tool returned
+    ToolUse --> TransientRetry : timeout or 5xx
+    TransientRetry --> ToolUse : own budget, no rework cycle spent
+    TransientRetry --> Failed : transient budget exhausted
+
+    Coding --> Testing : patch written
+    Testing --> Observing : tests pass
+    Testing --> Coding : tests fail and budget remains
+    Testing --> Escalating : budget exhausted
+
+    Observing --> Planning : more steps needed
+    Observing --> Generating : enough evidence
+
+    Generating --> Verifying : draft produced
+    Verifying --> Complete : every gate PASS
+    Verifying --> Repairing : VETO with named remediation
+    Verifying --> Escalating : unsafe or out of scope
+
+    Repairing --> Generating : rework 1 or 2, failing check carried forward
+    Repairing --> Escalating : 2 rework cycles spent
+
+    Escalating --> HumanReview
+    HumanReview --> Planning : human gives direction
+    HumanReview --> Complete : human accepts as is
+
+    Complete --> [*]
+    Failed --> [*]
+
+    note right of Verifying
+        A transient tool error retries on its
+        own budget. A substantive VETO spends
+        one of two rework cycles, then escalates.
+        Conflating them either hides real
+        failures or escalates noise.
+    end note
+
+    note right of Complete
+        DONE is one conjunctive rule, re-checked
+        against current artifact hashes: every
+        gate PASS and budgets intact. A gate that
+        passed earlier must still hold at the end.
+    end note

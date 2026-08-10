@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph A["A · Single GPU · 24 to 48 GB"]
+        direction TB
+        A1["RTX 5090 · L40S class"]
+        A2["7B to 32B at FP8 or AWQ"]
+        A3["Batch 8 to 32<br/>one team, interactive latency"]
+    end
+
+    subgraph B["B · Single node · 4 to 8 GPUs"]
+        direction TB
+        B1["H100 or H200 with NVLink"]
+        B2["70B to 120B via tensor parallelism"]
+        B3["Continuous batching<br/>hundreds of concurrent turns"]
+    end
+
+    subgraph C["C · Multi-node"]
+        direction TB
+        C1["Tensor parallel within a node<br/>pipeline parallel across nodes"]
+        C2["Large MoE · high total, few active params"]
+        C3["Split prefill and decode pools<br/>they have opposite bottlenecks"]
+    end
+
+    RULE["Sizing: weights + KV cache + activations.<br/>KV ≈ batch × context × layers × 2 × kv_heads × head_dim × bytes/elem.<br/>Long context at high batch exhausts memory<br/>long before the weights do."]
+    SPLIT["Prefill is compute bound.<br/>Decode is memory bandwidth bound.<br/>Batching them together makes both worse."]
+
+    A -.-> RULE
+    B -.-> RULE
+    C -.-> SPLIT
+
+    classDef tier fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef note fill:#fff9e6,stroke:#997404,color:#5c2e00
+    class A1,A2,A3,B1,B2,B3,C1,C2,C3 tier
+    class RULE,SPLIT note

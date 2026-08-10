@@ -1,0 +1,108 @@
+flowchart LR
+    subgraph CAT_DP["Deployment"]
+        DP1["★ Single GPU node · 24 to 48 GB"]
+        DP2["★ Multi-GPU node · NVLink"]
+        DP3["Multi-node · prefill/decode split"]
+        DP4["Managed GPU · Modal · RunPod"]
+        DP5["Kubernetes · KServe"]
+    end
+    subgraph CAT_OB["Observability"]
+        OB1["★ Langfuse"]
+        OB2["Phoenix"]
+        OB3["OpenTelemetry · wire format"]
+        OB4["Grafana plus Loki"]
+        OB5["Helicone · W&B Weave · Braintrust"]
+        OB6["Prometheus · Alertmanager"]
+    end
+    subgraph CAT_EV["Evals"]
+        EV1["★ Ragas · RAG quality"]
+        EV2["★ Promptfoo · CI gate"]
+        EV3["DeepEval"]
+        EV4["OpenAI Evals format"]
+    end
+    subgraph CAT_GR["Guardrails"]
+        GR1["★ Outlines · constrained output"]
+        GR2["Guardrails AI"]
+        GR3["NeMo Guardrails"]
+        GR4["Llama Guard · safety"]
+    end
+    subgraph CAT_CA["Code agents"]
+        CA1["★ Cline / Roo Code · free · any model"]
+        CA2["★ Aider · Apache 2.0 · terminal"]
+        CA3["★ OpenHands · autonomous"]
+        CA4["Continue · Cursor · Claude Code · Zed · Goose"]
+    end
+    subgraph CAT_TL["Tool interface"]
+        TL1["★ MCP servers"]
+        TL2["OpenAPI tool specs"]
+        TL3["Direct function calling"]
+    end
+    subgraph CAT_ME["Memory and cache"]
+        ME1["★ LangGraph store"]
+        ME2["★ Redis · semantic cache"]
+        ME3["Mem0"]
+        ME4["SQLite"]
+        ME5["DuckDB · analytics"]
+        ME6["Supabase"]
+    end
+    subgraph CAT_PA["Document parsing"]
+        PA1["★ Docling"]
+        PA2["Unstructured"]
+        PA3["MinerU"]
+        PA4["PyMuPDF · text only"]
+    end
+    subgraph CAT_RR["Reranker"]
+        RR1["★ BGE Reranker v2 m3"]
+        RR2["Jina Reranker"]
+        RR3["Cohere Rerank API"]
+    end
+    subgraph CAT_VS["Vector store"]
+        VS1["★ Qdrant · throughput and filtering"]
+        VS2["Milvus · very large corpora"]
+        VS3["pgvector · one less service"]
+        VS4["LanceDB · embedded"]
+        VS5["Chroma · prototyping"]
+    end
+    subgraph CAT_EM["Embeddings"]
+        EM1["★ BGE-M3 · multilingual · dense + sparse"]
+        EM2["Qwen3-Embedding-8B · top MTEB quality"]
+        EM3["Qwen3-Embedding-4B · balanced"]
+        EM4["Jina v5"]
+    end
+    subgraph CAT_MD["Models"]
+        MD1["★ Qwen 3.8 Max · 1M ctx · licence pending"]
+        MD2["★ Kimi K3 · tool use · custom licence"]
+        MD3["DeepSeek V4 Pro · coding · MIT"]
+        MD4["GLM-5.2 · terminal and code · MIT"]
+        MD5["Llama · community licence"]
+        MD6["GLM-4.5-Air · fast tier · MIT"]
+        MD7["DeepSeek V4 Flash · cheap · MIT"]
+        MD8["Qwen 3.5 27B · self-host · Apache-2.0"]
+    end
+    subgraph CAT_SV["Model serving"]
+        SV1["★ SGLang · RadixAttention"]
+        SV2["★ vLLM · widest hardware support"]
+        SV3["TensorRT-LLM · all-NVIDIA"]
+        SV4["Ollama · LM Studio · MLX on Mac"]
+        SV5["llama.cpp · CPU · Vulkan · Metal"]
+    end
+    subgraph CAT_OR["Orchestration"]
+        OR1["★ LangGraph"]
+        OR2["CrewAI"]
+        OR3["LlamaIndex Workflows"]
+        OR4["Pydantic AI"]
+        OR5["Plain tool calling loop"]
+    end
+    subgraph CAT_FE["Frontend"]
+        FE1["★ Next.js · streaming SSE"]
+        FE2["Streamlit"]
+        FE3["Gradio"]
+        FE4["Open WebUI"]
+        FE5["Chainlit"]
+    end
+
+    classDef pick fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
+
+    class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
+    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,EM2,EM3,EM4,VS2,VS3,VS4,VS5,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt

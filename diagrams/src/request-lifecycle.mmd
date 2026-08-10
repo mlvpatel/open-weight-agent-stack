@@ -1,0 +1,68 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Frontend
+    participant GW as Gateway
+    participant GD as Guardrails
+    participant OR as Orchestrator
+    participant CA as Semantic cache
+    participant RG as RAG pipeline
+    participant MC as MCP tools
+    participant LM as LLM server
+    participant OB as Observability
+
+    U->>FE: types a prompt
+    FE->>GW: POST with auth token
+    GW->>GW: verify token, check rate limit
+    GW->>GD: raw prompt
+    GD->>GD: redact PII, scan for injection
+    GD->>OR: sanitised request
+    OR->>OB: start trace
+
+    OR->>CA: lookup by embedding AND entitlement scope
+    Note over OR,CA: The cache key must carry the caller's scope.<br/>Keyed on the question alone, it serves one<br/>tenant an answer built from another tenant's documents.
+    alt cache hit, same scope, policy version current
+        CA-->>OR: stored answer
+        OR->>GD: revalidate against current policy
+        GD-->>FE: stream cached answer
+    else miss, scope mismatch, or stale policy
+        OR->>OR: plan and decide if knowledge is needed
+        opt knowledge needed
+            OR->>RG: query
+            RG->>RG: hybrid search then rerank
+            RG-->>OR: top k passages with sources
+        end
+
+        loop until goal met or step budget hit
+            OR->>LM: prompt plus context plus tool schemas
+            LM-->>OR: text or tool call
+            alt model requested a tool
+                OR->>MC: invoke tool with validated args
+                MC-->>OR: tool result
+                OR->>OR: append observation to state
+            else final answer drafted
+                OR->>OR: exit loop
+            end
+        end
+
+        Note over GD,FE: Streaming and whole-response validation conflict.<br/>Per-chunk guards are cheap. Citation coverage needs<br/>the finished text, so it can only run at the end.
+        loop per streamed chunk
+            LM-->>GD: token chunk
+            GD->>GD: incremental checks - PII, toxicity, stop sequences
+            GD-->>FE: forward chunk
+        end
+
+        OR->>GD: completed draft
+        GD->>GD: schema, citation coverage, refusal check
+        alt final check fails
+            GD-->>FE: retract and replace the shown answer
+            OR->>LM: repair prompt
+        else passes
+            GD-->>FE: commit the answer
+            OR->>CA: store, keyed by scope and policy version
+        end
+    end
+
+    FE-->>U: rendered answer with citations
+    U->>OB: thumbs up or down
+    OR->>OB: close trace - redacted prompts, cost, latency, tokens

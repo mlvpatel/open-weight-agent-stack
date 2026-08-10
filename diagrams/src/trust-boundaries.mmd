@@ -1,0 +1,62 @@
+flowchart TB
+    subgraph UNTRUSTED["Untrusted input · data, never instructions"]
+        direction LR
+        U1["User input"]
+        U2["Retrieved chunks"]
+        U3["Tool and MCP results"]
+        U4["Code agent output"]
+    end
+
+    subgraph DEFENCE["Boundary controls"]
+        direction TB
+        D1["Fence and label<br/>the model can tell instruction from data"]
+        D2["Strip imperative authority<br/>an instruction inside content is reported, not obeyed"]
+        D3["Entitlement filter<br/>applied in the index query · fails closed"]
+        D4["Schema validation<br/>on tool args in and results back"]
+        D5["Sandbox<br/>no host mounts · no ambient credentials"]
+    end
+
+    subgraph TRUSTED["Trusted · supplied by the harness, outranks all of the above"]
+        direction LR
+        T1["System contract"]
+        T2["Tool credentials<br/>referenced, never pasted into the window"]
+    end
+
+    MODEL["Model window"]
+    EGRESS{"Side effect<br/>requested?"}
+    ACT["Execute<br/>idempotency-keyed · timeout bounded"]
+    DENY["Refuse and log<br/>surface the attempt"]
+    REENTER["Result re-enters as untrusted input<br/>and runs these same controls again"]
+    LEDGER[("Ledger and traces<br/>every call and refusal recorded")]
+
+    U1 --> D1
+    U2 --> D3
+    U3 --> D4
+    U4 --> D5
+    D1 --> D2
+    D3 --> D2
+    D4 --> D2
+    D5 --> D2
+    D2 --> MODEL
+    T1 -.-> MODEL
+    T2 -.->|injected at execution| ACT
+
+    MODEL --> EGRESS
+    EGRESS -->|allow-listed and in scope| ACT
+    EGRESS -->|out of scope or unattributable| DENY
+    ACT --> REENTER
+    ACT -.-> LEDGER
+    DENY -.-> LEDGER
+
+    classDef untrusted fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef control fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef trusted fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef store fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
+
+    class U1,U2,U3,U4,REENTER untrusted
+    class D1,D2,D3,D4,D5,MODEL control
+    class T1,T2,ACT trusted
+    class EGRESS decision
+    class DENY untrusted
+    class LEDGER store

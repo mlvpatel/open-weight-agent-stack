@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph BUDGET["Where one agent turn goes"]
+        direction TB
+        L1["Gateway and input guard<br/>5 to 20 ms"]
+        L2["Cache lookup<br/>2 to 10 ms · a hit ends the turn here"]
+        L3["Hybrid retrieval<br/>20 to 80 ms"]
+        L4["Cross-encoder rerank<br/>30 to 150 ms · scales with candidate count"]
+        L5["Prefill · time to first token<br/>150 to 900 ms · scales with context length"]
+        L6["Decode<br/>output tokens ÷ throughput · the long pole"]
+        L7["Output guard on the final block<br/>10 to 40 ms"]
+    end
+
+    subgraph LEVERS["Levers, largest effect first"]
+        direction TB
+        V1["CUTS PREFILL · prefix caching<br/>RadixAttention · the system prompt and tool<br/>schemas are identical every turn · up to 5× reported"]
+        V5["CUTS PREFILL · prune context<br/>rerank to fewer and shorter chunks"]
+        V3["CUTS DECODE · speculative decoding<br/>roughly 1.5 to 2.5x"]
+        V6["CUTS DECODE · route structured steps<br/>to the fast tier · most calls are not reasoning"]
+        V2["RAISES THROUGHPUT · continuous batching<br/>more concurrent turns per GPU"]
+        V4["RAISES THROUGHPUT · FP8 or AWQ<br/>frees memory for more KV cache and batch"]
+    end
+
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+
+    classDef step fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef hot fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef lever fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+
+    class L1,L2,L3,L4,L7 step
+    class L5,L6 hot
+    class V1,V2,V3,V4,V5,V6 lever

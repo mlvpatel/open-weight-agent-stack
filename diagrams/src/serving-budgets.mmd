@@ -1,0 +1,51 @@
+flowchart TB
+    REQ["Incoming requests"]
+    BUD{"Budget check<br/>per user and per tenant"}
+    DENY["Refuse with a quota message<br/>and the reset time"]
+    ADMIT{"Admission control"}
+    QUEUE["Bounded queue"]
+    SHED["Shed load<br/>429 with retry-after"]
+    BATCH["Continuous batching<br/>one server, many requests"]
+    SPEND[("Spend ledger<br/>tokens · cost · latency")]
+
+    subgraph REL["Change control"]
+        direction TB
+        V1["Version together<br/>prompt · model · index · policy"]
+        V2["Ship behind a flag to a slice"]
+        V3{"Live metrics healthy?"}
+        V4["Roll forward to everyone"]
+        V5["Roll back the whole version set"]
+    end
+
+    subgraph DUR["Durability"]
+        direction LR
+        B1["Back up index and memory"]
+        B2["Back up the spend ledger"]
+        B3["Scheduled restore drill"]
+    end
+
+    REQ --> BUD
+    BUD -->|exhausted| DENY
+    BUD -->|within budget| ADMIT
+    ADMIT -->|capacity now| BATCH
+    ADMIT -->|busy| QUEUE
+    QUEUE --> BATCH
+    QUEUE -->|waited too long| SHED
+    BATCH -.->|tokens and cost| SPEND
+    BUD -.->|reads| SPEND
+
+    V1 --> V2 --> V3
+    V3 -->|yes| V4
+    V3 -->|no| V5
+
+    classDef flow fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef store fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+
+    class REQ,QUEUE,BATCH,V1,V2 flow
+    class BUD,ADMIT,V3 decision
+    class DENY,SHED,V5 bad
+    class V4,B1,B2,B3 good
+    class SPEND store

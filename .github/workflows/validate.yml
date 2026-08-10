@@ -1,0 +1,31 @@
+name: validate
+on:
+  push: { branches: [main] }
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly scheduled link check
+permissions: { contents: read }
+jobs:
+  diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: extract diagrams from MANUAL.md
+        run: python3 scripts/extract_diagrams.py
+      - name: compile every diagram
+        run: |
+          for f in diagrams/src/*.mmd; do
+            npx -y @mermaid-js/mermaid-cli -p scripts/puppeteer.json -i "$f" -o /tmp/out.svg
+            echo "ok $f"
+          done
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: check every external link
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --max-concurrency 8 --accept 200,201,202,204,206,301,302,308,403,429 MANUAL.md README.md
+          fail: true

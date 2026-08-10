@@ -1,0 +1,21 @@
+flowchart TB
+    Q1{"Does the agent need deep OS access?<br/>filesystem · shell · repos"}
+    Q1 -->|yes| CASDK["Claude Agent SDK<br/>Claude Code as a library<br/>harness only · you host"]
+    Q1 -->|no| Q2{"Should someone else run<br/>the loop and the sandbox?"}
+
+    Q2 -->|yes| CMA["Claude Managed Agents<br/>harness PLUS deployment<br/>sessions · vaults · cron · memory"]
+    Q2 -->|no| Q3{"Hard requirement to swap<br/>model vendors?"}
+
+    Q3 -->|yes| Q4{"Which cloud owns the data?"}
+    Q3 -->|no| OWN["Your own loop<br/>Tool Runner or plain function calling<br/>least magic, most control"]
+
+    Q4 -->|Google| ADK["Google ADK<br/>model-agnostic · Python/Java/Go<br/>Vertex Agent Engine to host"]
+    Q4 -->|AWS| BR["Bedrock AgentCore<br/>AWS-native IAM and billing"]
+    Q4 -->|neither| OAI["OpenAI Agents SDK<br/>lightweight handoffs · voice<br/>swap models freely"]
+
+    classDef q fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef pick fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    classDef alt fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    class Q1,Q2,Q3,Q4 q
+    class CASDK,CMA pick
+    class ADK,BR,OAI,OWN alt

@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph T1["Tier 1 · Turn scope"]
+        M1["Scratchpad<br/>current reasoning · tool results<br/>lifetime: one request"]
+    end
+    subgraph T2["Tier 2 · Session scope"]
+        M2["Conversation state<br/>LangGraph checkpointer<br/>lifetime: the thread · resumable"]
+    end
+    subgraph T3["Tier 3 · Durable memory"]
+        M3["Facts and preferences<br/>vector plus SQL · user scoped<br/>lifetime: forever until deleted"]
+    end
+    subgraph T4["Tier 4 · Analytics and cache"]
+        M4["Semantic cache<br/>Redis · TTL hours<br/>key includes entitlement scope"]
+        M5["Event and trace store<br/>DuckDB · Supabase · lifetime months"]
+    end
+
+    AG["Agent step"] --> M1
+    M1 -->|summarise on turn end| M2
+    M2 -->|extract durable facts| M3
+    M3 -.->|inject relevant memories| AG
+    M2 -.->|resume after crash or handoff| AG
+    AG -->|lookup before spending tokens| M4
+    M4 -.->|hit| AG
+    AG --> M5
+    M5 -.->|feeds evals and dashboards| EVAL["Eval and analytics"]
+
+    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
+    classDef agent fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+    class M1,M2,M3,M4,M5 mem
+    class AG,EVAL agent

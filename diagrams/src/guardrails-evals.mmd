@@ -1,0 +1,68 @@
+flowchart TB
+    subgraph INLINE["Inline · every request · milliseconds"]
+        direction TB
+        G1["Input guard<br/>PII redaction · injection detection<br/>topic and length limits"]
+        G2["Tool arg validation<br/>JSON schema · allowlist · dry run"]
+        G3["Output guard<br/>schema · toxicity · PII leak<br/>citation coverage · refusal check"]
+    end
+
+    subgraph OFFLINE["Offline · every change · minutes"]
+        direction TB
+        E1[("Golden dataset<br/>versioned · held out from tuning · stratified")]
+        EJ["Calibrate the judge<br/>agreement against human labels · version pinned"]
+        E2["Retrieval evals<br/>context precision and recall"]
+        E3["Generation evals<br/>faithfulness · answer relevance"]
+        E4["Agent evals<br/>task success · step count · cost"]
+        E5["Red team suite<br/>injection · jailbreak · exfiltration · cross-tenant"]
+        E7["Abstention evals<br/>correct-refusal AND over-refusal"]
+        E6{"Regression<br/>versus baseline?"}
+    end
+
+    subgraph PROD["Production signals"]
+        direction TB
+        S1["Traces<br/>OpenTelemetry"]
+        S2["User feedback<br/>thumbs · corrections"]
+        S3["Failure triage<br/>cluster by root cause"]
+    end
+
+    REQ["Request"] --> G1 --> AGENT["Agent"] --> G2
+    G2 --> AGENT
+    AGENT --> G3 --> RESP["Response"]
+
+    G1 -.->|blocked| BLOCK["Refuse with reason<br/>log the attempt"]
+    G3 -.->|failed| RETRY["Repair · max two cycles · then escalate"]
+
+    RESP --> S1
+    RESP --> S2
+    S1 --> S3
+    S2 --> S3
+    S3 -->|new cases| E1
+
+    E1 --> EJ
+    EJ --> E2
+    EJ --> E3
+    E1 --> E4
+    E1 --> E5
+    E1 --> E7
+    E2 --> E6
+    E3 --> E6
+    E4 --> E6
+    E5 --> E6
+    E7 --> E6
+    E6 -->|all PASS| SHIP["Ship prompt, model or index change"]
+    E6 -->|VETO with named remediation| FIX["Block release<br/>failing test carried into the fix"]
+    SHIP -.->|new baseline| E1
+
+    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef eval fill:#f0f7ff,stroke:#0071e3,color:#003a70
+    classDef sig fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
+    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef bad fill:#fff2f2,stroke:#e30000,color:#8f0000
+    classDef good fill:#f2faf4,stroke:#248a3d,color:#0f3d23
+
+    class G1,G2,G3 guard
+    class E1,E2,E3,E4,E5,E7,EJ eval
+    class S1,S2,S3 sig
+    class E6 decision
+    class BLOCK,RETRY,FIX bad
+    class SHIP,RESP,REQ,AGENT good
