@@ -1938,7 +1938,7 @@ their cards before relying on them months from now.
 | LFM2.5 (edge) | Liquid AI's edge family · LFM Open Licence | [Model card](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
 | Qwen3-Coder-Next | Open coding specialist · Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | KAT-Coder V2.5 | Agentic coding MoE · Apache-2.0 | [Model card](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
-| Devstral Small | Mistral's open coding model · Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2507) |
+| Devstral Small 2 | Mistral's open coding model · Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512) |
 | Laguna S 2.1 | poolside's coding model · OpenMDW licence | [Model card](https://huggingface.co/poolside/Laguna-S-2.1) |
 | NVFP4 checkpoints | NVIDIA's prequantised open flagships | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://www.llama.com/llama4/license/) |

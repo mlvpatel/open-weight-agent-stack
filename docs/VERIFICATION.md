@@ -37,6 +37,8 @@ Five jobs run on every push to `main`, on every pull request, and weekly on a sc
 
 **`html`**
 - A deliberately malformed document is fed to the validator, and the job fails if the validator accepts it.
+- The markdown renderer is tested against injection: markdown must not be able to produce an event handler, an executable URL scheme, or any element outside a small allow-list.
+- The vendored browser bundle is compared byte-for-byte against the mermaid release pinned in the lockfile.
 
 **`links`**
 - Every external link in the manual, README, and docs returns a genuine success status. Rate-limited and forbidden responses are not accepted as success.

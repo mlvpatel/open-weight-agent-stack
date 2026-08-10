@@ -8,6 +8,8 @@ bytes, so CI can regenerate and diff to prove nothing drifted.
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import re
 import sys
@@ -54,6 +56,29 @@ def build() -> int:
     out = TEMPLATE.read_text()
     for key, value in facts.items():
         out = out.replace("{{" + key + "}}", value)
+
+    # The CSP hash must cover the exact bytes of the inline script as emitted,
+    # so it is computed here rather than written into the template by hand.
+    # GitHub Pages cannot send response headers, so this is a meta CSP:
+    # frame-ancestors, report-uri and sandbox are ignored in that form per the
+    # spec, and everything else applies. style-src permits inline because
+    # Mermaid injects styles while rendering.
+    inline = re.search(r"<script>(.*?)</script>", out, re.S)
+    if not inline:
+        print("error: no inline script found; the CSP hash would be wrong", file=sys.stderr)
+        return 1
+    digest = base64.b64encode(hashlib.sha256(inline.group(1).encode()).digest()).decode()
+    csp = (
+        "default-src 'none'; "
+        f"script-src 'self' 'sha256-{digest}'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self'; "
+        "connect-src 'none'; "
+        "base-uri 'none'; "
+        "form-action 'none'"
+    )
+    out = out.replace("{{CSP}}", csp)
 
     leftover = re.findall(r"\{\{[A-Z_]+\}\}", out)
     if leftover:

@@ -35,6 +35,17 @@ jobs:
             git diff --stat -- diagrams/src
             exit 1
           fi
+      # Chromium's sandbox needs unprivileged user namespaces, which Ubuntu
+      # restricts by default via AppArmor. Permitting them lets the renderer
+      # run sandboxed, which matters because pull requests from forks supply
+      # the diagram source it renders.
+      - name: permit unprivileged user namespaces for the browser sandbox
+        run: |
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          echo "unprivileged_userns_clone: $(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo n/a)"
+
       - name: render twice and require identical bytes
         run: |
           bash scripts/render_diagrams.sh

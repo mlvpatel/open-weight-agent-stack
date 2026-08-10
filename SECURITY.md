@@ -49,13 +49,14 @@ So you know what has been done and can look for gaps in it rather than reporting
 - **A read-only default workflow token**, with write permissions granted per job only where needed.
 - **Branch protection on `main`** requiring five status checks to pass. Note that administrator enforcement is deliberately off, because with a single maintainer, enabling it creates a lockout risk that is worse than the threat it mitigates.
 - **Reproducible builds.** Diagram rendering is byte-identical across runs, and CI fails when a committed derived file differs from a fresh build, so an unexplained change to published output is visible. That now includes `site/mermaid.min.js`, the vendored browser bundle, which is checked byte-for-byte against the mermaid release pinned in the lockfile.
+- **A Content-Security-Policy is served** as a meta element, since Pages cannot send headers. It denies everything by default, pins the single inline script by hash, and blocks external connections. `frame-ancestors`, `report-uri` and `sandbox` are ignored in meta form per the spec, so clickjacking protection and violation reporting remain unavailable.
 - **The renderer is tested against injection.** `scripts/test_render_security.py` asserts that markdown cannot produce an event handler, an executable URL scheme, or any element outside a small allow-list. It exists because an earlier version of the renderer was vulnerable to exactly that.
 
-## Known accepted risk
+## Diagram rendering runs sandboxed
 
-`scripts/puppeteer.json` disables the Chromium sandbox during diagram rendering, because the renderer runs in a CI container where the kernel features the sandbox depends on are unavailable. The reasoning, and the condition under which that trade would stop being acceptable, are documented in [`scripts/SANDBOX.md`](scripts/SANDBOX.md).
+Diagram rendering drives a headless Chromium over content taken from `MANUAL.md`, and pull requests from forks can change that content. The Chromium sandbox is therefore **enabled**: `scripts/puppeteer.json` passes no disabling flags, and CI permits unprivileged user namespaces so the sandbox can initialise on the runner.
 
-If you believe that condition has been met, that is an in-scope report.
+An earlier version disabled the sandbox and justified it by claiming the renderer only ever saw repository-controlled sources. That justification was false, because the workflow also runs on pull requests. Enabling the sandbox was the correct fix rather than rewording the rationale.
 
 ## Updating the vendored browser bundle
 

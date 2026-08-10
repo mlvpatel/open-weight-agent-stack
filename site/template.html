@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
+     report-uri and sandbox are ignored in meta form per the CSP spec; everything
+     else applies. style-src allows inline because Mermaid injects styles at render. -->
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="{{SITE_URL}}">
