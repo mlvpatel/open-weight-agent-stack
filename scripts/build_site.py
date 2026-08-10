@@ -20,14 +20,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib.manual import REPO, load, slug  # noqa: E402
 from lib.render import render  # noqa: E402
 
-TEMPLATE = REPO / "site" / "template.html"
-OUTPUT = REPO / "site" / "index.html"
-THEME = REPO / "assets" / "mermaid-theme.json"
 SITE_URL = "https://mlvpatel.github.io/open-weight-agent-stack/"
 REPOSITORY_FILE_URL = "https://github.com/mlvpatel/open-weight-agent-stack/blob/main/"
 
 
-def publish_repository_markdown_links(markdown: str) -> str:
+def publish_repository_markdown_links(markdown: str, repo: Path = REPO) -> str:
     """Point source-document links at GitHub when rendering for Pages.
 
     GitHub Pages publishes only ``site/``. A relative Markdown link such as
@@ -43,9 +40,9 @@ def publish_repository_markdown_links(markdown: str) -> str:
         if not path.lower().endswith(".md"):
             return match.group(0)
 
-        candidate = (REPO / path).resolve()
+        candidate = (repo / path).resolve()
         try:
-            relative = candidate.relative_to(REPO)
+            relative = candidate.relative_to(repo)
         except ValueError:
             return match.group(0)
         if not candidate.is_file():
@@ -62,14 +59,18 @@ def publish_repository_markdown_links(markdown: str) -> str:
     return "".join(parts)
 
 
-def build() -> int:
-    manual = load()
-    theme = json.loads(THEME.read_text())
+def build(repo: Path = REPO) -> int:
+    """Render a repository's manual without mutating another checkout."""
+    template = repo / "site" / "template.html"
+    output = repo / "site" / "index.html"
+    theme = repo / "assets" / "mermaid-theme.json"
+    manual = load(repo / "MANUAL.md")
+    theme = json.loads(theme.read_text())
     init = "%%{init: " + json.dumps(theme, separators=(",", ":")) + "}%%\n"
 
     # The hero carries the title; drop the manual's H1 so it is not stated twice.
     md = re.sub(r"\A# [^\n]*\n", "", manual.text, count=1)
-    md = publish_repository_markdown_links(md)
+    md = publish_repository_markdown_links(md, repo)
     body, figures = render(md, init)
 
     # Contents, derived from the manual's own numbered sections.
@@ -91,7 +92,7 @@ def build() -> int:
         "BODY": body,
     }
 
-    out = TEMPLATE.read_text()
+    out = template.read_text()
     for key, value in facts.items():
         out = out.replace("{{" + key + "}}", value)
 
@@ -123,8 +124,8 @@ def build() -> int:
         print(f"error: unfilled placeholders {sorted(set(leftover))}", file=sys.stderr)
         return 1
 
-    OUTPUT.write_text(out)
-    print(f"generated {OUTPUT.relative_to(REPO)}: "
+    output.write_text(out)
+    print(f"generated {output.relative_to(repo)}: "
           f"{manual.section_count} sections, {figures} figures, {manual.link_count} links")
     return 0
 

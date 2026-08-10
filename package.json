@@ -9,11 +9,14 @@
   },
   "scripts": {
     "render": "bash scripts/render_diagrams.sh",
-    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json",
+    "sbom": "python3 scripts/sbom.py generate",
+    "sbom:check": "python3 scripts/sbom.py check && node scripts/validate_sbom_schema.cjs --sbom sbom.cdx.json",
+    "test": "python3 scripts/test_claim_contracts.py && python3 scripts/test_render_security.py && python3 scripts/test_site_links.py && python3 scripts/test_watch_upstream.py && python3 scripts/test_sbom.py && python3 scripts/test_coverage_gate.py && python3 scripts/coverage_gate.py && echo 'Offline tests and Python coverage passed. Run npm run validate:html for HTML validation.'",
     "validate:html": "html-validate site/index.html"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "11.16.0",
+    "ajv": "8.20.0",
     "html-validate": "11.6.2",
     "puppeteer": "25.5.0"
   }
