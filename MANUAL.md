@@ -9,11 +9,12 @@ pays each cost eight times.
 **A note on names.** "Open-weight" and "open-source" are not interchangeable, and licences vary
 *within* a family far more than the family name suggests. Llama is licensed per generation, none of
 them OSI-approved. Gemma 4's core series is Apache-2.0 while Gemma 3 and earlier, and the sibling
-variants, keep custom terms. Qwen's current models are Apache-2.0 while the 1.5 to 2.5 generations
-are not. Mistral ships four different licences at once, and its flagship is the permissive one.
-MiniMax M2.7 is non-commercial. DeepSeek and GLM release under MIT; Kimi K3 under its own licence.
+variants, keep custom terms. Qwen 2 and 2.5 are generally Apache-2.0, but some sizes and older
+generations use Qwen-specific terms. Mistral ships four different licences at once, and its flagship is the permissive one.
+MiniMax M2.7 requires prior written authorisation for commercial use. The named DeepSeek V4 Pro / V4
+Flash and GLM-5.2 / GLM-4.5-Air checkpoints are MIT; Kimi K3 has its own licence.
 Never infer a licence from a family name: check the model card, and see
-[docs/MODELS.md](docs/MODELS.md) for the per-model breakdown. The Sources and verification section at the end of this manual links every volatile claim to its primary source.
+[docs/MODELS.md](docs/MODELS.md) for the per-model breakdown. The Sources and verification section at the end of this manual records primary sources for a tracked set of volatile claims.
 
 ## 1. How to read this manual
 
@@ -50,13 +51,13 @@ and which are field judgement, so three levels are used consistently:
 A claim carrying none of the three is a defect worth reporting. What the automated checks do and do
 not prove is set out in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
-Every diagram in this manual is standard Mermaid and renders in any viewer that supports it.
+Every diagram in this manual is standard Mermaid. Use GitHub's renderer or another compatible Mermaid viewer; rendering details can vary by viewer version.
 
 ## 2. What can you actually run?
 
 Everything after this section is the same architecture regardless of your hardware. What *changes* with hardware is which models you can serve locally, which runtime you use, and where the ceiling sits. Find your row, then read the rest normally.
 
-**The sizing rule that answers most questions:** at 4-bit, weights ≈ **parameters × 0.5-0.6 GB**, where the quant format decides the exact point in that band. A 7B lands near 4 GB, a 32B near 16-18 GB, a 70B near 35-40 GB. KV cache then grows with context, a 7B is about 5 GB at 4K context and 8-9 GB at 32K.
+**A first sizing pass:** at 4-bit, weights are often about **parameters × 0.5-0.6 GB**, where the quant format decides the exact point in that band. The 7B, 32B, and 70B examples below are illustrative estimates, not capacity guarantees: a 7B can land near 4 GB, a 32B near 16-18 GB, and a 70B near 35-40 GB before runtime overhead. KV-cache memory is roughly `batch × context × layers × 2 × KV heads × head dimension × bytes per element`; it depends on architecture, KV-head count, precision, batch, and context length, so measure the exact serving configuration before buying hardware.
 
 The quant format also decides which runtime can load the file, and the pairings are fixed, 
 download the artefact that matches your stack instead of converting after the fact:
@@ -64,8 +65,8 @@ download the artefact that matches your stack instead of converting after the fa
 | Format | Loads in | Notes |
 |---|---|---|
 | GGUF | llama.cpp · Ollama · LM Studio · Jan | The CPU, Metal, and Vulkan family; one file format across every platform |
-| AWQ / GPTQ | vLLM · SGLang · TensorRT-LLM | GPU-server formats; AWQ usually holds quality better at 4-bit |
-| FP8 | vLLM · SGLang · TensorRT-LLM (Ada, Hopper, or newer) | Near-lossless; the serving default when the GPU supports it. FP4 arrives with Blackwell-class GPUs; NVIDIA publishes ready NVFP4 checkpoints of open flagships |
+| AWQ / GPTQ | vLLM · SGLang · TensorRT-LLM | GPU-server formats; quality and throughput depend on the model, calibration, and serving runtime, so validate both on your eval set |
+| FP8 | vLLM · SGLang · TensorRT-LLM (Ada, Hopper, or newer) | Often a useful accuracy/throughput trade-off on supported hardware; validate model-specific quality and memory use. FP4 arrives with Blackwell-class GPUs; NVIDIA publishes ready NVFP4 checkpoints of open flagships |
 | MLX | MLX · LM Studio on Apple Silicon | Pre-converted checkpoints live on Hugging Face under mlx-community |
 
 | Your setup | Runtime to use | Realistic ceiling | Notes |
@@ -81,7 +82,7 @@ download the artefact that matches your stack instead of converting after the fa
 | **AMD on Windows** | **llama.cpp with Vulkan** | By VRAM | **ROCm on Windows covers only select new hardware** (Radeon AI PRO R9000, Ryzen AI Max PRO 400). Vulkan ships with every AMD driver, no CUDA emulation needed |
 | **Intel Arc / Core Ultra** | IPEX-LLM · OpenVINO · Vulkan | 7-14B at 4-bit | Improving quickly; verify your model is supported |
 | **Windows, any GPU** | LM Studio / Ollama native, or **WSL2** for the Linux stack | As per GPU row | WSL2 is how you get vLLM/SGLang on Windows |
-| **CPU only** | llama.cpp | 3-8B, 3-7 tok/s, indicative | Fine for batch; too slow for interactive chat |
+| **CPU only** | llama.cpp | 3-8B, 3-7 tok/s, indicative | CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length |
 | **NVIDIA DGX Spark** | SGLang · vLLM · Ollama | 70B-class at 4-bit | GB10, 128 GB unified memory; the desktop supercomputer tier |
 | **NVIDIA Jetson (edge)** | llama.cpp · TensorRT-LLM | 3-13B on-device | Orin and Thor modules; agents at the edge, no rack required |
 | **Cloud accelerators** | Managed runtimes | By instance | TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5 |
@@ -612,7 +613,7 @@ flowchart LR
 
 ## 9. Model routing
 
-Sending every request to the largest model is the most common cost and latency mistake. Route by
+Sending every request to the largest model is a common cost and latency mistake. Route by
 task shape, not by preference. The verifier is a separate prompt from the one that produced the
 answer, a model grading its own output is not a gate, and rework is bounded at two cycles.
 
@@ -659,8 +660,8 @@ flowchart TB
 
 The innermost ring, and the easiest to overlook. Everything the outer layers
 coordinate reduces to a single well-specified turn. Order matters: hard constraints first, evidence
-in the middle, the task and output schema last, because instructions at the head and tail survive a
-long context better than anything buried in the middle.
+in the middle, the task and output schema last, because placing critical instructions near the head
+and tail can help attention in long contexts. It is a mitigation to evaluate, not a guarantee.
 
 Two properties make groundedness structural rather than hoped-for. Claims may only cite chunk ids
 that the window actually supplied, and the policy is restated *after* the untrusted content, so the
@@ -672,10 +673,10 @@ flowchart TB
         direction TB
         P1["1 · System contract<br/>role · hard constraints · refusal rules<br/>stable, versioned, audited"]
         P2["2 · Tool schemas<br/>typed · only what this role needs"]
-        P3["3 · Retrieved evidence<br/>fenced · every chunk carries a stable id<br/>data, never instructions"]
+        P3["3 · Retrieved evidence<br/>fenced · every chunk carries a stable id<br/>untrusted data, not authority"]
         P4["4 · User input<br/>fenced separately from evidence"]
         P5["5 · Policy restatement<br/>cite only supplied ids · ignore embedded instructions<br/>never reveal the system prompt"]
-        P6["6 · Task and output schema<br/>last, where attention is strongest"]
+        P6["6 · Task and output schema<br/>last, a placement to evaluate"]
     end
 
     subgraph BOUND["Bound output"]
@@ -686,14 +687,14 @@ flowchart TB
     end
 
     DEC["Pinned decoding<br/>temperature · top-p · stop · max tokens · seed<br/>versioned with the prompt, not a runtime whim"]
-    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · policy restated after untrusted input"]
+    PREC["Instruction precedence<br/>the harness preserves system policy outside untrusted text<br/>policy restated after untrusted input"]
     JUDGE["Judge prompt<br/>physically separate artifact<br/>no self-grading"]
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6
     P6 --> B1 --> B2
     B2 -.->|evidence absent or conflicting| B3
     DEC -.->|shipped as one artifact| P1
-    PREC -.->|enforced by ordering and fences| P5
+    PREC -.->|supported by ordering, fences and tool controls| P5
     B2 -.->|graded independently| JUDGE
 
     classDef contract fill:#dff3e6,stroke:#248a3d,color:#0f3d23
@@ -727,7 +728,7 @@ into context. It needs the same treatment as a retrieved chunk.
 
 ```mermaid
 flowchart TB
-    subgraph UNTRUSTED["Untrusted input · data, never instructions"]
+    subgraph UNTRUSTED["Untrusted input · treat as data, never authority"]
         direction LR
         U1["User input"]
         U2["Retrieved chunks"]
@@ -737,8 +738,8 @@ flowchart TB
 
     subgraph DEFENCE["Boundary controls"]
         direction TB
-        D1["Fence and label<br/>the model can tell instruction from data"]
-        D2["Strip imperative authority<br/>an instruction inside content is reported, not obeyed"]
+        D1["Fence and label<br/>reduce instruction/data ambiguity"]
+        D2["Strip imperative authority<br/>embedded instructions are untrusted and surfaced for review"]
         D3["Entitlement filter<br/>applied in the index query · fails closed"]
         D4["Schema validation<br/>on tool args in and results back"]
         D5["Sandbox<br/>no host mounts · no ambient credentials"]
@@ -793,13 +794,15 @@ flowchart TB
 The loop back from `Execute` to untrusted input is the important edge: a tool result is not sanitised
 by having been requested. Two further properties keep retries safe, side-effecting tools are
 idempotency-keyed, so a retried write is applied once by a server that honours the key, and
-credentials live in the harness rather than the prompt, which closes the context window as a
-route to them.
+credentials live in the harness rather than the prompt, which keeps them outside the context window.
+Fences, labels and prompt order can reduce ambiguity, but do not make a model reliably distinguish
+data from instructions; tool authorization and output validation remain the enforcement points.
 
 Tool execution runs in a container at minimum. When tools run model-written code, climb the
 isolation ladder: gVisor intercepts syscalls below the container, Firecracker gives each execution
-its own microVM, and hosted sandboxes (E2B, Modal) sell the same isolation as an API when you would
-rather not operate it yourself.
+its own microVM, and hosted sandboxes (E2B, Modal) provide provider-specific isolation when you would
+rather not operate it yourself. Compare their documented boundary, network policy and credential
+handling to your threat model; they are not interchangeable with an API boundary.
 
 ---
 
@@ -871,7 +874,7 @@ Evals do not replace tests; they sit above them. Seven levels, cheapest and fast
 3. Replay integration tests. Record real model responses once, replay them in CI: full-pipeline coverage at zero token cost.
 4. Eval suites. The golden dataset with graded rubrics and a calibrated judge, run against the live model.
 5. Simulation. A persona model plays the user across multi-turn flows; assert on outcomes, never on exact wording.
-6. Red-team suites. Adversarial prompts mapped to the ASI risks (section 19): injection, exfiltration, tool misuse. Autonomous pentest agents run these suites continuously in CI. Any failure blocks release.
+6. Red-team suites. Map adversarial prompts to the ASI risks (section 19): injection, exfiltration, and tool misuse. Run the suite on an appropriate cadence; when your release policy requires it, defined high-severity failures block release.
 7. Chaos drills. Kill the model server, inject 429s, corrupt a tool response; verify fallbacks and budgets hold.
 
 | CI stage | Runs | Budget |
@@ -985,8 +988,8 @@ flowchart TB
         C3["Split prefill and decode pools<br/>they have opposite bottlenecks"]
     end
 
-    RULE["Sizing: weights + KV cache + activations.<br/>KV ≈ batch × context × layers × 2 × kv_heads × head_dim × bytes/elem.<br/>Long context at high batch exhausts memory<br/>long before the weights do."]
-    SPLIT["Prefill is compute bound.<br/>Decode is memory bandwidth bound.<br/>Batching them together makes both worse."]
+    RULE["Sizing: weights + KV cache + activations.<br/>KV ≈ batch × context × layers × 2 × kv_heads × head_dim × bytes/elem.<br/>Architecture, precision, batch and context decide capacity;<br/>measure the exact configuration."]
+    SPLIT["Prefill is compute bound; decode is often memory-bandwidth bound.<br/>Separate pools can improve isolation and tail inter-token latency;<br/>measure throughput for your workload."]
 
     A -.-> RULE
     B -.-> RULE
@@ -998,8 +1001,9 @@ flowchart TB
     class RULE,SPLIT note
 ```
 
-Interactive chat needs a GPU. CPU-only inference runs at, indicative, 3-7 tok/s for a 7B model, which
-makes a 500-token answer take one to three minutes, fine for batch work, unusable for a chat UI.
+CPU-only chat is possible, but a GPU is usually the practical choice for responsive or concurrent use.
+CPU-only inference runs at, indicative, 3-7 tok/s for a 7B model, which can make a 500-token answer
+take one to three minutes; it suits batch work and limited, low-concurrency chat.
 
 ---
 
@@ -1066,8 +1070,10 @@ flowchart TB
     class RI1,RI2,RI3,RI4 mig
 ```
 
-Retention differs per store and should be set deliberately: traces in weeks, cache in hours, memory
-until the user deletes it, eval cases indefinitely but scrubbed of personal data at capture time.
+Retention differs per store and should be set deliberately: set traces in weeks and cache in hours only
+where your retention policy, legal basis, and deletion commitments allow it. Durable memory needs a
+user-visible retention and deletion rule; eval cases need a documented purpose, minimisation, and
+retention period rather than indefinite storage by default.
 
 Corpus freshness is a schedule, not an aspiration. Re-ingest changed sources with whatever
 orchestrator you already run, Airflow, Prefect, Dagster, or plain cron, and stamp every chunk
@@ -1085,7 +1091,7 @@ store must stay rebuildable from the source of truth (section 15).
 | Class | Options | Reach for it when | Driver and compatibility notes |
 |---|---|---|---|
 | Relational, the system of record | Postgres · MySQL · SQLite | Sessions, users, jobs, billing: anything with invariants | SQLAlchemy or asyncpg in Python · Prisma or Drizzle in TypeScript · JDBC in Java |
-| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | pgvector comfortably to around 10M vectors, indicative; dedicated engines beyond that or for heavy filtered search | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
+| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | Start with pgvector when keeping vectors beside relational data simplifies the system; measure latency, filtering, index build time, and operations against your workload before choosing a dedicated engine | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
 | Key-value and cache | Redis · Valkey | Semantic cache, embedding cache keyed by content hash, rate limits, queues, session scratch | redis-py and ioredis; Valkey is the open fork and protocol-compatible |
 | Document | MongoDB · Postgres JSONB | Payloads with no stable schema; MERN teams already fluent in it | JSONB covers most document needs without adding a second database |
 | Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query genuinely needs multi-hop traversal |
@@ -1279,16 +1285,16 @@ skips a row should know exactly why.
 
 | ID | Threat | Control in this stack | Where |
 |---|---|---|---|
-| ASI01 | Goal hijacking / prompt injection | Untrusted content is fenced and labelled; policy is restated after it; instructions found inside content are surfaced for review rather than followed | 10, 11 |
-| ASI02 | Tool misuse | Every call is schema-validated against an allow-list; side-effecting tools take attenuated single-resource tokens and idempotency keys | 11, 18 |
-| ASI03 | Identity and privilege abuse | The agent is its own principal; authority attenuates at every delegation; every action is attributable as user to agent to tool | 18 |
-| ASI04 | Tool supply chain | MCP servers are pinned by version and digest; scopes reviewed at install; an update is a reviewed change, never an automatic pull | 19 |
-| ASI05 | Sandbox escape | Code execution runs in a container with no host mounts and no ambient credentials; egress is allow-listed; escape attempts are exercised in CI rather than assumed away | 11, 13 |
-| ASI06 | Memory poisoning | Durable memory is written through a gate: provenance plus corroboration to promote, quarantine for the unverifiable, partitions per principal | 12, 19 |
-| ASI07 | Inter-agent impersonation | Each agent thread carries its own identity; cross-agent messages are attributed and verified before a coordinator acts on them | 18 |
-| ASI08 | Cascading failure | Budgets per user and tenant, rework bounded at two cycles, side-effecting calls scoped to one resource, a bad call cannot fan out | 7, 17 |
-| ASI09 | Approval fatigue | Humans approve outbound artefacts, not intermediate steps; destructive actions always take a separate, explicit approval | 7 |
-| ASI10 | Unsanctioned objectives | A hard budget kill-switch, alarms on abnormal tool-call patterns, and a revocable agent principal, stopping the agent never means locking out the user | 17, 18 |
+| ASI01 | Agent Goal Hijack | Untrusted content is fenced and labelled; policy is restated after it; instructions found inside content are surfaced for review rather than followed | 10, 11 |
+| ASI02 | Tool Misuse & Exploitation | Every call is schema-validated against an allow-list; side-effecting tools take attenuated single-resource tokens and idempotency keys | 11, 18 |
+| ASI03 | Identity & Privilege Abuse | The agent is its own principal; authority attenuates at every delegation; every action is attributable as user to agent to tool | 18 |
+| ASI04 | Agentic Supply Chain Vulnerabilities | MCP servers are pinned by version and digest; scopes reviewed at install; an update is a reviewed change, never an automatic pull | 19 |
+| ASI05 | Unexpected Code Execution | Code execution runs in a container with no host mounts and no ambient credentials; egress is allow-listed; escape attempts are exercised in CI rather than assumed away | 11, 13 |
+| ASI06 | Memory & Context Poisoning | Durable memory is written through a gate: provenance plus corroboration to promote, quarantine for the unverifiable, partitions per principal | 12, 19 |
+| ASI07 | Insecure Inter-Agent Communication | Each agent thread carries its own identity; cross-agent messages are attributed and verified before a coordinator acts on them | 18 |
+| ASI08 | Cascading Failures | Budgets per user and tenant, rework bounded at two cycles, side-effecting calls scoped to one resource, a bad call cannot fan out | 7, 17 |
+| ASI09 | Human-Agent Trust Exploitation | Humans approve outbound artefacts, not intermediate steps; destructive actions always take a separate, explicit approval | 7 |
+| ASI10 | Rogue Agents | A hard budget kill-switch, alarms on abnormal tool-call patterns, and a revocable agent principal, stopping the agent never means locking out the user | 17, 18 |
 
 Two of these deserve their own drawing, because they are the two write paths an attacker reaches
 first.
@@ -1456,7 +1462,7 @@ flowchart LR
     subgraph CAT_CA["Code agents"]
         CA1["★ Cline / Kilo Code · free · any model"]
         CA2["★ Goose · terminal · any model"]
-        CA3["★ OpenHands · autonomous"]
+        CA3["★ OpenHands · self-hostable execution"]
         CA4["Cursor · Claude Code · Zed · Aider"]
     end
     subgraph CAT_TL["Tool interface"]
@@ -1493,7 +1499,7 @@ flowchart LR
     end
     subgraph CAT_EM["Embeddings"]
         EM1["★ BGE-M3 · multilingual · dense + sparse"]
-        EM2["Qwen3-Embedding-8B · top MTEB quality"]
+        EM2["Qwen3-Embedding-8B · evaluate on your retrieval set"]
         EM3["Qwen3-Embedding-4B · balanced"]
         EM4["Jina v5"]
     end
@@ -1511,7 +1517,7 @@ flowchart LR
     end
     subgraph CAT_SV["Model serving"]
         SV1["★ SGLang · RadixAttention"]
-        SV2["★ vLLM · widest hardware support"]
+        SV2["★ vLLM · broad serving support"]
         SV3["TensorRT-LLM · all-NVIDIA"]
         SV4["Ollama · LM Studio · MLX on Mac"]
         SV5["llama.cpp · CPU · Vulkan · Metal"]
@@ -1633,7 +1639,7 @@ flowchart TB
     Q3 -->|yes| Q4{"Which cloud owns the data?"}
     Q3 -->|no| OWN["Your own loop<br/>Tool Runner or plain function calling<br/>least magic, most control"]
 
-    Q4 -->|Google| ADK["Google ADK<br/>model-agnostic · Python/Java/Go<br/>Vertex Agent Engine to host"]
+    Q4 -->|Google| ADK["Google ADK<br/>model-agnostic · Python/TypeScript/Go/Java/Kotlin<br/>Vertex Agent Engine to host"]
     Q4 -->|AWS| BR["Bedrock AgentCore<br/>AWS-native IAM and billing"]
     Q4 -->|neither| OAI["OpenAI Agents SDK<br/>lightweight handoffs · voice<br/>swap models freely"]
 
@@ -1657,6 +1663,7 @@ flowchart TB
 **Three things worth knowing before you commit.**
 
 *Google ADK is model-agnostic, not Gemini-only*, it supports Gemini, Claude, Ollama, vLLM and LiteLLM out of the box, so choosing it does not lock your model choice. (There is no separate "Gemini ADK".)
+Google ADK documents SDKs for Python, TypeScript, Go, Java, and Kotlin; confirm feature parity for the language and release you deploy.
 
 *Bedrock and "Claude on AWS" are different products.* Bedrock is AWS-operated with a feature subset and `anthropic.`-prefixed model IDs. Claude Platform on AWS is Anthropic-operated with same-day feature parity and bare model IDs. Same cloud, different capability surface, check which one a tutorial means.
 
@@ -1691,7 +1698,7 @@ Version floors that matter in practice, taken from each project's own requiremen
 | TypeScript | No published floor | Neither Mastra nor the AI SDK declares a TypeScript minimum. They constrain Node instead. Match their toolchain if you need a number |
 | Java | 17 | Spring AI and LangChain4j both set 17 in their parent POMs |
 | CUDA | Driver 525 or newer for CUDA 12.x, 580 or newer for 13.x | Current PyTorch ships cu126 through cu132, spanning CUDA 12 and 13. Minor version compatibility means the driver needs the major-family minimum, not a match to the toolkit |
-| ROCm | 7.1 or newer | Current PyTorch ROCm wheels are built for 7.1 and 7.2 only. ROCm 6.4 tops out at an older PyTorch |
+| ROCm | Match the PyTorch build to the ROCm release | Current PyTorch wheels track newer ROCm releases; ROCm 6.4 remains available for supported older PyTorch builds. Check the PyTorch selector and AMD matrix for the exact release pair |
 
 ### 23.2 Language pairs that ship
 
@@ -1770,11 +1777,11 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
-| **Aider** | Apache-2.0, free | ✅ any | Git-native pair programming, every edit is a commit. The terminal pioneer, but **dormant**: no commits since May 2026. Still works; no longer developed |
-| **Claude Code** | Paid (subscription or API) | Anthropic models | Tops current rankings; per-subagent model control, but paid and single-vendor |
+| **Aider** | Apache-2.0, free | ✅ any | Git-native pair programming, every edit is a commit. Check its repository activity and releases at evaluation time; maintenance status is time-sensitive |
+| **Claude Code** | Subscription or API usage | Anthropic models | Terminal and IDE coding agent with subagent and tool workflows. Compare it on your own task and the specific benchmark you care about; rankings are benchmark- and date-dependent |
 | **OpenCode** | Open source, free | ✅ any | Vendor-neutral terminal agent |
 | **Gemini CLI** | Free tier available | Gemini | Generous free quota; good for exploration |
-| **Codex CLI** | Paid | OpenAI | If you're already on OpenAI |
+| **Codex CLI** | Included with eligible ChatGPT plans; usage limits vary | OpenAI | If you're already on OpenAI; verify plan limits and credit options before rollout |
 | **Qwen Code** | Open source | Qwen | Pairs well with a self-hosted Qwen |
 | **Crush · Forge · Plandex** | Open source | ✅ any | Plandex targets long, multi-file plans |
 
@@ -1782,11 +1789,11 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
-| **Cline** ★ | Open source, free | ✅ any | Best-in-class governance, Plan/Act approval, permissioned file, terminal, browser and MCP access. stars in the tens of thousands, indicative |
+| **Cline** ★ | Open source, free | ✅ any | Plan/Act approval with permissioned file, terminal, browser, and MCP access. Verify current capabilities and maintenance status from its repository |
 | **Roo Code** | Open source | ✅ any | **Shut down May 2026**, repository archived. Its README points users to Cline; ZooCode is a community fork |
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
 | **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
-| **GitHub Copilot** | $10/mo Pro, indicative | GitHub-selected | Deepest GitHub integration |
+| **GitHub Copilot** | Plans and pricing vary | Multiple models, plan and surface dependent | Deep GitHub integration; choose from the models available to your plan and client |
 | **Tabnine** | Free tier; paid teams | ✅ any, self-host | The air-gapped and on-prem option; fits open-weight deployments |
 | **Qodo** | Free tier | ✅ any | Test generation and PR review agents |
 | **Amazon Q Developer** | Free tier + paid | AWS | AWS-native shops |
@@ -1807,7 +1814,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Best for |
 |---|---|---|
-| **OpenHands** ★ | Open source | The most autonomous of the group, runs in Docker with full read-write on a sandboxed filesystem, browses, executes, ships a feature end to end |
+| **OpenHands** ★ | Open source | A self-hostable agent with Docker-based execution; assess its autonomy, permissions, and sandbox configuration against your task |
 | **SWE-agent** | Open source | Research lineage; benchmark-oriented |
 | **Goose** | Open source (Linux Foundation) | Vendor-neutral governance; extensible |
 | **Devin · Jules · Replit Agent** | Paid SaaS | Hosted, no local setup |
@@ -1816,7 +1823,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | If you… | Use |
 |---|---|
-| Live in the terminal | **Goose** (free, vendor-neutral governance) or **Claude Code** (paid, strongest) |
+| Live in the terminal | **Goose** (free, vendor-neutral governance) or **Claude Code** (subscription/API-backed); evaluate both on your workflow |
 | Use VS Code | **Cline** or **Kilo Code**: free, model-agnostic, approval-gated |
 | Use JetBrains | **Kilo Code**, which ships a JetBrains build. Continue was the long-standing answer but is now read-only |
 | Want an IDE that does it all and will pay | **Cursor** |
@@ -1834,7 +1841,7 @@ what you graduate to.
 
 | Tool | Made by | Best for |
 |---|---|---|
-| v0 | Vercel | UI and Next.js front ends from a prompt |
+| v0 | Vercel | Prompt-driven web applications and Next.js front ends; verify its current integrations and deployment posture for your stack |
 | Lovable | Lovable | Full-stack apps with Supabase wiring built in |
 | Bolt.new | StackBlitz | In-browser full-stack prototyping |
 | Replit Agent | Replit | Hosted build-and-deploy in one place |
@@ -1913,9 +1920,11 @@ the trust boundary: the moment untrusted text reaches a tool that can write some
 
 ## 27. Sources and verification
 
-Every volatile claim in this manual traces to a primary source, a model card, a licence file, an
-official documentation page, or the project's own repository. Every link resolves to its primary source, and CI re-checks them continuously. Model facts age fastest: re-verify the sections 21 and 22 rows against
-their cards before relying on them months from now.
+This section records primary sources for the model, runtime, version-floor, and tool claims that are
+most likely to change. Link and generated-artifact checks run in CI; the freshness workflow monitors a
+tracked set of volatile model and tool claims, rather than proving that every sentence or external page
+remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
+before relying on them months from now.
 
 ### 27.1 Models and licences
 
@@ -1928,6 +1937,7 @@ their cards before relying on them months from now.
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
 | GLM-4.5-Air | Fast tier · MIT | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
 | Qwen 3.6 27B / 3.5 9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| Qwen 2 / 2.5 licence examples | Qwen2.5-7B, 14B, 32B, and Coder-32B cards are Apache-2.0; other named checkpoints must be checked individually | [7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) · [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) · [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) · [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
 | gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
 | Gemma 4 | 12B instruction-tuned entry of the Apache-2.0 generation | [Model card](https://huggingface.co/google/gemma-4-12B-it) |
 | OLMo 3 | Fully open (weights, data, code) · Apache-2.0 | [Model card](https://huggingface.co/allenai/Olmo-3-1025-7B) |
@@ -1991,7 +2001,7 @@ their cards before relying on them months from now.
 | Node 20 reached end of life 30 April 2026; Node 24 is Active LTS and 22 is in maintenance | [nodejs/Release schedule](https://github.com/nodejs/Release/blob/main/schedule.json) |
 | vLLM declares Python 3.10 to 3.14 | [vLLM pyproject](https://github.com/vllm-project/vllm/blob/main/pyproject.toml) |
 | SGLang declares Python 3.10 and up with no upper bound | [SGLang pyproject](https://github.com/sgl-project/sglang/blob/main/python/pyproject.toml) |
-| PyTorch ships CUDA 12 and 13 wheels; ROCm wheels are 7.1 and later | [PyTorch wheel index](https://download.pytorch.org/whl/) |
+| PyTorch publishes current and previous ROCm wheels; compatibility depends on the selected torch release | [PyTorch install selector](https://pytorch.org/get-started/locally/) · [previous versions](https://docs.pytorch.org/get-started/previous-versions/) |
 | CUDA minor version compatibility sets the driver floor by major family | [CUDA release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) |
 | Spring AI and LangChain4j both set Java 17 | [Spring AI pom](https://github.com/spring-projects/spring-ai/blob/main/pom.xml) · [LangChain4j pom](https://github.com/langchain4j/langchain4j/blob/main/langchain4j-parent/pom.xml) |
 
@@ -2013,9 +2023,12 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Tabnine | [tabnine.com](https://www.tabnine.com/) |
 | Qodo | [qodo.ai](https://www.qodo.ai/) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
+| Codex plan availability | [OpenAI Help Center](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan) |
 | Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+| GitHub Copilot model availability | [GitHub Docs](https://docs.github.com/en/copilot/reference/ai-models/supported-models) |
 | Devin, and Devin Desktop (formerly Windsurf) | [devin.ai](https://devin.ai/) |
 | Jules | [jules.google](https://jules.google/) |
+| v0 | [v0.dev](https://v0.dev/) |
 
 Pricing figures quoted in section 24 are `indicative`: vendors change them without notice, and this manual does not re-check them.
 
@@ -2026,7 +2039,7 @@ Every link below resolves to the project's official home.
 | Layer | Verified links |
 |---|---|
 | Serving and runtimes | [vLLM](https://github.com/vllm-project/vllm) · [SGLang](https://github.com/sgl-project/sglang) · [llama.cpp](https://github.com/ggml-org/llama.cpp) · [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) · [MLX](https://github.com/ml-explore/mlx) · [mlx-community](https://huggingface.co/mlx-community) · [Ollama](https://github.com/ollama/ollama) · [LM Studio](https://lmstudio.ai) · [Ray](https://github.com/ray-project/ray) · [Weaviate](https://github.com/weaviate/weaviate) · [Haystack](https://github.com/deepset-ai/haystack) · [LangSmith](https://www.langchain.com/langsmith) |
-| Orchestration and SDKs | [Mastra](https://github.com/mastra-ai/mastra) · [LangGraph](https://github.com/langchain-ai/langgraph) · [CrewAI](https://github.com/crewAIInc/crewAI) · [Pydantic AI](https://github.com/pydantic/pydantic-ai) · [Vercel AI SDK](https://github.com/vercel/ai) · [OpenAI Agents SDK](https://github.com/openai/openai-agents-python) · [Google ADK](https://github.com/google/adk-python) · [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) · [AWS Strands](https://github.com/strands-agents/sdk-python) · [smolagents](https://github.com/huggingface/smolagents) · [LangChain4j](https://github.com/langchain4j/langchain4j) · [Spring AI](https://github.com/spring-projects/spring-ai) · [Temporal](https://github.com/temporalio/temporal) |
+| Orchestration and SDKs | [Mastra](https://github.com/mastra-ai/mastra) · [LangGraph](https://github.com/langchain-ai/langgraph) · [CrewAI](https://github.com/crewAIInc/crewAI) · [Pydantic AI](https://github.com/pydantic/pydantic-ai) · [Vercel AI SDK](https://github.com/vercel/ai) · [OpenAI Agents SDK](https://github.com/openai/openai-agents-python) · [Google ADK language support](https://adk.dev/get-started/installation/) · [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) · [AWS Strands](https://github.com/strands-agents/sdk-python) · [smolagents](https://github.com/huggingface/smolagents) · [LangChain4j](https://github.com/langchain4j/langchain4j) · [Spring AI](https://github.com/spring-projects/spring-ai) · [Temporal](https://github.com/temporalio/temporal) |
 | Retrieval and data | [Qdrant](https://github.com/qdrant/qdrant) · [Milvus](https://github.com/milvus-io/milvus) · [pgvector](https://github.com/pgvector/pgvector) · [LanceDB](https://github.com/lancedb/lancedb) · [Chroma](https://github.com/chroma-core/chroma) · [BGE-M3](https://huggingface.co/BAAI/bge-m3) · [Docling](https://github.com/docling-project/docling) · [Unstructured](https://github.com/Unstructured-IO/unstructured) · [RAGFlow](https://github.com/infiniflow/ragflow) · [Airflow](https://github.com/apache/airflow) · [Prefect](https://github.com/PrefectHQ/prefect) · [Dagster](https://github.com/dagster-io/dagster) |
 | Evals, guardrails, observability | [Ragas](https://github.com/explodinggradients/ragas) · [Promptfoo](https://github.com/promptfoo/promptfoo) · [DeepEval](https://github.com/confident-ai/deepeval) · [Langfuse](https://github.com/langfuse/langfuse) · [Phoenix](https://github.com/Arize-ai/phoenix) · [Outlines](https://github.com/dottxt-ai/outlines) · [Guardrails AI](https://github.com/guardrails-ai/guardrails) · [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) |
 | Fine-tuning | [Unsloth](https://github.com/unslothai/unsloth) · [Axolotl](https://github.com/axolotl-ai-cloud/axolotl) · [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) · [PEFT](https://github.com/huggingface/peft) · [TRL](https://github.com/huggingface/trl) |

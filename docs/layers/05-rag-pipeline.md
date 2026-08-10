@@ -10,8 +10,8 @@ Parse documents into structure-aware chunks, embed them, retrieve by hybrid sear
 
 - Parsing: Docling for PDFs and office formats with layout; Unstructured for breadth of formats.
 - Embeddings: BGE-M3 covers dense plus sparse in one multilingual model; Qwen3-Embedding when quality on the MTEB leaderboard justifies a larger model.
-- Vector store: pgvector until around 10M vectors (one less service); Qdrant for filtered search at scale; Milvus for very large corpora; LanceDB embedded; Chroma for prototypes.
-- Reranker: a cross-encoder such as BGE-Reranker; it is the single highest-leverage quality add.
+- Vector store: start with pgvector when keeping vectors beside relational data is useful; move only when measured latency, filtering, index build time, or operations justify another engine. Measure against your workload before choosing a dedicated engine. Qdrant suits filtered search at scale; Milvus suits very large corpora; LanceDB is embedded; Chroma is for prototypes.
+- Reranker: evaluate a cross-encoder such as BGE-Reranker when retrieval misses matter; it often improves ranking quality, but the gain depends on the corpus, candidates, and latency budget.
 - End-to-end platform instead of parts: RAGFlow.
 - Variant patterns (GraphRAG, Self-RAG, RAPTOR, ColPali and the rest): adopt one when its failure mode appears, per [section 8.1](../../MANUAL.md#81-rag-variants-adopt-one-when-its-failure-mode-appears).
 
@@ -22,7 +22,7 @@ Parse documents into structure-aware chunks, embed them, retrieve by hybrid sear
 | Docling | Layout-aware parsing | [github.com/docling-project/docling](https://github.com/docling-project/docling) |
 | Unstructured | Breadth of file formats | [github.com/Unstructured-IO/unstructured](https://github.com/Unstructured-IO/unstructured) |
 | BGE-M3 | Dense + sparse, 100+ languages | [huggingface.co/BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) |
-| Qwen3-Embedding | Top-tier embedding quality | [huggingface.co/Qwen/Qwen3-Embedding-8B](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |
+| Qwen3-Embedding | Larger embedding option; evaluate on your corpus | [huggingface.co/Qwen/Qwen3-Embedding-8B](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |
 | BGE-Reranker | Cross-encoder reranking | [huggingface.co/BAAI/bge-reranker-v2-m3](https://huggingface.co/BAAI/bge-reranker-v2-m3) |
 | Qdrant | Filtered hybrid search at scale | [github.com/qdrant/qdrant](https://github.com/qdrant/qdrant) |
 | pgvector | Vectors inside Postgres | [github.com/pgvector/pgvector](https://github.com/pgvector/pgvector) |

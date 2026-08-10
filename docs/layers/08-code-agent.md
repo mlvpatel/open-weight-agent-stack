@@ -4,7 +4,7 @@
 
 ## What this layer does
 
-The code agent is a tool-using client of the rest of the stack: it edits files, runs tests, and opens PRs inside a sandbox, with the step budgets and write gates every other tool obeys. The full landscape with licences and rankings is [section 24](../../MANUAL.md#24-code-agents-the-full-landscape); this file carries the links.
+The code agent is a tool-using client of the rest of the stack: it edits files, runs tests, and opens PRs inside a sandbox, with the step budgets and write gates every other tool obeys. The full landscape, source links, and time-sensitive availability notes are in [section 24](../../MANUAL.md#24-code-agents-the-full-landscape); this file carries the links.
 
 ## The options
 
@@ -12,9 +12,9 @@ The code agent is a tool-using client of the rest of the stack: it edits files, 
 |---|---|---|
 | Cline | IDE extension, any model, permissioned | [github.com/cline/cline](https://github.com/cline/cline) |
 | Kilo Code | Actively maintained Cline-lineage option, ships a JetBrains build | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
-| Aider | Terminal, git-native. Dormant since May 2026; still works, not developed | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
-| Continue | Read-only since 2026, no longer maintained | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
-| OpenHands | Autonomous, sandboxed | [github.com/OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) |
+| Aider | Terminal, git-native; check releases and repository activity at evaluation time | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
+| Continue | Verify current project maintenance status from its repository before adoption | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
+| OpenHands | Self-hostable agent with configurable Docker execution | [github.com/OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) |
 | Goose | Terminal agent, extensible; now under the Linux Foundation's Agentic AI Foundation | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | AI-first IDE | [cursor.com](https://cursor.com/) |
 | Zed | Fast editor with agent panel | [zed.dev](https://zed.dev/) |

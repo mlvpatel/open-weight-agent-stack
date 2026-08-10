@@ -11,7 +11,7 @@ The same architecture deploys at every size; only the box count changes. One mac
 - Laptop or single box: docker compose; restart-on-boot is your availability story.
 - Single GPU server for a team: compose plus a reverse proxy; blue-green by running two model-server containers.
 - Multi-GPU node: tensor parallelism via the serving runtime; NVLink matters more than GPU count.
-- Multi-node: vLLM over Ray; Kubernetes for orchestration; autoscale on queue depth and KV pressure, never CPU.
+- Multi-node: vLLM over Ray; Kubernetes for orchestration; consider queue depth and KV pressure alongside CPU when choosing autoscaling signals.
 - No hardware: rented GPUs (RunPod and peers) or serverless (Modal); managed endpoints when serving is not your business.
 
 ## The options

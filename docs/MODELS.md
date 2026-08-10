@@ -2,7 +2,7 @@
 
 The families this stack draws from. **Licences are stated per model, never per family**, because most families are not internally consistent: the same organisation ships Apache-2.0, custom, and non-commercial terms side by side. A family-level claim would be legal guidance by implication, and wrong.
 
-Every licence below was read from the model card's own licence tag or the vendor's licence document. The model card always wins over this page. Check it before you commit.
+Every licence below is linked to a model card or vendor licence document where practical. The linked primary source wins over this page; check the exact checkpoint before you commit.
 
 ## Read this first
 
@@ -12,21 +12,21 @@ Three traps that have caught people, all verified against primary sources:
 - **A quantised republish does not reliably inherit the original licence.** NVIDIA's NVFP4 checkpoints carry a mix of Apache-2.0, MIT, and NVIDIA-specific terms. Two checkpoints of the *same* base model can differ.
 - **Announced is not published.** A model with benchmark scores in the press may have no downloadable weights at all.
 
-## Uniformly licensed
+## Linked examples with the same stated licence
 
-Safe to state at family level, because every current member agrees.
+These are specific checkpoints, not a licence promise for every model published by the organisation.
 
 | Model or family | Organisation | Licence | Link |
 |---|---|---|---|
-| DeepSeek V4 Pro, V4 Flash | DeepSeek | MIT | [deepseek-ai](https://huggingface.co/deepseek-ai) |
-| GLM-5.2, GLM-4.5-Air | Z.ai | MIT | [zai-org](https://huggingface.co/zai-org) |
-| gpt-oss-120b, gpt-oss-20b | OpenAI | Apache-2.0 | [openai](https://huggingface.co/openai) |
-| OLMo 3 | Allen Institute | Apache-2.0 (weights, data and code) | [allenai](https://huggingface.co/allenai) |
-| Granite 4.1 | IBM | Apache-2.0 | [ibm-granite](https://huggingface.co/ibm-granite) |
-| Ling 3.0 | Ant Group | MIT | [inclusionAI](https://huggingface.co/inclusionAI) |
-| Hunyuan Hy3 | Tencent | Apache-2.0 | [tencent](https://huggingface.co/tencent) |
-| Phi-4, Phi-4-mini | Microsoft | MIT | [microsoft](https://huggingface.co/microsoft) |
-| KAT-Coder V2.5 | Kwaipilot | Apache-2.0 | [Kwaipilot](https://huggingface.co/Kwaipilot) |
+| DeepSeek V4 Pro, V4 Flash | DeepSeek | MIT | [V4 Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) · [V4 Flash](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) |
+| GLM-5.2, GLM-4.5-Air | Z.ai | MIT | [GLM-5.2](https://huggingface.co/zai-org/GLM-5.2) · [GLM-4.5-Air](https://huggingface.co/zai-org/GLM-4.5-Air) |
+| gpt-oss-120b, gpt-oss-20b | OpenAI | Apache-2.0 | [gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b) · [gpt-oss-20b](https://huggingface.co/openai/gpt-oss-20b) |
+| OLMo 3 | Allen Institute | Apache-2.0 (weights, data and code) | [OLMo 3 7B](https://huggingface.co/allenai/Olmo-3-1025-7B) |
+| Granite 4.1 | IBM | Apache-2.0 | [Granite 4.1 30B](https://huggingface.co/ibm-granite/granite-4.1-30b) |
+| Ling 3.0 | Ant Group | MIT | [Ling 3.0 Flash](https://huggingface.co/inclusionAI/Ling-3.0-flash) |
+| Hunyuan Hy3 | Tencent | Apache-2.0 | [Hy3](https://huggingface.co/tencent/Hy3) |
+| Phi-4, Phi-4-mini | Microsoft | MIT | [Phi-4](https://huggingface.co/microsoft/phi-4) · [Phi-4-mini](https://huggingface.co/microsoft/Phi-4-mini-instruct) |
+| KAT-Coder V2.5 | Kwaipilot | Apache-2.0 | [KAT-Coder V2.5 Dev](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
 | Kokoro-82M | hexgrad | Apache-2.0 | [hexgrad](https://huggingface.co/hexgrad/Kokoro-82M) |
 | Laguna S 2.1 | poolside | OpenMDW 1.1 | [poolside](https://huggingface.co/poolside) |
 | LFM2.5 | Liquid AI | LFM Open License v1.0 | [LiquidAI](https://huggingface.co/LiquidAI) |
@@ -40,11 +40,11 @@ These families ship different terms to different models. Use the specific row.
 
 | Model | Licence | Note |
 |---|---|---|
-| Qwen3.6-27B, Qwen3.5-9B | Apache-2.0 | The self-host tier |
-| Qwen3-Coder-Next | Apache-2.0 | Coding specialist |
-| Qwen3-Embedding-8B | Apache-2.0 | Embeddings |
-| Qwen 2 and 2.5, most sizes | Apache-2.0 | Includes Qwen2.5-7B, 14B, 32B and Qwen2.5-Coder-32B |
-| Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged `other`) | Size decides here, not generation |
+| Qwen3.6-27B, Qwen3.5-9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| Qwen3-Coder-Next | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
+| Qwen3-Embedding-8B | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |
+| Qwen 2 and 2.5, most sizes | Apache-2.0 | Includes [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct), [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct), [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) and [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
+| Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged `other`) | Size decides here, not generation; see each card's licence tag |
 | Qwen 3.8 Max | **No published weights** | Announced with benchmark figures; no downloadable checkpoint under the Qwen organisation. Treat as an API model, not an open-weight one. Third-party uploads claiming to be it are not authoritative |
 
 ### Gemma
@@ -63,9 +63,9 @@ Scope any "Gemma is Apache-2.0 now" claim to the core numbered Gemma 4 series. T
 
 | Model | Licence | Note |
 |---|---|---|
-| Mistral-Large-3-675B | Apache-2.0 | The flagship **is** permissive |
-| Mistral-Small-4-119B | Apache-2.0 | |
-| Devstral-Small-2-24B | Apache-2.0 | The open coding model |
+| Mistral-Large-3-675B | Apache-2.0 | [Model card](https://huggingface.co/mistralai/Mistral-Large-3-675B-Instruct-2512) |
+| Mistral-Small-4-119B | Apache-2.0 | [Model card](https://huggingface.co/mistralai/Mistral-Small-4-119B-2603) |
+| Devstral-Small-2-24B | Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512) |
 | Mistral-Medium-3.5, Devstral-2-123B | Modified MIT with a monthly-revenue cap | A commercial-eligibility threshold, not a research restriction |
 | 2024-era Large, Small, Pixtral, Ministral | Mistral Research License | Genuinely research-only |
 | Codestral-22B | Mistral Non-Production License | |

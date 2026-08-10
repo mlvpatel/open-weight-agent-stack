@@ -29,7 +29,7 @@ flowchart LR
     subgraph CAT_CA["Code agents"]
         CA1["★ Cline / Kilo Code · free · any model"]
         CA2["★ Goose · terminal · any model"]
-        CA3["★ OpenHands · autonomous"]
+        CA3["★ OpenHands · self-hostable execution"]
         CA4["Cursor · Claude Code · Zed · Aider"]
     end
     subgraph CAT_TL["Tool interface"]
@@ -66,7 +66,7 @@ flowchart LR
     end
     subgraph CAT_EM["Embeddings"]
         EM1["★ BGE-M3 · multilingual · dense + sparse"]
-        EM2["Qwen3-Embedding-8B · top MTEB quality"]
+        EM2["Qwen3-Embedding-8B · evaluate on your retrieval set"]
         EM3["Qwen3-Embedding-4B · balanced"]
         EM4["Jina v5"]
     end
@@ -84,7 +84,7 @@ flowchart LR
     end
     subgraph CAT_SV["Model serving"]
         SV1["★ SGLang · RadixAttention"]
-        SV2["★ vLLM · widest hardware support"]
+        SV2["★ vLLM · broad serving support"]
         SV3["TensorRT-LLM · all-NVIDIA"]
         SV4["Ollama · LM Studio · MLX on Mac"]
         SV5["llama.cpp · CPU · Vulkan · Metal"]

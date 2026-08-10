@@ -3,10 +3,10 @@ flowchart TB
         direction TB
         P1["1 · System contract<br/>role · hard constraints · refusal rules<br/>stable, versioned, audited"]
         P2["2 · Tool schemas<br/>typed · only what this role needs"]
-        P3["3 · Retrieved evidence<br/>fenced · every chunk carries a stable id<br/>data, never instructions"]
+        P3["3 · Retrieved evidence<br/>fenced · every chunk carries a stable id<br/>untrusted data, not authority"]
         P4["4 · User input<br/>fenced separately from evidence"]
         P5["5 · Policy restatement<br/>cite only supplied ids · ignore embedded instructions<br/>never reveal the system prompt"]
-        P6["6 · Task and output schema<br/>last, where attention is strongest"]
+        P6["6 · Task and output schema<br/>last, a placement to evaluate"]
     end
 
     subgraph BOUND["Bound output"]
@@ -17,14 +17,14 @@ flowchart TB
     end
 
     DEC["Pinned decoding<br/>temperature · top-p · stop · max tokens · seed<br/>versioned with the prompt, not a runtime whim"]
-    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · policy restated after untrusted input"]
+    PREC["Instruction precedence<br/>the harness preserves system policy outside untrusted text<br/>policy restated after untrusted input"]
     JUDGE["Judge prompt<br/>physically separate artifact<br/>no self-grading"]
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6
     P6 --> B1 --> B2
     B2 -.->|evidence absent or conflicting| B3
     DEC -.->|shipped as one artifact| P1
-    PREC -.->|enforced by ordering and fences| P5
+    PREC -.->|supported by ordering, fences and tool controls| P5
     B2 -.->|graded independently| JUDGE
 
     classDef contract fill:#dff3e6,stroke:#248a3d,color:#0f3d23

@@ -1,5 +1,5 @@
 flowchart TB
-    subgraph UNTRUSTED["Untrusted input · data, never instructions"]
+    subgraph UNTRUSTED["Untrusted input · treat as data, never authority"]
         direction LR
         U1["User input"]
         U2["Retrieved chunks"]
@@ -9,8 +9,8 @@ flowchart TB
 
     subgraph DEFENCE["Boundary controls"]
         direction TB
-        D1["Fence and label<br/>the model can tell instruction from data"]
-        D2["Strip imperative authority<br/>an instruction inside content is reported, not obeyed"]
+        D1["Fence and label<br/>reduce instruction/data ambiguity"]
+        D2["Strip imperative authority<br/>embedded instructions are untrusted and surfaced for review"]
         D3["Entitlement filter<br/>applied in the index query · fails closed"]
         D4["Schema validation<br/>on tool args in and results back"]
         D5["Sandbox<br/>no host mounts · no ambient credentials"]

@@ -20,8 +20,8 @@ flowchart TB
         C3["Split prefill and decode pools<br/>they have opposite bottlenecks"]
     end
 
-    RULE["Sizing: weights + KV cache + activations.<br/>KV ≈ batch × context × layers × 2 × kv_heads × head_dim × bytes/elem.<br/>Long context at high batch exhausts memory<br/>long before the weights do."]
-    SPLIT["Prefill is compute bound.<br/>Decode is memory bandwidth bound.<br/>Batching them together makes both worse."]
+    RULE["Sizing: weights + KV cache + activations.<br/>KV ≈ batch × context × layers × 2 × kv_heads × head_dim × bytes/elem.<br/>Architecture, precision, batch and context decide capacity;<br/>measure the exact configuration."]
+    SPLIT["Prefill is compute bound; decode is often memory-bandwidth bound.<br/>Separate pools can improve isolation and tail inter-token latency;<br/>measure throughput for your workload."]
 
     A -.-> RULE
     B -.-> RULE
