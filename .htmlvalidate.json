@@ -1,5 +1,7 @@
 {
-  "extends": ["html-validate:recommended"],
+  "extends": [
+    "html-validate:recommended"
+  ],
   "rules": {
     "void-style": "off",
     "no-inline-style": "off",
@@ -10,6 +12,12 @@
     "unrecognized-char-ref": "error",
     "close-order": "error",
     "element-required-attributes": "error",
-    "no-dup-id": "error"
+    "no-dup-id": "error",
+    "valid-id": [
+      "error",
+      {
+        "relaxed": true
+      }
+    ]
   }
 }

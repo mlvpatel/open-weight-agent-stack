@@ -1,79 +1,70 @@
 #!/usr/bin/env python3
-"""Build both outputs from the shared body template.
+"""Generate site/index.html from MANUAL.md.
 
-artifact  : body only. The artifact host injects the document wrapper.
-site      : a complete, valid HTML document for GitHub Pages, which injects nothing.
+MANUAL.md is the only hand-edited source. This produces the published document:
+the design chrome comes from site/template.html, the content and every count
+come from the manual. Running it twice on unchanged input yields identical
+bytes, so CI can regenerate and diff to prove nothing drifted.
 """
-import html, json, pathlib, re, sys
+from __future__ import annotations
 
-ROOT = pathlib.Path("/Users/mlvpatel/Downloads/enen project")
-REPO = ROOT / "open-weight-agent-stack"
-HERE = pathlib.Path(__file__).parent  # scripts/ holds the body template alongside this builder
+import json
+import re
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lib.manual import REPO, load, slug  # noqa: E402
+from lib.render import render  # noqa: E402
+
+TEMPLATE = REPO / "site" / "template.html"
+OUTPUT = REPO / "site" / "index.html"
+THEME = REPO / "assets" / "mermaid-theme.json"
 SITE_URL = "https://mlvpatel.github.io/open-weight-agent-stack/"
-DESCRIPTION = ("A performance-first build manual for agentic AI on open-weight models: hardware and "
-               "serving, retrieval, memory, identity, security, and operations.")
 
-def build():
-    body = (HERE / "artifact2.html").read_text()
-    theme = json.loads((REPO / "assets" / "mermaid-theme.json").read_text())
+
+def build() -> int:
+    manual = load()
+    theme = json.loads(THEME.read_text())
     init = "%%{init: " + json.dumps(theme, separators=(",", ":")) + "}%%\n"
-    manual = (REPO / "MANUAL.md").read_text()
-    blocks = re.findall(r"```mermaid\n(.*?)```", manual, re.S)
-    if len(blocks) != 18:
-        sys.exit(f"expected 18 mermaid blocks, found {len(blocks)}")
 
-    out = body
-    for ph in list(range(16)) + [17]:
-        tag = f"<!--DIAGRAM:{ph}-->"
-        if tag not in out:
-            sys.exit(f"missing placeholder {tag}")
-        out = out.replace(tag, f'<pre class="mermaid">{html.escape(init + blocks[ph], quote=False)}</pre>')
-    if re.search(r"<!--DIAGRAM:\d+-->", out):
-        sys.exit("unfilled diagram placeholder remains")
+    # The hero carries the title; drop the manual's H1 so it is not stated twice.
+    md = re.sub(r"\A# [^\n]*\n", "", manual.text, count=1)
+    body, figures = render(md, init)
 
-    (ROOT / "ai-agent-architecture-page.html").write_text(out)
+    # Contents, derived from the manual's own numbered sections.
+    toc = "".join(
+        f'<li><a href="#{slug(h)}"><span class="n">{h.split(".")[0].zfill(2)}</span>'
+        f' {h.split(". ", 1)[1] if ". " in h else h}</a></li>'
+        for h in manual.sections
+    )
 
-    title = "The Open-Weight Agent Stack, Build Manual"
+    # Every number below is measured, never typed.
+    facts = {
+        "SECTIONS": str(manual.section_count),
+        "DIAGRAMS": str(manual.diagram_count),
+        "FIGURES": str(figures),
+        "LINKS": str(manual.link_count),
+        "UNIQUE_LINKS": str(manual.unique_links),
+        "SITE_URL": SITE_URL,
+        "TOC": toc,
+        "BODY": body,
+    }
 
-    # title and style must live in <head>; pull them out of the body template
-    out = re.sub(r"<title>.*?</title>\s*", "", out, count=1, flags=re.S)
-    style = ""
-    m = re.search(r"<style>.*?</style>", out, re.S)
-    if m:
-        style = m.group(0)
-        out = out[:m.start()] + out[m.end():]
-    out = re.sub(r"[ \t]+$", "", out, flags=re.M)
+    out = TEMPLATE.read_text()
+    for key, value in facts.items():
+        out = out.replace("{{" + key + "}}", value)
 
-    doc = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<meta name="description" content="{DESCRIPTION}">
-<link rel="canonical" href="{SITE_URL}">
-<meta property="og:type" content="article">
-<meta property="og:title" content="{title}">
-<meta property="og:description" content="{DESCRIPTION}">
-<meta property="og:url" content="{SITE_URL}">
-<meta property="og:image" content="{SITE_URL}preview.png">
-<meta name="twitter:card" content="summary_large_image">
-{style}\n<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9889;</text></svg>">
-</head>
-<body>
-{out}
-<script src="mermaid.min.js"></script>
-<script>
-(function () {{
-  try {{ if (window.mermaid) {{ window.mermaid.initialize({{ startOnLoad: true }}); }} }} catch (e) {{}}
-}})();
-</script>
-</body>
-</html>
-"""
-    (REPO / "site" / "index.html").write_text(doc)
-    print(f"built: artifact {len(out)} bytes, site {len(doc)} bytes")
+    leftover = re.findall(r"\{\{[A-Z_]+\}\}", out)
+    if leftover:
+        print(f"error: unfilled placeholders {sorted(set(leftover))}", file=sys.stderr)
+        return 1
+
+    OUTPUT.write_text(out)
+    print(f"generated {OUTPUT.relative_to(REPO)}: "
+          f"{manual.section_count} sections, {figures} figures, {manual.link_count} links")
+    return 0
+
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(build())

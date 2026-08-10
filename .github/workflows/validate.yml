@@ -57,8 +57,6 @@ jobs:
           cache: npm
       - name: install pinned toolchain
         run: npm ci --no-audit --no-fund
-      - name: the published document is valid HTML
-        run: npx --no-install html-validate site/index.html
       - name: the gate rejects malformed input
         run: |
           # a validator that passes on broken input proves nothing
@@ -68,6 +66,29 @@ jobs:
             exit 1
           fi
           echo "gate correctly rejects malformed HTML"
+
+  generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: install pinned toolchain
+        run: npm ci --no-audit --no-fund
+      - name: regenerate the site from MANUAL.md
+        run: python3 scripts/build_site.py
+      - name: committed site matches regeneration
+        run: |
+          if ! git diff --quiet -- site/index.html; then
+            echo "::error::site/index.html is stale. Run scripts/build_site.py and commit."
+            git diff --stat -- site/index.html
+            exit 1
+          fi
+          echo "derived site matches its source"
+      - name: generated document is valid HTML
+        run: npx --no-install html-validate site/index.html
 
   invariants:
     runs-on: ubuntu-latest
@@ -120,7 +141,7 @@ jobs:
     # by paths reports Pending forever and would block required checks, while a
     # job skipped by a conditional reports Success.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [diagrams, html, links, invariants]
+    needs: [diagrams, html, links, invariants, generated]
     runs-on: ubuntu-latest
     permissions:
       contents: read

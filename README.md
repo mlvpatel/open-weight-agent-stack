@@ -58,7 +58,8 @@ Every layer of the stack has a companion file with decision guidance, wiring not
 ```
 MANUAL.md            The manual. Single source of truth; all diagrams render on GitHub.
 docs/ARCHITECTURE.md The system in C4: context, containers, components, code.
-site/                The manual as a designed single-page site (GitHub Pages).
+site/template.html   Design chrome for the site. site/index.html is GENERATED from
+                     MANUAL.md by scripts/build_site.py; never edit it by hand.
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
 docs/MODELS.md       Twenty open-weight families, licence postures, org links.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
@@ -78,12 +79,15 @@ Read [MANUAL.md](MANUAL.md) top to bottom, or jump by the table above. To reuse 
 
 ```bash
 npm ci
-python3 scripts/extract_diagrams.py && bash scripts/render_diagrams.sh
+python3 scripts/extract_diagrams.py   # refresh diagrams/src from the manual
+python3 scripts/build_site.py         # regenerate site/index.html
+python3 scripts/check_invariants.py   # anchors, links, counts
 ```
 
 ## How this repo stays honest
 
 - **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit `indicative` marker for field heuristics nobody publishes.
+- **Derived files cannot drift**: `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails if the committed copy differs.
 - **CI checks what it can**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles every diagram and confirms every external link still resolves. It cannot judge whether a source supports the claim it is cited for. [What CI does and does not verify](docs/VERIFICATION.md).
 - **Corrections are the most valued contribution.** Quote the current text, give the fix, cite a primary source. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
