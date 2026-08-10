@@ -9,23 +9,35 @@ jobs:
   diagrams:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: install pinned toolchain
+        run: npm ci --no-audit --no-fund
       - name: extract diagrams from MANUAL.md
         run: python3 scripts/extract_diagrams.py
-      - name: compile every diagram
+      - name: render twice and require identical bytes
         run: |
-          for f in diagrams/src/*.mmd; do
-            npx -y @mermaid-js/mermaid-cli -p scripts/puppeteer.json -i "$f" -o /tmp/out.svg
-            echo "ok $f"
-          done
+          bash scripts/render_diagrams.sh
+          cp -r diagrams/svg /tmp/render-a
+          bash scripts/render_diagrams.sh
+          diff -rq /tmp/render-a diagrams/svg
+          echo "rendering is reproducible"
+      - name: committed SVGs match a fresh render
+        run: |
+          if ! git diff --quiet -- diagrams/svg; then
+            echo "::error::Committed SVGs differ from a fresh render. Run scripts/render_diagrams.sh and commit."
+            git diff --stat -- diagrams/svg
+            exit 1
+          fi
   links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: check every external link
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           args: --no-progress --max-concurrency 8 --accept 200,201,202,204,206,301,302,308,403,429 MANUAL.md README.md docs/
           fail: true
