@@ -1,9 +1,30 @@
 cff-version: 1.2.0
-message: "If you use this manual, cite it as below."
+message: "If you use this manual, please cite it as below."
 title: "The Open-Weight Agent Stack: A Performance-First Build Manual"
+abstract: >-
+  A build manual for agentic AI on open-weight models, covering hardware and
+  serving, retrieval, memory, identity, security, and operations across 27
+  sections, with every volatile claim linked to a primary source.
 authors:
   - family-names: "Patel"
     given-names: "Malav"
-type: dataset
+type: software
 license: CC-BY-4.0
 repository-code: "https://github.com/mlvpatel/open-weight-agent-stack"
+url: "https://mlvpatel.github.io/open-weight-agent-stack/"
+version: "1.1.0"
+date-released: "2026-08-10"
+keywords:
+  - open-weight models
+  - agentic ai
+  - llm inference
+  - retrieval augmented generation
+preferred-citation:
+  type: manual
+  title: "The Open-Weight Agent Stack: A Performance-First Build Manual"
+  authors:
+    - family-names: "Patel"
+      given-names: "Malav"
+  version: "1.1.0"
+  year: 2026
+  url: "https://mlvpatel.github.io/open-weight-agent-stack/"
