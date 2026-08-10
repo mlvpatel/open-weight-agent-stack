@@ -856,7 +856,7 @@ Evals do not replace tests; they sit above them. Seven levels, cheapest and fast
 3. Replay integration tests. Record real model responses once, replay them in CI: full-pipeline coverage at zero token cost.
 4. Eval suites. The golden dataset with graded rubrics and a calibrated judge, run against the live model.
 5. Simulation. A persona model plays the user across multi-turn flows; assert on outcomes, never on exact wording.
-6. Red-team suites. Adversarial prompts mapped to the ASI risks (section 19): injection, exfiltration, tool misuse. Autonomous pentest agents (Strix, open source) run these in CI. Any failure blocks release.
+6. Red-team suites. Adversarial prompts mapped to the ASI risks (section 19): injection, exfiltration, tool misuse. Autonomous pentest agents run these suites continuously in CI. Any failure blocks release.
 7. Chaos drills. Kill the model server, inject 429s, corrupt a tool response; verify fallbacks and budgets hold.
 
 | CI stage | Runs | Budget |
@@ -1950,7 +1950,6 @@ their cards before relying on them months from now.
 | DGX Spark | GB10, 128 GB unified memory desktop | [nvidia.com](https://www.nvidia.com/en-us/products/workstations/dgx-spark/) |
 | Jetson modules | Edge inference hardware | [developer.nvidia.com](https://developer.nvidia.com/embedded/jetson-modules) |
 | Cloud accelerators | TPU (GCP) and Trainium (AWS) product pages | [cloud.google.com/tpu](https://cloud.google.com/tpu) · [aws.amazon.com](https://aws.amazon.com/ai/machine-learning/trainium/) |
-| Strix | Open-source autonomous pentest agent, Apache-2.0; runs red-team suites in CI | [github.com/usestrix/strix](https://github.com/usestrix/strix) |
 
 ### 27.3 Standards, protocols and benchmarks
 
