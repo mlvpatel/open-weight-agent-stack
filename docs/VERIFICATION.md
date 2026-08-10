@@ -16,7 +16,7 @@ A claim with no marker and no source is a defect. Report it.
 
 ## What CI verifies automatically
 
-Five jobs run on every push to `main`, on every pull request, and weekly on a schedule. Deployment is gated on all five passing.
+Six validation jobs run on every push to `main`, on every pull request, and weekly on a schedule. The conditional Pages deployment runs only for a push to `main` and waits for all six.
 
 **`diagrams`**
 - Every Mermaid source extracted from the manual compiles.
@@ -24,10 +24,20 @@ Five jobs run on every push to `main`, on every pull request, and weekly on a sc
 - The renderer produces byte-identical output when run twice, which is what makes the drift gate below meaningful.
 
 **`generated`**
+- The vendored Mermaid browser bundle is compared byte-for-byte against the version pinned in the lockfile.
 - `site/index.html` is regenerated from `MANUAL.md` and the build fails if the committed copy differs, so the published page cannot drift from its source.
 - The regenerated document is valid HTML.
 
+**`browser`**
+- The generated site is opened in Chromium.
+- All 18 Mermaid diagrams must render as visible SVGs.
+- Browser console and page errors, failed local requests, unloaded images, and deploy-unsafe links fail the gate.
+- A synthetic Mermaid bundle/run failure must produce visible safe fallback text for every diagram and a useful console error rather than being silently swallowed.
+- Repository-relative documentation links are rejected in the generated site because GitHub Pages serves from a repository path, not the repository root.
+
 **`invariants`**
+- `npm test` runs the renderer-injection, factual-claim, generated-link, freshness, SBOM, coverage, workflow-security, and release-metadata regression contracts.
+- The committed SBOM is regenerated deterministically and validated against the CycloneDX schema.
 - Every internal `MANUAL.md#anchor` reference resolves to a real heading.
 - Every relative link between repository files points at a file that exists.
 - Every count stated in prose matches the measured value.
@@ -37,13 +47,13 @@ Five jobs run on every push to `main`, on every pull request, and weekly on a sc
 
 **`html`**
 - A deliberately malformed document is fed to the validator, and the job fails if the validator accepts it.
-- The markdown renderer is tested against injection: markdown must not be able to produce an event handler, an executable URL scheme, or any element outside a small allow-list.
-- The vendored browser bundle is compared byte-for-byte against the mermaid release pinned in the lockfile.
 
 **`links`**
 - Every external link in the manual, README, and docs returns a genuine success status. Rate-limited and forbidden responses are not accepted as success.
 
-A sixth workflow, `freshness`, runs weekly and is not a gate: it compares the manual's model claims against their sources and opens a pull request when they drift. See [FRESHNESS.md](FRESHNESS.md).
+The `codeql` workflow is configured locally to scan Python and JavaScript/TypeScript on pushes, pull requests, weekly schedules, and manual dispatch. It will upload findings to GitHub code scanning only after it is pushed and runs successfully; the owner can then add its checks to branch protection.
+
+The `freshness` workflow runs weekly and is not a gate: it compares the manual's model claims against their sources and opens a pull request when they drift. See [FRESHNESS.md](FRESHNESS.md).
 
 ## What CI does not verify
 
@@ -55,6 +65,8 @@ This is the part that matters, and the part most repositories leave unsaid.
 - **Whether a recommendation is good.** Rankings, "best for" columns, and suggested defaults are editorial judgement informed by research. They are argued, not proven.
 - **Whether an `indicative` heuristic holds on your hardware.** It is a starting point for capacity planning, not a guarantee.
 - **Whether prose in `docs/` agrees with prose in the manual.** Only the generated site is checked for drift; the layer guides and architecture document are maintained by hand.
+- **Whether CodeQL is required in GitHub branch protection.** This repository can commit the workflow, but the hosted required-check list is a GitHub setting and must be enabled after the first `codeql` run exists.
+- **Whether branch-protection trade-offs are accepted.** As verified on 2026-08-11, the required contexts are `diagrams`, `generated`, `invariants`, `html`, and `links`; `browser` and CodeQL are pending owner action after push. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
 
 ## What this means for you as a reader
 

@@ -1,6 +1,6 @@
 {
   "name": "open-weight-agent-stack",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Build tooling for the Open-Weight Agent Stack manual: diagram rendering and site assets.",
   "license": "CC-BY-4.0",
@@ -11,7 +11,10 @@
     "render": "bash scripts/render_diagrams.sh",
     "sbom": "python3 scripts/sbom.py generate",
     "sbom:check": "python3 scripts/sbom.py check && node scripts/validate_sbom_schema.cjs --sbom sbom.cdx.json",
-    "test": "python3 scripts/test_claim_contracts.py && python3 scripts/test_render_security.py && python3 scripts/test_site_links.py && python3 scripts/test_watch_upstream.py && python3 scripts/test_sbom.py && python3 scripts/test_coverage_gate.py && python3 scripts/coverage_gate.py && echo 'Offline tests and Python coverage passed. Run npm run validate:html for HTML validation.'",
+    "test": "python3 scripts/test_claim_contracts.py && python3 scripts/test_render_security.py && python3 scripts/test_site_links.py && python3 scripts/test_watch_upstream.py && python3 scripts/test_sbom.py && python3 scripts/test_coverage_gate.py && python3 scripts/test_security_workflows.py && python3 scripts/test_release_metadata.py && python3 scripts/coverage_gate.py && echo 'Offline tests and Python coverage passed. Run npm run validate:html and npm run browser:check for generated-site validation.'",
+    "browser:check:normal": "node scripts/test_site_browser.cjs",
+    "browser:check:failure": "node scripts/test_site_browser.cjs --simulate-mermaid-failure",
+    "browser:check": "npm run browser:check:normal && npm run browser:check:failure",
     "validate:html": "html-validate site/index.html"
   },
   "devDependencies": {

@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.1.1 - 2026-08-11 (local release candidate)
+
+**Published-site integrity.** Repository-local Markdown links are converted to
+stable GitHub document URLs in the generated Pages site, and regression checks
+now reject generated-site links that would 404 under a repository path.
+
+**Claims and freshness.** Documentation wording was narrowed to supported,
+source-linked claims. The upstream watcher now tracks the exact model IDs used
+by the manual, distinguishes temporary upstream failures from removals, and
+records the review state explicitly.
+
+**Reproducible supply chain and tests.** The CycloneDX SBOM is deterministic,
+fresh against the lockfile, schema-validated offline, and checked in CI. The
+offline suite has a measured Python coverage gate and protects factual claims,
+freshness, generated links, workflow security, and release metadata.
+
+**Browser and workflow hardening.** A sandboxed Chromium gate opens the site
+under its GitHub Pages repository path, requires all 18 Mermaid diagrams, and
+turns a Mermaid failure into visible safe fallback text. CodeQL is configured
+locally for Python and JavaScript/TypeScript; hosted scanning becomes active
+only after this candidate is pushed and the workflow runs on GitHub.
+
+**Governance accounting.** Verification and security documentation now name
+the actual local gates and distinguish them from GitHub settings that require
+owner action after push.
+
 ## 1.1.0
 
 Trustworthy and self-maintaining.

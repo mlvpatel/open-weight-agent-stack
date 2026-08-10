@@ -7103,7 +7103,7 @@
         "html-validate@11.6.2",
         "puppeteer@25.5.0"
       ],
-      "ref": "open-weight-agent-stack@1.1.0"
+      "ref": "open-weight-agent-stack@1.1.1"
     },
     {
       "dependsOn": [
@@ -8198,7 +8198,7 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "open-weight-agent-stack@1.1.0",
+      "bom-ref": "open-weight-agent-stack@1.1.1",
       "description": "Build tooling for the Open-Weight Agent Stack manual: diagram rendering and site assets.",
       "licenses": [
         {
@@ -8214,10 +8214,10 @@
           "value": "true"
         }
       ],
-      "purl": "pkg:npm/open-weight-agent-stack@1.1.0",
+      "purl": "pkg:npm/open-weight-agent-stack@1.1.1",
       "scope": "required",
       "type": "library",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     "lifecycles": [
       {
@@ -8227,7 +8227,7 @@
     "properties": [
       {
         "name": "cdx:lockfile:sha256",
-        "value": "033dccdfa6f163c974c3ed77681743f0acadc69f9871f46f2eb46292689043b5"
+        "value": "51f8c6f766566bd2f65e1fd4b76b8dac1854a79a1a801c143b0e550c49efda80"
       }
     ]
   },

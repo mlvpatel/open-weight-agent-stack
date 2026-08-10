@@ -276,6 +276,14 @@
   }
   .plate-body pre.mermaid { margin: 0; text-align: center; min-width: min-content; }
   .plate-body svg { max-width: 100%; height: auto; }
+  .mermaid-fallback {
+    margin: 0;
+    padding: var(--s3);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    background: var(--danger-soft);
+    font-weight: 600;
+  }
   .readnote {
     font-size: 13.5px; color: var(--muted);
     border-left: 2px solid var(--border-strong); padding-left: var(--s4);
@@ -571,8 +579,23 @@
 
 <script src="mermaid.min.js"></script>
 <script>
-(function () {
-  try { if (window.mermaid) { window.mermaid.initialize({ startOnLoad: true }); } } catch (e) {}
+(async function () {
+  const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  try {
+    if (!window.mermaid) {
+      throw new Error("Mermaid browser bundle did not load");
+    }
+    window.mermaid.initialize({ startOnLoad: false });
+    await window.mermaid.run({ nodes: diagrams });
+  } catch (e) {
+    console.error("Mermaid failed to render diagrams", e);
+    for (const diagram of diagrams) {
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      diagram.replaceWith(fallback);
+    }
+  }
 })();
 </script>
 </body>

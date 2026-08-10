@@ -1,0 +1,3 @@
+# This maps responsibility locally. GitHub enforces code-owner review only when
+# the repository's branch-protection setting explicitly requires it.
+* @mlvpatel

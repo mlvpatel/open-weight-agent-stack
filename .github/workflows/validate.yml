@@ -121,6 +121,29 @@ jobs:
       - name: generated document is valid HTML
         run: npx --no-install html-validate site/index.html
 
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: install pinned toolchain
+        run: npm ci --no-audit --no-fund
+      # Keep Chromium sandboxed. This mirrors the diagram job because hosted
+      # Ubuntu runners restrict unprivileged user namespaces through AppArmor.
+      - name: permit unprivileged user namespaces for the browser sandbox
+        run: |
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          echo "unprivileged_userns_clone: $(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo n/a)"
+      - name: generated site renders in Chromium
+        run: npm run browser:check
+
   invariants:
     runs-on: ubuntu-latest
     permissions:
@@ -186,7 +209,7 @@ jobs:
     # by paths reports Pending forever and would block required checks, while a
     # job skipped by a conditional reports Success.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [diagrams, html, links, invariants, generated]
+    needs: [diagrams, html, links, invariants, generated, browser]
     runs-on: ubuntu-latest
     permissions:
       contents: read

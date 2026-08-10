@@ -9,6 +9,7 @@ Hardware and serving, retrieval, memory, identity, security, and operations.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![freshness](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml)
+[![codeql](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/codeql.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/codeql.yml)
 [![release](https://img.shields.io/github/v/release/mlvpatel/open-weight-agent-stack?color=0071e3)](https://github.com/mlvpatel/open-weight-agent-stack/releases/latest)
 [![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -132,16 +133,26 @@ site/template.html   Design chrome. site/index.html is GENERATED; never edit it 
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 assets/              The single Mermaid theme both the site and the SVGs render from.
 scripts/             Extract diagrams, generate the site, check invariants, watch upstream.
-.github/workflows/   Five gating jobs, plus the weekly freshness watcher.
+.github/workflows/   Six validation jobs, a CodeQL workflow, plus the weekly freshness watcher.
 ```
 
-## What changed in 1.1.0
+## What is in the 1.1.1 local release candidate
 
-Every runtime version floor in the manual was wrong. Node 20 had reached end of life, the stated Python range matched neither vLLM nor SGLang, the CUDA rule misstated minor-version compatibility, and ROCm was three major versions behind.
+The generated Pages site now converts repository-local documentation links to
+stable GitHub URLs, so they do not 404 when served below
+`/open-weight-agent-stack/`. A sandboxed Chromium gate serves that exact path,
+requires all 18 Mermaid diagrams to be visible, and makes a Mermaid failure
+visible instead of swallowing it.
 
-Licences are now stated **per model, never per family**. Five of seven families ship different terms to different members, and three previous claims were actively misleading: MiniMax M2.7 is non-commercial with the restriction in its licence file rather than its card tag, NVIDIA's quantised republishes do not reliably inherit the base licence, and Mistral's flagship is the permissive one.
+The candidate also has a deterministic, schema-validated SBOM; measured Python
+coverage for the offline regression suite; tighter factual wording; and a
+freshness watcher tied to the models the manual actually names. CodeQL is
+configured locally and will become hosted scanning only after the owner pushes
+this candidate and GitHub completes its first run.
 
-The site is now generated from the manual, the build is reproducible, and a weekly watcher re-checks model facts after publication. Full detail in [CHANGELOG.md](CHANGELOG.md) and the [1.1.0 release](https://github.com/mlvpatel/open-weight-agent-stack/releases/latest).
+See [CHANGELOG.md](CHANGELOG.md) for the complete 1.1.1 notes. This is a local
+release candidate: no 1.1.1 tag or GitHub release is claimed until an owner
+creates it after the remote checks pass.
 
 ## Quickstart
 
@@ -159,6 +170,9 @@ python3 scripts/extract_diagrams.py   # refresh diagrams/src from the manual
 python3 scripts/build_site.py         # regenerate site/index.html
 python3 scripts/check_invariants.py   # anchors, relative links, stated counts
 python3 scripts/test_watch_upstream.py
+npm test                              # offline regression suite and Python coverage
+npm run validate:html                 # generated HTML validity
+npm run browser:check                 # generated site smoke test in Chromium
 ```
 
 ## How this repository stays honest
