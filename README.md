@@ -75,9 +75,10 @@ scripts/             Regenerate diagrams from the manual; render themed SVGs.
 git clone https://github.com/mlvpatel/open-weight-agent-stack.git
 ```
 
-Read [MANUAL.md](MANUAL.md) top to bottom, or jump by the table above. To reuse a diagram, take any file from [`diagrams/src/`](diagrams/src/); they are standard Mermaid and render in GitHub, GitLab, Obsidian, and VS Code. If you edit a diagram in the manual, regenerate the standalone files:
+Read [MANUAL.md](MANUAL.md) top to bottom, or jump by the table above. To reuse a diagram, take any file from [`diagrams/src/`](diagrams/src/); they are standard Mermaid and render in GitHub, GitLab, Obsidian, and VS Code. Pre-rendered SVGs are attached to every CI run as the `diagrams-svg` artifact. If you edit a diagram in the manual, regenerate the standalone files:
 
 ```bash
+npm ci
 python3 scripts/extract_diagrams.py && bash scripts/render_diagrams.sh
 ```
 

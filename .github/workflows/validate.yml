@@ -18,20 +18,26 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: extract diagrams from MANUAL.md
         run: python3 scripts/extract_diagrams.py
+      - name: sources match the manual
+        run: |
+          if ! git diff --quiet -- diagrams/src; then
+            echo "::error::diagrams/src is stale. Run scripts/extract_diagrams.py and commit."
+            git diff --stat -- diagrams/src
+            exit 1
+          fi
       - name: render twice and require identical bytes
         run: |
           bash scripts/render_diagrams.sh
           cp -r diagrams/svg /tmp/render-a
+          rm -rf diagrams/svg
           bash scripts/render_diagrams.sh
           diff -rq /tmp/render-a diagrams/svg
-          echo "rendering is reproducible"
-      - name: committed SVGs match a fresh render
-        run: |
-          if ! git diff --quiet -- diagrams/svg; then
-            echo "::error::Committed SVGs differ from a fresh render. Run scripts/render_diagrams.sh and commit."
-            git diff --stat -- diagrams/svg
-            exit 1
-          fi
+          echo "rendering is reproducible in this environment"
+      - name: publish rendered diagrams
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: diagrams-svg
+          path: diagrams/svg/
   links:
     runs-on: ubuntu-latest
     steps:
