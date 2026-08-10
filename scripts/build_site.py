@@ -14,6 +14,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib.manual import REPO, load, slug  # noqa: E402
@@ -23,6 +24,42 @@ TEMPLATE = REPO / "site" / "template.html"
 OUTPUT = REPO / "site" / "index.html"
 THEME = REPO / "assets" / "mermaid-theme.json"
 SITE_URL = "https://mlvpatel.github.io/open-weight-agent-stack/"
+REPOSITORY_FILE_URL = "https://github.com/mlvpatel/open-weight-agent-stack/blob/main/"
+
+
+def publish_repository_markdown_links(markdown: str) -> str:
+    """Point source-document links at GitHub when rendering for Pages.
+
+    GitHub Pages publishes only ``site/``. A relative Markdown link such as
+    ``docs/MODELS.md`` is valid in the repository but becomes a 404 from the
+    generated page. Keep the manual as the source of truth and make every
+    existing, repository-local Markdown target a stable ``blob/main`` URL.
+    Fenced code is deliberately left untouched so examples render verbatim.
+    """
+
+    def link(match: re.Match[str]) -> str:
+        target = match.group("target")
+        path, marker, fragment = target.partition("#")
+        if not path.lower().endswith(".md"):
+            return match.group(0)
+
+        candidate = (REPO / path).resolve()
+        try:
+            relative = candidate.relative_to(REPO)
+        except ValueError:
+            return match.group(0)
+        if not candidate.is_file():
+            return match.group(0)
+
+        url = REPOSITORY_FILE_URL + quote(relative.as_posix(), safe="/")
+        if marker:
+            url += "#" + quote(fragment, safe="-._~")
+        return f"]({url})"
+
+    parts = re.split(r"(```.*?```)", markdown, flags=re.S)
+    for index in range(0, len(parts), 2):
+        parts[index] = re.sub(r"(?<!!)\]\((?P<target>[^()\s]+)\)", link, parts[index])
+    return "".join(parts)
 
 
 def build() -> int:
@@ -32,6 +69,7 @@ def build() -> int:
 
     # The hero carries the title; drop the manual's H1 so it is not stated twice.
     md = re.sub(r"\A# [^\n]*\n", "", manual.text, count=1)
+    md = publish_repository_markdown_links(md)
     body, figures = render(md, init)
 
     # Contents, derived from the manual's own numbered sections.

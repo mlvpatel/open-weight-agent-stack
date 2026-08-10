@@ -18,7 +18,9 @@ import os
 import re
 import subprocess
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib.manual import REPO, load, markdown_files, slug  # noqa: E402
@@ -62,6 +64,55 @@ def check_relative_files() -> None:
                 fail(f"files: {f.relative_to(REPO)} links to {target}, which does not exist")
     require_nonzero("files", checked, "relative links")
     SUMMARY.append(f"files: {checked} relative links resolved")
+
+
+class _GeneratedURLCollector(HTMLParser):
+    """Collect the URLs that a browser resolves from generated markup."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.urls: list[tuple[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            if name in {"href", "src"} and value:
+                self.urls.append((f"{tag}[{name}]", value))
+
+
+def check_generated_site_links() -> None:
+    """Ensure every generated relative URL resolves inside ``site/``.
+
+    This protects the deployed Pages document, whose URL base differs from the
+    repository root. External URLs and fragments are intentionally outside the
+    scope of this structural check and remain the link-check job's concern.
+    """
+    site = REPO / "site" / "index.html"
+    if not site.exists():
+        fail("generated-links: expected site/index.html")
+        return
+
+    site_root = site.parent.resolve()
+    collector = _GeneratedURLCollector()
+    collector.feed(site.read_text())
+    checked = 0
+    for source, url in collector.urls:
+        parsed = urlsplit(url)
+        if parsed.scheme or parsed.netloc or not parsed.path:
+            continue
+        if parsed.path.startswith("/"):
+            fail(f"generated-links: {source} uses root-relative URL {url!r}; Pages is published below a repository path")
+            continue
+        checked += 1
+        target = (site_root / unquote(parsed.path)).resolve()
+        try:
+            target.relative_to(site_root)
+        except ValueError:
+            fail(f"generated-links: {source} escapes site/ via {url!r}")
+            continue
+        if not target.is_file():
+            fail(f"generated-links: {source} points to {url!r}, which site/ does not publish")
+    require_nonzero("generated-links", checked, "site-relative URLs")
+    SUMMARY.append(f"generated-links: {checked} site-relative URLs resolved")
 
 
 def check_counts(m) -> None:
@@ -143,6 +194,7 @@ def main() -> int:
     m = load()
     check_anchors(m)
     check_relative_files()
+    check_generated_site_links()
     check_counts(m)
     check_architecture_diagram()
     check_repo_description(m)
