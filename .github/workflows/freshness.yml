@@ -1,0 +1,75 @@
+name: freshness
+
+# Detects upstream drift in the facts this manual publishes and opens one pull
+# request carrying the evidence. It never edits the manual itself: a detection
+# bug can then produce a noisy pull request, but it cannot silently rewrite
+# published content.
+
+on:
+  schedule:
+    - cron: "17 5 * * 2"   # weekly, Tuesday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freshness
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # A GitHub App token is required, not a convenience. Pull requests opened
+      # with the default GITHUB_TOKEN receive no check runs, so with required
+      # status checks enabled they can never merge.
+      - name: mint an app token
+        id: token
+        if: vars.FRESHNESS_APP_ENABLED == 'true'
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: look for confirmed upstream drift
+        id: watch
+        run: |
+          set +e
+          python3 scripts/watch_upstream.py | tee /tmp/watch.log
+          code=${PIPESTATUS[0]}
+          set -e
+          case "$code" in
+            0) echo "drift=none"  >> "$GITHUB_OUTPUT" ;;
+            2) echo "drift=found" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::watcher failed with exit $code"; exit "$code" ;;
+          esac
+
+      - name: report when the app is not configured
+        if: steps.watch.outputs.drift == 'found' && vars.FRESHNESS_APP_ENABLED != 'true'
+        run: |
+          echo "::warning::Confirmed upstream drift, but no GitHub App is configured, so no pull request can be opened."
+          echo "Configure APP_ID and APP_PRIVATE_KEY, then set the FRESHNESS_APP_ENABLED variable to true."
+          echo
+          cat drift-report.md
+
+      - name: open one pull request carrying every change
+        if: steps.watch.outputs.drift == 'found' && vars.FRESHNESS_APP_ENABLED == 'true'
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
+        with:
+          token: ${{ steps.token.outputs.token }}
+          branch: freshness/upstream-drift
+          # One branch reused across runs: a second finding updates the open
+          # pull request instead of opening a competing one.
+          base: main
+          title: "chore: upstream facts have changed"
+          body-path: drift-report.md
+          commit-message: |
+            chore: record confirmed upstream drift
+
+            Observed on two consecutive runs, so this is not transient.
+          add-paths: |
+            .github/upstream-state.json
+          delete-branch: false

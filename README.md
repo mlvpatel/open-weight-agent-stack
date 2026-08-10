@@ -61,7 +61,8 @@ docs/ARCHITECTURE.md The system in C4: context, containers, components, code.
 site/template.html   Design chrome for the site. site/index.html is GENERATED from
                      MANUAL.md by scripts/build_site.py; never edit it by hand.
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
-docs/MODELS.md       Twenty open-weight families, licence postures, org links.
+docs/MODELS.md       Open-weight families, per-model licences, org links.
+docs/FRESHNESS.md    How the upstream watcher works and how to enable it.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 docs/VERIFICATION.md What automated checks do and do not prove.
 diagrams/svg/        The same diagrams rendered to SVG.
@@ -87,6 +88,7 @@ python3 scripts/check_invariants.py   # anchors, links, counts
 ## How this repo stays honest
 
 - **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit `indicative` marker for field heuristics nobody publishes.
+- **Facts are re-checked after publication**: a weekly watcher compares the manual's model claims against their sources and opens a pull request when they drift ([how it works](docs/FRESHNESS.md)).
 - **Derived files cannot drift**: `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails if the committed copy differs.
 - **CI checks what it can**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles every diagram and confirms every external link still resolves. It cannot judge whether a source supports the claim it is cited for. [What CI does and does not verify](docs/VERIFICATION.md).
 - **Corrections are the most valued contribution.** Quote the current text, give the fix, cite a primary source. See [CONTRIBUTING.md](CONTRIBUTING.md).

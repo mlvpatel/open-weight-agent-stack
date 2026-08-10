@@ -1,0 +1,154 @@
+{
+  "observed": {
+    "BAAI/bge-m3": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "Kwaipilot/KAT-Coder-V2.5-Dev": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "LiquidAI/LFM2.5-2.6B": {
+      "available": true,
+      "gated": false,
+      "license": "other",
+      "license_name": "lfm1.0"
+    },
+    "MiniMaxAI/MiniMax-M2.7": {
+      "available": true,
+      "gated": false,
+      "license": "other",
+      "license_name": "other"
+    },
+    "Qwen/Qwen3-Coder-Next": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "Qwen/Qwen3.5-9B": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "Qwen/Qwen3.6-27B": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "__deps__": {
+      "@mermaid-js/mermaid-cli": "11.16.0",
+      "html-validate": "11.6.2",
+      "puppeteer": "25.5.0"
+    },
+    "allenai/Olmo-3-1025-7B": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "deepseek-ai/DeepSeek-V4-Flash": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "deepseek-ai/DeepSeek-V4-Pro": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "google/gemma-4-12B-it": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "hexgrad/Kokoro-82M": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "ibm-granite/granite-4.1-30b": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "inclusionAI/Ling-3.0-flash": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "meta-llama/Llama-4-Scout-17B-16E-Instruct": {
+      "available": true,
+      "gated": true,
+      "license": "other",
+      "license_name": "llama4"
+    },
+    "microsoft/phi-4": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "mistralai/Devstral-Small-2507": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "moonshotai/Kimi-K3": {
+      "available": true,
+      "gated": false,
+      "license": "other",
+      "license_name": "kimi-k3"
+    },
+    "openai/gpt-oss-120b": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "openai/gpt-oss-20b": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "poolside/Laguna-S-2.1": {
+      "available": true,
+      "gated": false,
+      "license": "openmdw-1.1",
+      "license_name": null
+    },
+    "tencent/Hy3": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null
+    },
+    "zai-org/GLM-4.5-Air": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    },
+    "zai-org/GLM-5.2": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null
+    }
+  },
+  "pending": {}
+}
