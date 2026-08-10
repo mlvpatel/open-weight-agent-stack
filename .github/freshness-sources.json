@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "source_sets": {
+    "manual_section_27_1": {
+      "path": "MANUAL.md",
+      "start_heading": "### 27.1 Models and licences",
+      "end_heading": "### 27.2 Serving, runtimes and hardware"
+    },
+    "model_licence_reference": {
+      "path": "docs/MODELS.md"
+    }
+  },
+  "automated_models": [
+    "BAAI/bge-m3",
+    "Kwaipilot/KAT-Coder-V2.5-Dev",
+    "Lightricks/LTX-Video",
+    "LiquidAI/LFM2.5-2.6B",
+    "MiniMaxAI/MiniMax-M2.7",
+    "Qwen/Qwen2.5-14B-Instruct",
+    "Qwen/Qwen2.5-32B-Instruct",
+    "Qwen/Qwen2.5-7B-Instruct",
+    "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "Qwen/Qwen3-Coder-Next",
+    "Qwen/Qwen3-Embedding-8B",
+    "Qwen/Qwen3.5-9B",
+    "Qwen/Qwen3.6-27B",
+    "allenai/Olmo-3-1025-7B",
+    "deepseek-ai/DeepSeek-V4-Flash",
+    "deepseek-ai/DeepSeek-V4-Pro",
+    "google/gemma-4-12B-it",
+    "hexgrad/Kokoro-82M",
+    "ibm-granite/granite-4.1-30b",
+    "inclusionAI/Ling-3.0-flash",
+    "microsoft/Phi-4-mini-instruct",
+    "microsoft/phi-4",
+    "mistralai/Devstral-Small-2-24B-Instruct-2512",
+    "mistralai/Mistral-Large-3-675B-Instruct-2512",
+    "mistralai/Mistral-Small-4-119B-2603",
+    "moonshotai/Kimi-K3",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "poolside/Laguna-S-2.1",
+    "tencent/Hy3",
+    "zai-org/GLM-4.5-Air",
+    "zai-org/GLM-5.2"
+  ],
+  "manual_only": {}
+}

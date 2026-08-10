@@ -28,6 +28,11 @@ jobs:
         with:
           persist-credentials: false
 
+      # This is deliberately before the live comparison. A new exact model-card
+      # source cannot silently fall outside the watcher.
+      - name: validate freshness coverage and debounce behaviour
+        run: python3 scripts/test_watch_upstream.py
+
       # The confirmation counter is worthless unless it survives between runs.
       # It cannot live on main: main is protected, and the counter has to be
       # written on runs where nothing was found, which is precisely when there

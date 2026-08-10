@@ -1,4 +1,5 @@
 {
+  "schema_version": 2,
   "observed": {
     "BAAI/bge-m3": {
       "available": true,
@@ -89,22 +90,10 @@
       "license": "mit",
       "license_name": null
     },
-    "meta-llama/Llama-4-Scout-17B-16E-Instruct": {
-      "available": true,
-      "gated": true,
-      "license": "other",
-      "license_name": "llama4"
-    },
     "microsoft/phi-4": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
-    },
-    "mistralai/Devstral-Small-2507": {
-      "available": true,
-      "gated": false,
-      "license": "apache-2.0",
       "license_name": null
     },
     "moonshotai/Kimi-K3": {
