@@ -9,7 +9,7 @@ flowchart TB
     Q3 -->|yes| Q4{"Which cloud owns the data?"}
     Q3 -->|no| OWN["Your own loop<br/>Tool Runner or plain function calling<br/>least magic, most control"]
 
-    Q4 -->|Google| ADK["Google ADK<br/>model-agnostic · Python/Java/Go<br/>Vertex Agent Engine to host"]
+    Q4 -->|Google| ADK["Google ADK<br/>model-agnostic · Python/TypeScript/Go/Java/Kotlin<br/>Vertex Agent Engine to host"]
     Q4 -->|AWS| BR["Bedrock AgentCore<br/>AWS-native IAM and billing"]
     Q4 -->|neither| OAI["OpenAI Agents SDK<br/>lightweight handoffs · voice<br/>swap models freely"]
 
