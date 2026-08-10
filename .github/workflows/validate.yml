@@ -4,7 +4,15 @@ on:
   pull_request:
   schedule:
     - cron: "0 6 * * 1"   # weekly scheduled link check
-permissions: { contents: read }
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   diagrams:
     runs-on: ubuntu-latest
@@ -38,6 +46,29 @@ jobs:
         with:
           name: diagrams-svg
           path: diagrams/svg/
+
+  html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: install pinned toolchain
+        run: npm ci --no-audit --no-fund
+      - name: the published document is valid HTML
+        run: npx --no-install html-validate site/index.html
+      - name: the gate rejects malformed input
+        run: |
+          # a validator that passes on broken input proves nothing
+          printf '<!DOCTYPE html><html lang="en"><head><title>t</title></head><body><table><tr><td>x</table></body></html>' > /tmp/broken.html
+          if npx --no-install html-validate /tmp/broken.html; then
+            echo "::error::HTML gate accepted a malformed document. It is not enforcing anything."
+            exit 1
+          fi
+          echo "gate correctly rejects malformed HTML"
+
   links:
     runs-on: ubuntu-latest
     steps:
@@ -47,3 +78,26 @@ jobs:
         with:
           args: --no-progress --max-concurrency 8 --accept 200,201,202,204,206,301,302,308,403,429 MANUAL.md README.md docs/
           fail: true
+
+  deploy:
+    # Job-level condition, never a workflow-level path filter: a workflow skipped
+    # by paths reports Pending forever and would block required checks, while a
+    # job skipped by a conditional reports Success.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [diagrams, html, links]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

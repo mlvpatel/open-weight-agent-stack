@@ -9,10 +9,12 @@
   },
   "scripts": {
     "render": "bash scripts/render_diagrams.sh",
-    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json"
+    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json",
+    "validate:html": "html-validate site/index.html"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "11.16.0",
+    "html-validate": "11.6.2",
     "puppeteer": "25.5.0"
   }
 }
