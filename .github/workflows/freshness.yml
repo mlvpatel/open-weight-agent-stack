@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       # The confirmation counter is worthless unless it survives between runs.
       # It cannot live on main: main is protected, and the counter has to be
@@ -59,6 +61,11 @@ jobs:
       # counter that produces "found" is saved only after it reaches "found",
       # which can never happen.
       - name: persist observation state
+        env:
+          # The checkout deliberately does not persist credentials, so the token
+          # never lands in .git/config where a later step or a dependency could
+          # read it. It is supplied to this one push and nowhere else.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "freshness-watcher"
           git config user.email "freshness-watcher@users.noreply.github.com"
@@ -68,7 +75,7 @@ jobs:
             echo "state unchanged"
           else
             git commit -m "chore: record upstream observations"
-            git push -f origin "$STATE_BRANCH"
+            git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:$STATE_BRANCH"
             echo "state persisted to $STATE_BRANCH"
           fi
 
