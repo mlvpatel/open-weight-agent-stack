@@ -3,7 +3,7 @@
 # The Open-Weight Agent Stack
 
 **A performance-first build manual for agentic AI on open-weight models.**
-Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 reusable diagrams, and a primary source behind every volatile claim.
+Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections and 18 reusable diagrams, with model, licence, and benchmark claims traced to primary sources.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-blue.svg)](LICENSE)
@@ -65,7 +65,6 @@ docs/MODELS.md       Open-weight families, per-model licences, org links.
 docs/FRESHNESS.md    How the upstream watcher works and how to enable it.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 docs/VERIFICATION.md What automated checks do and do not prove.
-diagrams/svg/        The same diagrams rendered to SVG.
 scripts/             Regenerate diagrams from the manual; render themed SVGs.
 .github/             CI: every diagram must compile, every link must resolve.
 ```
@@ -88,7 +87,7 @@ python3 scripts/check_invariants.py   # anchors, links, counts
 ## How this repo stays honest
 
 - **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit `indicative` marker for field heuristics nobody publishes.
-- **Facts are re-checked after publication**: a weekly watcher compares the manual's model claims against their sources and opens a pull request when they drift ([how it works](docs/FRESHNESS.md)).
+- **Model facts are re-checked after publication**: a weekly watcher compares licence and availability for the models the manual names against their sources, and reports drift once it has been confirmed across runs ([how it works](docs/FRESHNESS.md)).
 - **Derived files cannot drift**: `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails if the committed copy differs.
 - **CI checks what it can**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles every diagram and confirms every external link still resolves. It cannot judge whether a source supports the claim it is cited for. [What CI does and does not verify](docs/VERIFICATION.md).
 - **Corrections are the most valued contribution.** Quote the current text, give the fix, cite a primary source. See [CONTRIBUTING.md](CONTRIBUTING.md).

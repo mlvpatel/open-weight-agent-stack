@@ -130,19 +130,34 @@ def main() -> int:
 
     for repo_id in WATCHED_MODELS:
         current = project_model(repo_id)
+        previous = observed_before.get(repo_id)
+
         if current is None:
             # Network failure is not drift. Carry the previous observation.
-            observed_now[repo_id] = observed_before.get(repo_id)
+            observed_now[repo_id] = previous
             continue
-        observed_now[repo_id] = current
-        changes = diff(repo_id, observed_before.get(repo_id), current)
+
+        changes = diff(repo_id, previous, current)
+
+        if not changes:
+            # Stable, or flapped back to the old value. Either way, advance the
+            # baseline and forget anything pending for this model.
+            observed_now[repo_id] = current
+            pending = {k: v for k, v in pending.items() if not k.startswith(f"{repo_id}: ")}
+            continue
+
+        # A change is present. The baseline must NOT advance while it is
+        # unconfirmed, or the next run compares the new value against itself,
+        # diff() returns nothing, and the counter freezes below CONFIRMATIONS
+        # forever. Holding the old baseline is what makes the count accumulate.
+        all_confirmed = True
         for c in changes:
-            key = c
-            pending[key] = pending.get(key, 0) + 1
-            if pending[key] >= CONFIRMATIONS:
-                findings.append(
-                    f"- {c}\n  source: https://huggingface.co/{repo_id}"
-                )
+            pending[c] = pending.get(c, 0) + 1
+            if pending[c] >= CONFIRMATIONS:
+                findings.append(f"- {c}\n  source: https://huggingface.co/{repo_id}")
+            else:
+                all_confirmed = False
+        observed_now[repo_id] = current if all_confirmed else previous
 
     deps = project_dependencies()
     observed_now["__deps__"] = deps

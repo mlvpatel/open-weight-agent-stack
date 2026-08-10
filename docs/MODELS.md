@@ -27,7 +27,6 @@ Safe to state at family level, because every current member agrees.
 | Hunyuan Hy3 | Tencent | Apache-2.0 | [tencent](https://huggingface.co/tencent) |
 | Phi-4, Phi-4-mini | Microsoft | MIT | [microsoft](https://huggingface.co/microsoft) |
 | KAT-Coder V2.5 | Kwaipilot | Apache-2.0 | [Kwaipilot](https://huggingface.co/Kwaipilot) |
-| BGE-M3, BGE rerankers | BAAI | MIT | [BAAI](https://huggingface.co/BAAI) |
 | Kokoro-82M | hexgrad | Apache-2.0 | [hexgrad](https://huggingface.co/hexgrad/Kokoro-82M) |
 | Laguna S 2.1 | poolside | OpenMDW 1.1 | [poolside](https://huggingface.co/poolside) |
 | LFM2.5 | Liquid AI | LFM Open License v1.0 | [LiquidAI](https://huggingface.co/LiquidAI) |
@@ -44,7 +43,8 @@ These families ship different terms to different models. Use the specific row.
 | Qwen3.6-27B, Qwen3.5-9B | Apache-2.0 | The self-host tier |
 | Qwen3-Coder-Next | Apache-2.0 | Coding specialist |
 | Qwen3-Embedding-8B | Apache-2.0 | Embeddings |
-| Qwen 1.5, 2, 2.5 generations | Tongyi Qianwen License (tagged `other`) | Legacy models are **not** Apache-2.0 |
+| Qwen 2 and 2.5, most sizes | Apache-2.0 | Includes Qwen2.5-7B, 14B, 32B and Qwen2.5-Coder-32B |
+| Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged `other`) | Size decides here, not generation |
 | Qwen 3.8 Max | **No published weights** | Announced with benchmark figures; no downloadable checkpoint under the Qwen organisation. Treat as an API model, not an open-weight one. Third-party uploads claiming to be it are not authoritative |
 
 ### Gemma
@@ -92,6 +92,16 @@ Scope any "Gemma is Apache-2.0 now" claim to the core numbered Gemma 4 series. T
 ### Llama
 
 Licensed per generation, each with its own agreement: Llama 4 Community License, Llama 3.3, 3.2, 3.1, 3, and 2 each differ. **None is OSI-approved.** See [meta-llama](https://huggingface.co/meta-llama) and the licence file shipped with the specific model.
+
+### BGE embeddings and rerankers
+
+| Model | Licence |
+|---|---|
+| bge-m3, bge-base, bge-large | MIT |
+| bge-reranker-v2-m3, v2-gemma, v2-minicpm-layerwise | Apache-2.0 |
+| bge-reranker-v2.5-gemma2-lightweight | Gemma Terms of Use, not OSI-approved |
+
+The reranker this manual recommends (`bge-reranker-v2-m3`) is Apache-2.0, not MIT. One reranker in the family inherits Gemma's custom terms.
 
 ### NVIDIA quantised checkpoints
 

@@ -88,6 +88,26 @@ def check_counts(m) -> None:
     SUMMARY.append(f"counts: {checked} stated counts verified ({facts['sections']} sections, {facts['diagrams']} diagrams)")
 
 
+def check_architecture_diagram() -> None:
+    """docs/ARCHITECTURE.md embeds the container diagram and claims it is the
+    same one that ships in diagrams/src. It drifted once; now it cannot."""
+    import re as _re
+    arch = REPO / "docs" / "ARCHITECTURE.md"
+    src = REPO / "diagrams" / "src" / "master-architecture.mmd"
+    if not arch.exists() or not src.exists():
+        fail("architecture: expected docs/ARCHITECTURE.md and the master-architecture source")
+        return
+    blocks = _re.findall(r"```mermaid\n(.*?)```", arch.read_text(), _re.S)
+    require_nonzero("architecture", len(blocks), "mermaid blocks")
+    if len(blocks) < 2:
+        fail("architecture: expected at least two diagrams in ARCHITECTURE.md")
+        return
+    if blocks[1].strip() != src.read_text().strip():
+        fail("architecture: the container diagram in docs/ARCHITECTURE.md no longer matches "
+             "diagrams/src/master-architecture.mmd, which it claims to be")
+    SUMMARY.append(f"architecture: {len(blocks)} diagrams, container view matches its source")
+
+
 def check_repo_description(m) -> None:
     """The description lives outside the repository, so no generator can fix it."""
     if os.environ.get("SKIP_REPO_DESCRIPTION"):
@@ -124,6 +144,7 @@ def main() -> int:
     check_anchors(m)
     check_relative_files()
     check_counts(m)
+    check_architecture_diagram()
     check_repo_description(m)
 
     for line in SUMMARY:

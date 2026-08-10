@@ -793,8 +793,8 @@ flowchart TB
 The loop back from `Execute` to untrusted input is the important edge: a tool result is not sanitised
 by having been requested. Two further properties keep retries safe, side-effecting tools are
 idempotency-keyed, so a retried write is applied once by a server that honours the key, and
-credentials live in the harness rather than the prompt, which removes the context window as an
-exfiltration path.
+credentials live in the harness rather than the prompt, which closes the context window as a
+route to them.
 
 Tool execution runs in a container at minimum. When tools run model-written code, climb the
 isolation ladder: gVisor intercepts syscalls below the container, Firecracker gives each execution
@@ -1279,7 +1279,7 @@ skips a row should know exactly why.
 
 | ID | Threat | Control in this stack | Where |
 |---|---|---|---|
-| ASI01 | Goal hijacking / prompt injection | Untrusted content is fenced and labelled; policy is restated after it; instructions found inside content are reported, never obeyed | 10, 11 |
+| ASI01 | Goal hijacking / prompt injection | Untrusted content is fenced and labelled; policy is restated after it; instructions found inside content are surfaced for review rather than followed | 10, 11 |
 | ASI02 | Tool misuse | Every call is schema-validated against an allow-list; side-effecting tools take attenuated single-resource tokens and idempotency keys | 11, 18 |
 | ASI03 | Identity and privilege abuse | The agent is its own principal; authority attenuates at every delegation; every action is attributable as user to agent to tool | 18 |
 | ASI04 | Tool supply chain | MCP servers are pinned by version and digest; scopes reviewed at install; an update is a reviewed change, never an automatic pull | 19 |
@@ -1558,7 +1558,7 @@ exact checkpoint ID, never the family name (section 25).
 | Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro reports 79.4% SWE-bench Verified at its default Think High effort, 80.6% at maximum effort. GLM-5.2 strong on terminal-style benchmarks. |
 | High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active. Published rates are $0.14 in on a cache miss and $0.28 out per M tokens; the vendor has announced a significant increase. |
 | Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you actually send. |
-| Vision, documents, charts | Qwen 3.5 VL | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
+| Vision, documents, charts | Qwen 3.5 27B (vision is native to the 3.5 line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
 
 
 ### 22.1 The API layer: every way to call a model
@@ -1687,7 +1687,7 @@ Version floors that matter in practice, taken from each project's own requiremen
 | Runtime | Floor for this stack | Why |
 |---|---|---|
 | Python | 3.10 minimum | vLLM declares 3.10 to 3.14; SGLang declares 3.10 and up with no upper bound. 3.9 is below both |
-| Node.js | 22 minimum, 24 preferred | Node 20 reached end of life on 30 April 2026. Node 24 is Active LTS; Node 22 is in maintenance until April 2027. Mastra and the Vercel AI SDK both pin `engines.node >=22` |
+| Node.js | 22 minimum, 24 preferred | Node 20 reached end of life on 30 April 2026. Node 24 is Active LTS; Node 22 is in maintenance until April 2027. the Vercel AI SDK pins `engines.node >=22` and Mastra pins `>=22.13.0` |
 | TypeScript | No published floor | Neither Mastra nor the AI SDK declares a TypeScript minimum. They constrain Node instead. Match their toolchain if you need a number |
 | Java | 17 | Spring AI and LangChain4j both set 17 in their parent POMs |
 | CUDA | Driver 525 or newer for CUDA 12.x, 580 or newer for 13.x | Current PyTorch ships cu126 through cu132, spanning CUDA 12 and 13. Minor version compatibility means the driver needs the major-family minimum, not a match to the toolkit |
@@ -1782,11 +1782,11 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
-| **Cline** ★ | Open source, free | ✅ any | Best-in-class governance, Plan/Act approval, permissioned file, terminal, browser and MCP access. ~58K stars |
+| **Cline** ★ | Open source, free | ✅ any | Best-in-class governance, Plan/Act approval, permissioned file, terminal, browser and MCP access. stars in the tens of thousands, indicative |
 | **Roo Code** | Open source | ✅ any | **Shut down May 2026**, repository archived. Its README points users to Cline; ZooCode is a community fork |
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
 | **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
-| **GitHub Copilot** | $10/mo Pro | GitHub-selected | Deepest GitHub integration |
+| **GitHub Copilot** | $10/mo Pro, indicative | GitHub-selected | Deepest GitHub integration |
 | **Tabnine** | Free tier; paid teams | ✅ any, self-host | The air-gapped and on-prem option; fits open-weight deployments |
 | **Qodo** | Free tier | ✅ any | Test generation and PR review agents |
 | **Amazon Q Developer** | Free tier + paid | AWS | AWS-native shops |
@@ -1934,7 +1934,7 @@ their cards before relying on them months from now.
 | Granite 4.1 | IBM's enterprise family · Apache-2.0 | [Model card](https://huggingface.co/ibm-granite/granite-4.1-30b) |
 | Ling 3.0 flash | Ant Group MoE · MIT | [Model card](https://huggingface.co/inclusionAI/Ling-3.0-flash) |
 | Hunyuan Hy3 | Tencent · Apache-2.0 | [Model card](https://huggingface.co/tencent/Hy3) |
-| MiniMax M2.7 | Custom MiniMax licence; check before commercial use | [Model card](https://huggingface.co/MiniMaxAI/MiniMax-M2.7) |
+| MiniMax M2.7 | Non-commercial. Commercial use requires prior written authorisation, stated in the repository licence file rather than the card tag | [Model card](https://huggingface.co/MiniMaxAI/MiniMax-M2.7) · [Licence](https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/LICENSE) |
 | LFM2.5 (edge) | Liquid AI's edge family · LFM Open Licence | [Model card](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
 | Qwen3-Coder-Next | Open coding specialist · Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | KAT-Coder V2.5 | Agentic coding MoE · Apache-2.0 | [Model card](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
@@ -1984,7 +1984,42 @@ their cards before relying on them months from now.
 | LiveCodeBench | [livecodebench.github.io](https://livecodebench.github.io/) |
 | Artificial Analysis Intelligence Index, Kimi K3: 57, max config 60 | [artificialanalysis.ai](https://artificialanalysis.ai/models/kimi-k3) |
 
-### 27.4 Libraries by layer
+### 27.4 Runtimes and version floors
+
+| Claim in this manual | Primary source |
+|---|---|
+| Node 20 reached end of life 30 April 2026; Node 24 is Active LTS and 22 is in maintenance | [nodejs/Release schedule](https://github.com/nodejs/Release/blob/main/schedule.json) |
+| vLLM declares Python 3.10 to 3.14 | [vLLM pyproject](https://github.com/vllm-project/vllm/blob/main/pyproject.toml) |
+| SGLang declares Python 3.10 and up with no upper bound | [SGLang pyproject](https://github.com/sgl-project/sglang/blob/main/python/pyproject.toml) |
+| PyTorch ships CUDA 12 and 13 wheels; ROCm wheels are 7.1 and later | [PyTorch wheel index](https://download.pytorch.org/whl/) |
+| CUDA minor version compatibility sets the driver floor by major family | [CUDA release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) |
+| Spring AI and LangChain4j both set Java 17 | [Spring AI pom](https://github.com/spring-projects/spring-ai/blob/main/pom.xml) · [LangChain4j pom](https://github.com/langchain4j/langchain4j/blob/main/langchain4j-parent/pom.xml) |
+
+### 27.5 Code agents
+
+Maintenance status is volatile. Every entry below links the project's own repository or site, which is the only place the current state is authoritative.
+
+| Tool | Source |
+|---|---|
+| Cline | [github.com/cline/cline](https://github.com/cline/cline) |
+| Kilo Code | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
+| Roo Code (shut down May 2026, archived) | [github.com/RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) |
+| Continue (read-only) | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
+| Aider (dormant) | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
+| OpenHands | [github.com/OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) |
+| Goose | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
+| Cursor | [cursor.com](https://cursor.com/) |
+| Zed | [github.com/zed-industries/zed](https://github.com/zed-industries/zed) |
+| Tabnine | [tabnine.com](https://www.tabnine.com/) |
+| Qodo | [qodo.ai](https://www.qodo.ai/) |
+| Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
+| Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+| Devin, and Devin Desktop (formerly Windsurf) | [devin.ai](https://devin.ai/) |
+| Jules | [jules.google](https://jules.google/) |
+
+Pricing figures quoted in section 24 are `indicative`: vendors change them without notice, and this manual does not re-check them.
+
+### 27.6 Libraries by layer
 
 Every link below resolves to the project's official home.
 

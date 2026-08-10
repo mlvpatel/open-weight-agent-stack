@@ -14,7 +14,9 @@ Model licences change. Parameter counts get corrected. A model announced with be
 
 Upstream metadata flaps. A card gets edited and reverted within the hour. An API returns a partial record mid-deploy. A single observation is not evidence.
 
-A change must be observed on **two consecutive runs** before it is reported. The count lives in `.github/upstream-state.json`, committed, so it survives between scheduled runs on ephemeral machines. A change that reverts before the next run leaves no trace.
+A change must be observed on **two consecutive runs** before it is reported. The count lives in `.github/upstream-state.json`, pushed to a dedicated `freshness-state` branch after **every** run. That branch exists because the counter has to be written on runs where nothing was found, which is exactly when there is no pull request to carry it, and because `main` is protected.
+
+While a change is unconfirmed the stored baseline deliberately does **not** advance. If it did, the next run would compare the new value against itself, find no difference, and the counter would freeze below the threshold forever. That bug shipped once and is now pinned by `scripts/test_watch_upstream.py`, which asserts that a stable change is reported and a flapping one never is.
 
 ## Why it does not edit the manual
 

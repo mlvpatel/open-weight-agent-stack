@@ -11,11 +11,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write          # required to persist observation state between runs
 
 concurrency:
   group: freshness
   cancel-in-progress: false
+
+env:
+  STATE_BRANCH: freshness-state
 
 jobs:
   watch:
@@ -23,16 +26,21 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      # A GitHub App token is required, not a convenience. Pull requests opened
-      # with the default GITHUB_TOKEN receive no check runs, so with required
-      # status checks enabled they can never merge.
-      - name: mint an app token
-        id: token
-        if: vars.FRESHNESS_APP_ENABLED == 'true'
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      # The confirmation counter is worthless unless it survives between runs.
+      # It cannot live on main: main is protected, and the counter has to be
+      # written on runs where nothing was found, which is precisely when there
+      # is no pull request to carry it. So it lives on its own branch.
+      - name: restore observation state
+        run: |
+          if git ls-remote --exit-code --heads origin "$STATE_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$STATE_BRANCH" --depth=1
+            if git show "origin/$STATE_BRANCH:.github/upstream-state.json" > /tmp/state.json 2>/dev/null; then
+              cp /tmp/state.json .github/upstream-state.json
+              echo "restored state from $STATE_BRANCH"
+            fi
+          else
+            echo "no state branch yet; this run establishes the baseline"
+          fi
 
       - name: look for confirmed upstream drift
         id: watch
@@ -47,29 +55,60 @@ jobs:
             *) echo "::error::watcher failed with exit $code"; exit "$code" ;;
           esac
 
-      - name: report when the app is not configured
+      # Unconditional. Persisting only when drift is found would mean the
+      # counter that produces "found" is saved only after it reaches "found",
+      # which can never happen.
+      - name: persist observation state
+        run: |
+          git config user.name "freshness-watcher"
+          git config user.email "freshness-watcher@users.noreply.github.com"
+          git checkout -B "$STATE_BRANCH"
+          git add -f .github/upstream-state.json
+          if git diff --cached --quiet; then
+            echo "state unchanged"
+          else
+            git commit -m "chore: record upstream observations"
+            git push -f origin "$STATE_BRANCH"
+            echo "state persisted to $STATE_BRANCH"
+          fi
+
+      - name: mint an app token
+        id: token
+        if: steps.watch.outputs.drift == 'found' && vars.FRESHNESS_APP_ENABLED == 'true'
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: report findings when no app is configured
         if: steps.watch.outputs.drift == 'found' && vars.FRESHNESS_APP_ENABLED != 'true'
         run: |
-          echo "::warning::Confirmed upstream drift, but no GitHub App is configured, so no pull request can be opened."
+          echo "::warning::Confirmed upstream drift. No GitHub App is configured, so no pull request was opened."
           echo "Configure APP_ID and APP_PRIVATE_KEY, then set the FRESHNESS_APP_ENABLED variable to true."
           echo
           cat drift-report.md
+          {
+            echo "## Confirmed upstream drift"
+            echo
+            cat drift-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: open one pull request carrying every change
         if: steps.watch.outputs.drift == 'found' && vars.FRESHNESS_APP_ENABLED == 'true'
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
+          # A GitHub App token is required, not a convenience. Pull requests
+          # opened with the default GITHUB_TOKEN receive no check runs, so under
+          # required status checks they could never merge.
           token: ${{ steps.token.outputs.token }}
           branch: freshness/upstream-drift
-          # One branch reused across runs: a second finding updates the open
-          # pull request instead of opening a competing one.
           base: main
           title: "chore: upstream facts have changed"
           body-path: drift-report.md
           commit-message: |
             chore: record confirmed upstream drift
 
-            Observed on two consecutive runs, so this is not transient.
+            Observed on consecutive runs, so this is not transient.
           add-paths: |
             .github/upstream-state.json
           delete-branch: false

@@ -19,7 +19,7 @@ flowchart TB
     STACK --> EXT["External tools and the web<br/>reached through MCP servers"]
 ```
 
-Two boundaries matter at this level. Identity enters from outside: the stack consumes tokens, it never stores credentials ([section 18](../MANUAL.md#18-identity-delegation-and-authority)). And systems of record stay outside: the agent reads through scoped connectors and writes through gated tools, so no jailbreak can reach what was never inside ([section 11](../MANUAL.md#11-trust-boundaries)).
+Two boundaries matter at this level. Identity enters from outside: the stack consumes tokens, it never stores credentials ([section 18](../MANUAL.md#18-identity-delegation-and-authority)). And systems of record stay outside: the agent reads through scoped connectors and writes through gated tools, which keeps what was never inside out of reach of injected instructions ([section 11](../MANUAL.md#11-trust-boundaries)).
 
 ## Level 2: containers
 
@@ -71,7 +71,7 @@ flowchart TB
 
     subgraph L8["8 · Code Agent"]
         direction TB
-        A0["Cline · Aider · OpenHands<br/>Claude Code · Roo Code · Cursor"]
+        A0["Cline · Kilo Code · OpenHands<br/>Claude Code · Goose · Cursor"]
         A1["Sandbox<br/>container · no host mounts"]
     end
 
@@ -79,7 +79,7 @@ flowchart TB
         direction TB
         M0["LLM gateway<br/>self-host serving or API endpoint"]
         M1["Fast tier · GLM-4.5-Air · Qwen 3.5 9B<br/>self-hosted · structured output"]
-        M2["General · Kimi K3 · Qwen 3.8 Max<br/>API, too large to self-host"]
+        M2["General · Kimi K3<br/>API, too large to self-host"]
         M3["Specialist · DeepSeek V4 Pro · GLM-5.2<br/>code and terminal"]
     end
 
@@ -142,16 +142,16 @@ flowchart TB
     O2 -.->|new cases| EV
     EV -.->|prompt, model and index changes| PLAN
 
-    classDef client fill:#f5f5f7,stroke:#0071e3,color:#1d1d1f
-    classDef fe fill:#fff8f0,stroke:#bf4800,color:#5c2e00
-    classDef orch fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef rag fill:#f2faf4,stroke:#248a3d,color:#0f3d23
-    classDef llm fill:#fff2f2,stroke:#e30000,color:#8f0000
-    classDef tool fill:#f0f7ff,stroke:#0071e3,color:#003a70
-    classDef mem fill:#f7f2fb,stroke:#8944ab,color:#3f2c52
-    classDef guard fill:#fff8f0,stroke:#d97706,color:#78350f
+    classDef client fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef fe fill:#ffeeda,stroke:#bf4800,color:#5c2e00
+    classDef orch fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef rag fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef llm fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef tool fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
     classDef obs fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
-    classDef decision fill:#fff9e6,stroke:#997404,color:#5c2e00
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
 
     class C1,C2,C3,C4 client
     class F1,F2,GW,RESP fe
@@ -216,3 +216,4 @@ C4 leaves level 4 to the repository, and so does this repo. The mapping from con
 | Guards and evals | [13](../MANUAL.md#13-guardrails-evals-and-the-improvement-loop) | `guardrails-evals.mmd` |
 | Operations | [17](../MANUAL.md#17-serving-budgets-and-rollback), [25](../MANUAL.md#25-versioning-and-change-control), [26](../MANUAL.md#26-build-order-and-troubleshooting) | `serving-budgets.mmd` |
 | Identity and security | [18](../MANUAL.md#18-identity-delegation-and-authority), [19](../MANUAL.md#19-threat-model) | `identity-delegation.mmd` · `threat-write-paths.mmd` |
+| Technology choices | [21](../MANUAL.md#21-technology-catalogue), [23](../MANUAL.md#23-platform-and-sdk-choice) | `technology-catalogue.mmd` · `platform-sdk.mmd` |
