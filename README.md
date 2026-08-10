@@ -6,7 +6,6 @@
 Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 reusable diagrams, and a primary source behind every volatile claim.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
-[![pages](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml)
 [![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
