@@ -11,11 +11,11 @@ The code agent is a tool-using client of the rest of the stack: it edits files, 
 | Tool | Class | Link |
 |---|---|---|
 | Cline | IDE extension, any model, permissioned | [github.com/cline/cline](https://github.com/cline/cline) |
-| Roo Code | Cline fork, VS Code default pick | [github.com/RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) |
-| Aider | Terminal, git-native | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
-| Continue | IDE extension, JetBrains pick | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
-| OpenHands | Autonomous, sandboxed | [github.com/All-Hands-AI/OpenHands](https://github.com/All-Hands-AI/OpenHands) |
-| Goose | Terminal agent, extensible | [github.com/block/goose](https://github.com/block/goose) |
+| Kilo Code | Actively maintained Cline-lineage option, ships a JetBrains build | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
+| Aider | Terminal, git-native. Dormant since May 2026; still works, not developed | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
+| Continue | Read-only since 2026, no longer maintained | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
+| OpenHands | Autonomous, sandboxed | [github.com/OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) |
+| Goose | Terminal agent, extensible; now under the Linux Foundation's Agentic AI Foundation | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | AI-first IDE | [cursor.com](https://cursor.com/) |
 | Zed | Fast editor with agent panel | [zed.dev](https://zed.dev/) |
 | Claude Code | Terminal and IDE agent | [claude.com/claude-code](https://claude.com/claude-code) |

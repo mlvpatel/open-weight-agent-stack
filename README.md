@@ -3,7 +3,7 @@
 # The Open-Weight Agent Stack
 
 **A performance-first build manual for agentic AI on open-weight models.**
-Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 diagrams, 122 primary-source links.
+Hardware and serving, retrieval, memory, identity, security, and operations. 27 sections, 18 reusable diagrams, and a primary source behind every volatile claim.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![pages](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/pages.yml)
@@ -12,7 +12,7 @@ Hardware and serving, retrieval, memory, identity, security, and operations. 27 
 
 **[Read the manual](MANUAL.md)** · **[Live site](https://mlvpatel.github.io/open-weight-agent-stack/)** · **[Architecture in C4](docs/ARCHITECTURE.md)** · **[Sources](MANUAL.md#27-sources-and-verification)**
 
-<img src="docs/assets/preview.png" alt="The manual's opening page: 27 sections, 17 in-page diagrams, 13 stack layers, 10 OWASP risks mapped, 99 verified links" width="820">
+<img src="docs/assets/preview.png" alt="The opening page of the manual, showing the section index and summary statistics" width="820">
 
 </div>
 
@@ -63,6 +63,7 @@ site/                The manual as a designed single-page site (GitHub Pages).
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
 docs/MODELS.md       Twenty open-weight families, licence postures, org links.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
+docs/VERIFICATION.md What automated checks do and do not prove.
 diagrams/svg/        The same diagrams rendered to SVG.
 scripts/             Regenerate diagrams from the manual; render themed SVGs.
 .github/             CI: every diagram must compile, every link must resolve.
@@ -82,8 +83,8 @@ python3 scripts/extract_diagrams.py && bash scripts/render_diagrams.sh
 
 ## How this repo stays honest
 
-- **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit "indicative" marker.
-- **CI enforces it**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles all 18 diagrams and checks all 122 external links.
+- **One rule**: every factual claim carries its basis. Derivable arithmetic, an attributed primary source, or an explicit `indicative` marker for field heuristics nobody publishes.
+- **CI checks what it can**: on every push and weekly, [`validate.yml`](.github/workflows/validate.yml) compiles every diagram and confirms every external link still resolves. It cannot judge whether a source supports the claim it is cited for. [What CI does and does not verify](docs/VERIFICATION.md).
 - **Corrections are the most valued contribution.** Quote the current text, give the fix, cite a primary source. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence and citation

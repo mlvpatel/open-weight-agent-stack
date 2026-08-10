@@ -2,11 +2,11 @@ flowchart TB
     S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
     C1 -->|yes| SMALL["Fast tier<br/>GLM-4.5-Air · Qwen 3.5 9B<br/>constrained decoding to JSON"]
     C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
-    C2 -->|yes| LONG["Long context<br/>Qwen 3.8 Max · Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
+    C2 -->|yes| LONG["Long context<br/>Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
     C2 -->|no| C3{"Multi step reasoning<br/>maths or planning?"}
     C3 -->|yes| REASON["Reasoning<br/>DeepSeek V4 Pro · Claude Opus 5<br/>highest latency tier"]
     C3 -->|no| C4{"Code generation<br/>or repair?"}
-    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro ~80.6% SWE-bench<br/>GLM-5.2"]
+    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro 79.4% SWE-bench<br/>at default effort<br/>GLM-5.2"]
     C4 -->|no| GEN["General agentic<br/>Kimi K3 · Claude Sonnet 5"]
 
     SMALL --> V["Independent verifier<br/>separate prompt · never the producing model"]

@@ -535,7 +535,7 @@
       <div class="stat"><dt>Diagrams</dt><dd>17<span>standard Mermaid, all validated</span></dd></div>
       <div class="stat"><dt>Stack layers</dt><dd>13<span>identity through deployment</span></dd></div>
       <div class="stat"><dt>OWASP risks</dt><dd>10<span>each mapped to a control</span></dd></div>
-      <div class="stat"><dt>Verified links</dt><dd>122<span>primary sources, CI-checked</span></dd></div>
+      <div class="stat"><dt>Sourcing</dt><dd>Every<span>volatile claim carries a source</span></dd></div>
     </dl>
   </div>
 </header>
@@ -741,7 +741,7 @@ flowchart TB
         <div class="layer" data-ring="context"><span class="num">05</span><span class="nm">RAG pipeline<small>Grounding</small></span><span class="chips"><span class="chip">Docling</span><span class="chip">Unstructured</span><span class="chip">BGE-M3</span><span class="chip">Qwen3-Embedding</span><span class="chip">Qdrant</span><span class="chip">pgvector</span><span class="chip">Chroma</span><span class="chip">Reranker</span></span></div>
         <div class="layer" data-ring="prompt"><span class="num">06</span><span class="nm">Model layer<small>Serving runtime and models</small></span><span class="chips"><span class="chip">SGLang</span><span class="chip">vLLM</span><span class="chip">TensorRT-LLM</span><span class="chip">Ollama</span><span class="chip">llama.cpp</span><span class="chip">MLX</span><span class="chip">LM Studio</span><span class="chip">Any API</span></span></div>
         <div class="layer" data-ring="harness"><span class="num">07</span><span class="nm">Tools via MCP<small>External systems</small></span><span class="chips"><span class="chip">MCP servers</span><span class="chip">OpenAPI specs</span><span class="chip">GitHub</span><span class="chip">Slack</span><span class="chip">Jira</span><span class="chip">Databases</span><span class="chip">Filesystem</span><span class="chip">Web search</span></span></div>
-        <div class="layer" data-ring="harness"><span class="num">08</span><span class="nm">Code agent<small>Writes and tests code</small></span><span class="chips"><span class="chip">Cline</span><span class="chip">Roo Code</span><span class="chip">Aider</span><span class="chip">Continue</span><span class="chip">OpenHands</span><span class="chip">Cursor</span><span class="chip">Claude Code</span><span class="chip">Zed</span><span class="chip">Goose</span></span></div>
+        <div class="layer" data-ring="harness"><span class="num">08</span><span class="nm">Code agent<small>Writes and tests code</small></span><span class="chips"><span class="chip">Cline</span><span class="chip">Kilo Code</span><span class="chip">OpenHands</span><span class="chip">Goose</span><span class="chip">Cursor</span><span class="chip">Claude Code</span><span class="chip">Zed</span><span class="chip">Goose</span></span></div>
         <div class="layer" data-ring="context"><span class="num">09</span><span class="nm">Memory and cache<small>State and speed</small></span><span class="chips"><span class="chip">LangGraph store</span><span class="chip">Redis</span><span class="chip">Mem0</span><span class="chip">SQLite</span><span class="chip">DuckDB</span><span class="chip">Postgres</span><span class="chip">Supabase</span></span></div>
         <div class="layer" data-ring="eval"><span class="num">10</span><span class="nm">Guardrails and evals<small>Quality and safety</small></span><span class="chips"><span class="chip">Outlines</span><span class="chip">Guardrails AI</span><span class="chip">NeMo Guardrails</span><span class="chip">Llama Guard</span><span class="chip">Ragas</span><span class="chip">Promptfoo</span><span class="chip">DeepEval</span></span></div>
         <div class="layer" data-ring="eval"><span class="num">11</span><span class="nm">Observability<small>Trace and measure</small></span><span class="chips"><span class="chip">Langfuse</span><span class="chip">Phoenix</span><span class="chip">OpenTelemetry</span><span class="chip">Grafana + Loki</span><span class="chip">Helicone</span></span></div>
@@ -875,7 +875,7 @@ flowchart TB
 
     subgraph L8["8 · Code Agent"]
         direction TB
-        A0["Cline · Aider · OpenHands&lt;br/&gt;Claude Code · Roo Code · Cursor"]
+        A0["Cline · Kilo Code · OpenHands&lt;br/&gt;Claude Code · Goose · Cursor"]
         A1["Sandbox&lt;br/&gt;container · no host mounts"]
     end
 
@@ -883,7 +883,7 @@ flowchart TB
         direction TB
         M0["LLM gateway&lt;br/&gt;self-host serving or API endpoint"]
         M1["Fast tier · GLM-4.5-Air · Qwen 3.5 9B&lt;br/&gt;self-hosted · structured output"]
-        M2["General · Kimi K3 · Qwen 3.8 Max&lt;br/&gt;API, too large to self-host"]
+        M2["General · Kimi K3&lt;br/&gt;API, too large to self-host"]
         M3["Specialist · DeepSeek V4 Pro · GLM-5.2&lt;br/&gt;code and terminal"]
     end
 
@@ -1236,11 +1236,11 @@ flowchart TB
     S["Incoming step"] --&gt; C1{"Structured extraction&lt;br/&gt;or classification?"}
     C1 --&gt;|yes| SMALL["Fast tier&lt;br/&gt;GLM-4.5-Air · Qwen 3.5 9B&lt;br/&gt;constrained decoding to JSON"]
     C1 --&gt;|no| C2{"Long context&lt;br/&gt;over 32k tokens?"}
-    C2 --&gt;|yes| LONG["Long context&lt;br/&gt;Qwen 3.8 Max · Kimi K3 · 1M&lt;br/&gt;still prune, prefill cost scales with input"]
+    C2 --&gt;|yes| LONG["Long context&lt;br/&gt;Kimi K3 · 1M&lt;br/&gt;still prune, prefill cost scales with input"]
     C2 --&gt;|no| C3{"Multi step reasoning&lt;br/&gt;maths or planning?"}
     C3 --&gt;|yes| REASON["Reasoning&lt;br/&gt;DeepSeek V4 Pro · Claude Opus 5&lt;br/&gt;highest latency tier"]
     C3 --&gt;|no| C4{"Code generation&lt;br/&gt;or repair?"}
-    C4 --&gt;|yes| CODE["Code and terminal&lt;br/&gt;DeepSeek V4 Pro ~80.6% SWE-bench&lt;br/&gt;GLM-5.2"]
+    C4 --&gt;|yes| CODE["Code and terminal&lt;br/&gt;DeepSeek V4 Pro 79.4% SWE-bench&lt;br/&gt;at default effort&lt;br/&gt;GLM-5.2"]
     C4 --&gt;|no| GEN["General agentic&lt;br/&gt;Kimi K3 · Claude Sonnet 5"]
 
     SMALL --&gt; V["Independent verifier&lt;br/&gt;separate prompt · never the producing model"]
@@ -1313,7 +1313,7 @@ flowchart TB
     end
 
     DEC["Pinned decoding&lt;br/&gt;temperature · top-p · stop · max tokens · seed&lt;br/&gt;versioned with the prompt, not a runtime whim"]
-    PREC["Instruction precedence&lt;br/&gt;system contract beats retrieved text&lt;br/&gt;beats user text · injected content cannot win"]
+    PREC["Instruction precedence&lt;br/&gt;system contract beats retrieved text&lt;br/&gt;beats user text · policy restated after untrusted input"]
     JUDGE["Judge prompt&lt;br/&gt;physically separate artifact&lt;br/&gt;no self-grading"]
 
     P1 --&gt; P2 --&gt; P3 --&gt; P4 --&gt; P5 --&gt; P6
@@ -1836,7 +1836,7 @@ flowchart TB
 
           <div class="callout callout-info">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01" stroke-linecap="round"/></svg>
-        <span><b>The error contract is part of the API</b>Map upstream failures to a small typed set (rate_limited, overloaded, timeout, invalid_output, tool_failed). Every hop gets a timeout smaller than its caller's. Retry only idempotent calls, with exponential backoff plus jitter, capped by the turn budget; a circuit breaker per provider stops retry storms, and the fallback chain rides behind it. Tool calls that write carry idempotency keys so a retry cannot double-post. The user sees one honest sentence and a retry control; the trace carries the detail.</span>
+        <span><b>The error contract is part of the API</b>Map upstream failures to a small typed set (rate_limited, overloaded, timeout, invalid_output, tool_failed). Every hop gets a timeout smaller than its caller's. Retry only idempotent calls, with exponential backoff plus jitter, capped by the turn budget; a circuit breaker per provider stops retry storms, and the fallback chain rides behind it. Tool calls that write carry idempotency keys, so a retried call is applied once by a server that honours them. The user sees one honest sentence and a retry control; the trace carries the detail.</span>
       </div>
 
 
@@ -2097,14 +2097,14 @@ flowchart TB
             <tr><th scope="row">Frontend</th><td><span class="pick">Next.js · streaming SSE</span></td><td><span class="chips"><span class="chip">Streamlit</span><span class="chip">Gradio</span><span class="chip">Open WebUI</span><span class="chip">Chainlit</span></span></td></tr>
             <tr><th scope="row">Orchestration</th><td><span class="pick">LangGraph</span></td><td><span class="chips"><span class="chip">CrewAI</span><span class="chip">LlamaIndex Workflows</span><span class="chip">Pydantic AI</span><span class="chip">Plain tool loop</span></span></td></tr>
             <tr><th scope="row">Model serving</th><td><span class="pick">SGLang · RadixAttention</span> <span class="pick">vLLM · portable</span></td><td><span class="chips"><span class="chip">TensorRT-LLM · NVIDIA</span><span class="chip">MLX · Apple Silicon</span><span class="chip">Ollama · any OS</span><span class="chip">LM Studio · GUI</span><span class="chip">llama.cpp · CPU/Vulkan/Metal</span></span></td></tr>
-            <tr><th scope="row">Models</th><td><span class="pick">Kimi K3 · custom licence</span> <span class="pick">Qwen 3.8 Max · licence pending</span></td><td><span class="chips"><span class="chip">DeepSeek V4 Pro · coding · MIT</span><span class="chip">DeepSeek V4 Flash · cheap · MIT</span><span class="chip">GLM-5.2 · terminal · MIT</span><span class="chip">GLM-4.5-Air · fast tier · MIT</span><span class="chip">Qwen 3.6 27B · self-host · Apache-2.0</span><span class="chip">GPT-OSS · OLMo 3 · Granite 4.1 · Ling 3.0</span><span class="chip">Hunyuan · MiniMax M2.x · Falcon · LFM edge</span><span class="chip">Coding: Qwen3-Coder-Next · KAT-Coder · Devstral · Laguna</span><span class="chip">Llama · community licence</span></span></td></tr>
+            <tr><th scope="row">Models</th><td><span class="pick">Kimi K3 · custom licence</span> <span class="pick">Qwen 3.6 27B · Apache-2.0</span></td><td><span class="chips"><span class="chip">DeepSeek V4 Pro · coding · MIT</span><span class="chip">DeepSeek V4 Flash · cheap · MIT</span><span class="chip">GLM-5.2 · terminal · MIT</span><span class="chip">GLM-4.5-Air · fast tier · MIT</span><span class="chip">Qwen 3.8 Max · API only, no weights</span><span class="chip">GPT-OSS · OLMo 3 · Granite 4.1 · Ling 3.0</span><span class="chip">Hunyuan · Falcon · LFM edge · MiniMax (M2.7 non-commercial)</span><span class="chip">Coding: Qwen3-Coder-Next · KAT-Coder · Devstral · Laguna</span><span class="chip">Llama · community licence</span></span></td></tr>
             <tr><th scope="row">Embeddings</th><td><span class="pick">BGE-M3 · multilingual · dense + sparse</span></td><td><span class="chips"><span class="chip">Qwen3-Embedding-8B · top quality</span><span class="chip">Qwen3-Embedding-4B · balanced</span><span class="chip">Jina v5</span></span></td></tr>
             <tr><th scope="row">Vector store</th><td><span class="pick">Qdrant · throughput + filtering</span></td><td><span class="chips"><span class="chip">Milvus · very large corpora</span><span class="chip">pgvector · one less service</span><span class="chip">LanceDB · embedded</span></span></td></tr>
             <tr><th scope="row">Reranker</th><td><span class="pick">BGE Reranker v2 m3</span></td><td><span class="chips"><span class="chip">Jina Reranker</span><span class="chip">Cohere Rerank</span></span></td></tr>
             <tr><th scope="row">Parsing</th><td><span class="pick">Docling</span></td><td><span class="chips"><span class="chip">Unstructured</span><span class="chip">MinerU</span><span class="chip">PyMuPDF</span></span></td></tr>
             <tr><th scope="row">Memory and cache</th><td><span class="pick">LangGraph store</span> <span class="pick">Redis</span></td><td><span class="chips"><span class="chip">Mem0</span><span class="chip">SQLite</span><span class="chip">DuckDB</span><span class="chip">Supabase</span></span></td></tr>
             <tr><th scope="row">Tool interface</th><td><span class="pick">MCP servers</span></td><td><span class="chips"><span class="chip">OpenAPI specs</span><span class="chip">Direct function calling</span></span></td></tr>
-            <tr><th scope="row">Code agents</th><td><span class="pick">Cline / Roo Code · free</span> <span class="pick">Aider · Apache-2.0</span></td><td><span class="chips"><span class="chip">Continue · JetBrains</span><span class="chip">OpenHands · autonomous</span><span class="chip">Cursor · paid IDE</span><span class="chip">Claude Code · paid</span><span class="chip">Zed</span><span class="chip">Goose</span></span></td></tr>
+            <tr><th scope="row">Code agents</th><td><span class="pick">Cline / Kilo Code · free</span> <span class="pick">Goose · terminal</span></td><td><span class="chips"><span class="chip">Aider · dormant</span><span class="chip">OpenHands · autonomous</span><span class="chip">Cursor · paid IDE</span><span class="chip">Claude Code · paid</span><span class="chip">Zed</span><span class="chip">Goose</span></span></td></tr>
             <tr><th scope="row">Guardrails</th><td><span class="pick">Outlines</span></td><td><span class="chips"><span class="chip">Guardrails AI</span><span class="chip">NeMo Guardrails</span><span class="chip">Llama Guard</span></span></td></tr>
             <tr><th scope="row">Evals</th><td><span class="pick">Ragas</span> <span class="pick">Promptfoo</span></td><td><span class="chips"><span class="chip">DeepEval</span><span class="chip">OpenAI Evals format</span></span></td></tr>
             <tr><th scope="row">Observability</th><td><span class="pick">Langfuse</span></td><td><span class="chips"><span class="chip">Phoenix</span><span class="chip">OpenTelemetry</span><span class="chip">Grafana + Loki</span><span class="chip">LangSmith · Helicone · W&amp;B Weave · Braintrust</span><span class="chip">Prometheus · Alertmanager</span></span></td></tr>
@@ -2271,12 +2271,12 @@ flowchart TB
           <caption>Version floors that matter in practice, taken from each project's own requirements.</caption>
           <thead><tr><th scope="col">Runtime</th><th scope="col">Floor for this stack</th><th scope="col">Why</th></tr></thead>
           <tbody>
-            <tr><th scope="row">Python</th><td>3.10 minimum, 3.11 recommended</td><td>vLLM and SGLang publish wheels for 3.9 to 3.12; pydantic v2 idioms assume 3.10 unions</td></tr>
-            <tr><th scope="row">Node.js</th><td>20 LTS</td><td>Vercel AI SDK 5 and Next.js 15 target Node 18 and up; 20 is the current LTS floor</td></tr>
-            <tr><th scope="row">TypeScript</th><td>5.x</td><td>Mastra and the AI SDK publish types against 5.x</td></tr>
+            <tr><th scope="row">Python</th><td>3.10 minimum</td><td>vLLM declares 3.10 to 3.14; SGLang declares 3.10 and up with no upper bound</td></tr>
+            <tr><th scope="row">Node.js</th><td>22 minimum, 24 preferred</td><td>Node 20 reached end of life 30 April 2026. Node 24 is Active LTS; Mastra and the AI SDK pin engines.node &gt;=22</td></tr>
+            <tr><th scope="row">TypeScript</th><td>No published floor</td><td>Neither Mastra nor the AI SDK declares a TypeScript minimum; they constrain Node instead</td></tr>
             <tr><th scope="row">Java</th><td>17</td><td>Spring AI 1.x and LangChain4j both set 17 as the baseline</td></tr>
-            <tr><th scope="row">CUDA</th><td>12.x driver</td><td>PyTorch 2.4 and later ship cu12x wheels; the driver must be at least the toolkit version</td></tr>
-            <tr><th scope="row">ROCm</th><td>6.x and later</td><td>PyTorch ROCm wheels; check the compatibility matrix for your GPU (linked in section 27)</td></tr>
+            <tr><th scope="row">CUDA</th><td>Driver 525+ for CUDA 12.x, 580+ for 13.x</td><td>Current PyTorch ships cu126 through cu132. Minor version compatibility means the driver needs the major-family minimum</td></tr>
+            <tr><th scope="row">ROCm</th><td>7.1 or newer</td><td>Current PyTorch ROCm wheels are built for 7.1 and 7.2 only</td></tr>
           </tbody>
         </table>
       </div>
@@ -2353,7 +2353,7 @@ flowchart TB
             <tr><th scope="row">GitHub Copilot</th><td>IDE ext</td><td>$10/mo</td><td>Curated</td><td>Deepest GitHub integration</td></tr><tr><th scope="row">Tabnine</th><td>Free tier; paid teams</td><td>Any model, self-host</td><td>The air-gapped and on-prem option; fits open-weight deployments</td></tr><tr><th scope="row">Qodo</th><td>Free tier</td><td>Any model</td><td>Test generation and PR review agents</td>
             <tr><th scope="row">Amazon Q Developer</th><td>IDE ext</td><td>Free tier + paid</td><td>AWS</td><td>AWS-native shops</td></tr>
             <tr><th scope="row"><span class="pick">★ Cursor</span></th><td>Full IDE</td><td>$20/mo</td><td>Curated</td><td>Best end-to-end IDE flow if you'll pay</td></tr>
-            <tr><th scope="row">Windsurf · Zed · Void · Trae</th><td>Full IDE</td><td>Free / paid</td><td>✅</td><td>Zed, Void and Trae are free; Trae has an unusually generous tier</td></tr>
+            <tr><th scope="row">Zed · Void · Trae · Devin Desktop</th><td>Full IDE</td><td>Free / paid</td><td>✅</td><td>Zed, Void and Trae are free; Trae has an unusually generous tier</td></tr>
             <tr><th scope="row">Kiro · JetBrains Junie</th><td>Full IDE</td><td>Paid</td><td>Vendor</td><td>Kiro is spec-driven (docs before code); Junie is JetBrains-native</td></tr>
             <tr><th scope="row"><span class="pick">★ OpenHands</span></th><td>Autonomous</td><td>Free · open source</td><td>✅</td><td>Most autonomous, Docker sandbox, browses, executes, ships end to end</td></tr>
             <tr><th scope="row">Goose · SWE-agent</th><td>Autonomous</td><td>Free · open source</td><td>✅</td><td>Goose sits under the Linux Foundation</td></tr>
@@ -2466,7 +2466,7 @@ flowchart TB
             <tr><th scope="row">Tool calls come back malformed</th><td>Schema drift between contract and prompt</td><td>Validate against the JSON Schema; regenerate once with the error in context</td></tr>
             <tr><th scope="row">RAG cites the wrong passages</th><td>Chunking or embedder changed after indexing</td><td>Re-embed the corpus; embedder and index version together (section 25)</td></tr>
             <tr><th scope="row">Same input, different CI results</th><td>Sampling nondeterminism</td><td>Temperature 0 and pinned seeds; judged metrics take the median of three</td></tr>
-            <tr><th scope="row">Agent loops without finishing</th><td>No step budget enforced</td><td>The section 9 budget kills it; alert when it fires</td></tr>
+            <tr><th scope="row">Agent loops without finishing</th><td>No step budget enforced</td><td>The section 7 budget kills it; alert when it fires</td></tr>
             <tr><th scope="row">429 storms from a provider</th><td>Retries without backoff amplifying load</td><td>Backoff plus jitter, a circuit breaker, then the fallback chain (section 17)</td></tr>
             <tr><th scope="row">Blank page with JavaScript on</th><td>UI hides content before a scripted reveal</td><td>Content visible by default; motion is an enhancement (section 6)</td></tr>
           </tbody>
@@ -2572,9 +2572,5 @@ flowchart TB
 
 <script src="mermaid.min.js"></script>
 <script>
-(function () {
-  try {
-    if (window.mermaid) { window.mermaid.initialize({ startOnLoad: true }); }
-  } catch (e) { /* diagrams degrade to text, page stays readable */ }
-})();
+(function(){try{if(window.mermaid){window.mermaid.initialize({startOnLoad:true});}}catch(e){}})();
 </script>

@@ -6,12 +6,14 @@ production. Hardware is assumed rather than minimised; **latency and throughput*
 metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls
 pays each cost eight times.
 
-**A note on names.** "Open-weight" and "open-source" are not interchangeable. Llama ships under the
-Llama Community License and Gemma under Google's Terms of Use, neither OSI-approved (Gemma 4
-moved to Apache-2.0; older Gemmas keep the custom terms). Qwen has released under Apache-2.0,
-though the newest Qwen 3.8 Max weights have no published licence yet; DeepSeek and
-GLM release under MIT, Kimi K3 under its own custom licence; Mistral splits by model, with
-flagships under research licences. Always check the model card, section 21 tags each entry. The Sources and verification section at the end of this manual links every volatile claim to its primary source.
+**A note on names.** "Open-weight" and "open-source" are not interchangeable, and licences vary
+*within* a family far more than the family name suggests. Llama is licensed per generation, none of
+them OSI-approved. Gemma 4's core series is Apache-2.0 while Gemma 3 and earlier, and the sibling
+variants, keep custom terms. Qwen's current models are Apache-2.0 while the 1.5 to 2.5 generations
+are not. Mistral ships four different licences at once, and its flagship is the permissive one.
+MiniMax M2.7 is non-commercial. DeepSeek and GLM release under MIT; Kimi K3 under its own licence.
+Never infer a licence from a family name: check the model card, and see
+[docs/MODELS.md](docs/MODELS.md) for the per-model breakdown. The Sources and verification section at the end of this manual links every volatile claim to its primary source.
 
 ## 1. How to read this manual
 
@@ -36,7 +38,19 @@ Windows and CPU-only each get a row. Section 22 maps task shape to model, sectio
 and platform choice, and section 24 is the full code-agent landscape. Section 21 catalogues every
 swap option per layer.
 
-Every diagram in this manual is standard Mermaid and renders anywhere Mermaid does.
+**How claims are marked.** Trust in a manual like this rests on knowing which numbers were measured
+and which are field judgement, so three levels are used consistently:
+
+| Marker | What it means |
+|---|---|
+| A plain number | Sourced or derivable. Section 27 links the primary source, or the arithmetic is shown |
+| `reported` | A figure attributed to whoever measured it. Repeated here, not reproduced here |
+| `indicative` | An engineering heuristic with no published source. A planning starting point, not a measurement |
+
+A claim carrying none of the three is a defect worth reporting. What the automated checks do and do
+not prove is set out in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+
+Every diagram in this manual is standard Mermaid and renders in any viewer that supports it.
 
 ## 2. What can you actually run?
 
@@ -67,7 +81,7 @@ download the artefact that matches your stack instead of converting after the fa
 | **AMD on Windows** | **llama.cpp with Vulkan** | By VRAM | **ROCm on Windows covers only select new hardware** (Radeon AI PRO R9000, Ryzen AI Max PRO 400). Vulkan ships with every AMD driver, no CUDA emulation needed |
 | **Intel Arc / Core Ultra** | IPEX-LLM · OpenVINO · Vulkan | 7-14B at 4-bit | Improving quickly; verify your model is supported |
 | **Windows, any GPU** | LM Studio / Ollama native, or **WSL2** for the Linux stack | As per GPU row | WSL2 is how you get vLLM/SGLang on Windows |
-| **CPU only** | llama.cpp | 3-8B, 3-7 tok/s | Fine for batch; too slow for interactive chat |
+| **CPU only** | llama.cpp | 3-8B, 3-7 tok/s, indicative | Fine for batch; too slow for interactive chat |
 | **NVIDIA DGX Spark** | SGLang · vLLM · Ollama | 70B-class at 4-bit | GB10, 128 GB unified memory; the desktop supercomputer tier |
 | **NVIDIA Jetson (edge)** | llama.cpp · TensorRT-LLM | 3-13B on-device | Orin and Thor modules; agents at the edge, no rack required |
 | **Cloud accelerators** | Managed runtimes | By instance | TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5 |
@@ -130,7 +144,7 @@ section 1, and the numbered sections that follow open each layer up.
 | 5 | RAG pipeline | Grounding | Context | Docling · Unstructured · BGE-M3 · Qwen3-Embedding · Qdrant · pgvector · Chroma · reranker |
 | 6 | Model layer | Serving runtime and models | Prompt | SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX · LM Studio · any API |
 | 7 | Tools via MCP | External systems | Harness | MCP servers · OpenAPI specs · GitHub · Slack · Jira · databases · filesystem · web search |
-| 8 | Code agent | Writes and tests code | Harness | Cline · Roo Code · Aider · Continue · OpenHands · Cursor · Claude Code · Zed · Goose |
+| 8 | Code agent | Writes and tests code | Harness | Cline · Kilo Code · OpenHands · Goose · Cursor · Claude Code · Zed |
 | 9 | Memory and cache | State and speed | Context | LangGraph store · Redis · Mem0 · SQLite · DuckDB · Postgres · Supabase |
 | 10 | Guardrails and evals | Quality and safety | Eval | Outlines · Guardrails AI · NeMo Guardrails · Llama Guard · Ragas · Promptfoo · DeepEval |
 | 11 | Observability | Trace and measure | Eval | Langfuse · Phoenix · OpenTelemetry · Grafana + Loki · Helicone |
@@ -261,7 +275,7 @@ flowchart TB
 
     subgraph L8["8 · Code Agent"]
         direction TB
-        A0["Cline · Aider · OpenHands<br/>Claude Code · Roo Code · Cursor"]
+        A0["Cline · Kilo Code · OpenHands<br/>Claude Code · Goose · Cursor"]
         A1["Sandbox<br/>container · no host mounts"]
     end
 
@@ -269,7 +283,7 @@ flowchart TB
         direction TB
         M0["LLM gateway<br/>self-host serving or API endpoint"]
         M1["Fast tier · GLM-4.5-Air · Qwen 3.5 9B<br/>self-hosted · structured output"]
-        M2["General · Kimi K3 · Qwen 3.8 Max<br/>API, too large to self-host"]
+        M2["General · Kimi K3<br/>API, too large to self-host"]
         M3["Specialist · DeepSeek V4 Pro · GLM-5.2<br/>code and terminal"]
     end
 
@@ -505,14 +519,14 @@ stateDiagram-v2
 
 ## 8. RAG pipeline internals
 
-Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is the single
-highest-leverage upgrade over naive top-k cosine search.
+Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is, indicative,
+the upgrade that buys the most quality per unit of added machinery over naive top-k cosine search.
 
 
 ### 8.1 RAG variants: adopt one when its failure mode appears
 
-The pipeline above is the default for a reason: hybrid retrieval plus reranking wins on most corpora
-with the least machinery. The named variants exist because specific failure modes defeat it. Start
+The pipeline above is the default for a reason: on most corpora, hybrid retrieval plus reranking
+is, indicative, the best quality for the least machinery. The named variants exist because specific failure modes defeat it. Start
 with the default; reach for a variant only when you can name the failure you are fixing.
 
 | Variant | The failure it fixes | Cost |
@@ -607,11 +621,11 @@ flowchart TB
     S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
     C1 -->|yes| SMALL["Fast tier<br/>GLM-4.5-Air · Qwen 3.5 9B<br/>constrained decoding to JSON"]
     C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
-    C2 -->|yes| LONG["Long context<br/>Qwen 3.8 Max · Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
+    C2 -->|yes| LONG["Long context<br/>Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
     C2 -->|no| C3{"Multi step reasoning<br/>maths or planning?"}
     C3 -->|yes| REASON["Reasoning<br/>DeepSeek V4 Pro · Claude Opus 5<br/>highest latency tier"]
     C3 -->|no| C4{"Code generation<br/>or repair?"}
-    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro ~80.6% SWE-bench<br/>GLM-5.2"]
+    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro 79.4% SWE-bench<br/>at default effort<br/>GLM-5.2"]
     C4 -->|no| GEN["General agentic<br/>Kimi K3 · Claude Sonnet 5"]
 
     SMALL --> V["Independent verifier<br/>separate prompt · never the producing model"]
@@ -672,7 +686,7 @@ flowchart TB
     end
 
     DEC["Pinned decoding<br/>temperature · top-p · stop · max tokens · seed<br/>versioned with the prompt, not a runtime whim"]
-    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · injected content cannot win"]
+    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · policy restated after untrusted input"]
     JUDGE["Judge prompt<br/>physically separate artifact<br/>no self-grading"]
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6
@@ -697,9 +711,9 @@ A prompt without its decoding settings is not reproducible, you cannot replay th
 a bad answer. Version them together.
 
 The named prompting techniques all live somewhere in this design rather than in a prompts folder.
-Few-shot examples belong in the tool contract and the eval dataset. Chain-of-thought is the thinking
-budget you set per complexity tier in section 9. ReAct is the section 7 loop itself. Reflection is
-the section 12 critic. Structured outputs are the JSON schemas the harness validates at the boundary.
+Few-shot examples belong in the tool contract and the eval dataset. Chain-of-thought is the reasoning
+tier you select per complexity in section 9. ReAct is the section 7 loop itself. Reflection is
+the section 7 critic. Structured outputs are the JSON schemas the harness validates at the boundary.
 A technique that exists only as prompt text drifts; one that has an owner and a test survives.
 
 ---
@@ -778,8 +792,9 @@ flowchart TB
 
 The loop back from `Execute` to untrusted input is the important edge: a tool result is not sanitised
 by having been requested. Two further properties keep retries safe, side-effecting tools are
-idempotency-keyed, so a retry after a timeout cannot double-write, and credentials live in the
-harness rather than the prompt, so no jailbreak can read what was never placed in the window.
+idempotency-keyed, so a retried write is applied once by a server that honours the key, and
+credentials live in the harness rather than the prompt, which removes the context window as an
+exfiltration path.
 
 Tool execution runs in a container at minimum. When tools run model-written code, climb the
 isolation ladder: gVisor intercepts syscalls below the container, Firecracker gives each execution
@@ -983,7 +998,7 @@ flowchart TB
     class RULE,SPLIT note
 ```
 
-Interactive chat needs a GPU. CPU-only inference runs at roughly 3-7 tok/s for a 7B model, which
+Interactive chat needs a GPU. CPU-only inference runs at, indicative, 3-7 tok/s for a 7B model, which
 makes a 500-token answer take one to three minutes, fine for batch work, unusable for a chat UI.
 
 ---
@@ -1070,7 +1085,7 @@ store must stay rebuildable from the source of truth (section 15).
 | Class | Options | Reach for it when | Driver and compatibility notes |
 |---|---|---|---|
 | Relational, the system of record | Postgres · MySQL · SQLite | Sessions, users, jobs, billing: anything with invariants | SQLAlchemy or asyncpg in Python · Prisma or Drizzle in TypeScript · JDBC in Java |
-| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | pgvector comfortably to around 10M vectors; dedicated engines beyond that or for heavy filtered search | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
+| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | pgvector comfortably to around 10M vectors, indicative; dedicated engines beyond that or for heavy filtered search | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
 | Key-value and cache | Redis · Valkey | Semantic cache, embedding cache keyed by content hash, rate limits, queues, session scratch | redis-py and ioredis; Valkey is the open fork and protocol-compatible |
 | Document | MongoDB · Postgres JSONB | Payloads with no stable schema; MERN teams already fluent in it | JSONB covers most document needs without adding a second database |
 | Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query genuinely needs multi-hop traversal |
@@ -1160,7 +1175,7 @@ tokens per second, availability, and spend the error budget deliberately: a burn
 symptom pages someone, while a dashboard on the cause pages no one. Prometheus scrapes the numbers, Alertmanager routes the page, Grafana sits on top. Keep a one-page runbook for the
 four failures behind most pages: model server out of memory (restart with a smaller max batch), KV
 cache exhaustion (shed long-context requests first), a provider 429 storm (route to the fallback and
-stop retrying), and a looping agent (the step budget from section 9 kills it; the alert tells you it
+stop retrying), and a looping agent (the step budget from section 7 kills it; the alert tells you it
 fired). For state, write RTO and RPO down before the incident: Postgres restore drills bound your
 recovery time, and everything else in this stack rebuilds from config.
 
@@ -1169,7 +1184,7 @@ overloaded, timeout, invalid_output, tool_failed) and give every hop a timeout s
 caller's, so failures surface where they can be handled rather than where they happened. Retry
 only idempotent calls, with exponential backoff plus jitter, capped by the turn budget. A circuit
 breaker per provider stops retry storms; the fallback chain rides behind it. Tool calls that write
-need idempotency keys so a retry cannot double-post. The user sees one honest sentence and a retry
+need idempotency keys so a retried call is applied once by a server that honours them. The user sees one honest sentence and a retry
 control, never a stack trace; the trace carries the detail.
 
 ---
@@ -1439,10 +1454,10 @@ flowchart LR
         GR4["Llama Guard · safety"]
     end
     subgraph CAT_CA["Code agents"]
-        CA1["★ Cline / Roo Code · free · any model"]
-        CA2["★ Aider · Apache 2.0 · terminal"]
+        CA1["★ Cline / Kilo Code · free · any model"]
+        CA2["★ Goose · terminal · any model"]
         CA3["★ OpenHands · autonomous"]
-        CA4["Continue · Cursor · Claude Code · Zed · Goose"]
+        CA4["Cursor · Claude Code · Zed · Aider"]
     end
     subgraph CAT_TL["Tool interface"]
         TL1["★ MCP servers"]
@@ -1483,7 +1498,7 @@ flowchart LR
         EM4["Jina v5"]
     end
     subgraph CAT_MD["Models"]
-        MD1["★ Qwen 3.8 Max · 1M ctx · licence pending"]
+        MD1["★ Qwen 3.6 27B · Apache-2.0 · self-host"]
         MD2["★ Kimi K3 · tool use · custom licence"]
         MD3["DeepSeek V4 Pro · coding · MIT"]
         MD4["GLM-5.2 · terminal and code · MIT"]
@@ -1527,7 +1542,7 @@ flowchart LR
 
 ## 22. Task-to-model routing
 
-The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, Qwen 3.8 Max 2.4T, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
+The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. Qwen 3.8 Max is announced at 2.4T but has no published weights, which is its own lesson: announced is not downloadable. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
 
 **So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.
 
@@ -1538,12 +1553,12 @@ exact checkpoint ID, never the family name (section 25).
 | Task | Open-weight | Frontier API | Notes |
 |---|---|---|---|
 | Extraction, classification, routing | GLM-4.5-Air · Qwen 3.5 9B · Phi-4-mini · Gemma 4 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier. |
-| General agentic + tool calling | Kimi K3 · Qwen 3.8 Max | Claude Sonnet 5 | K3 scores 57 on the Artificial Analysis Intelligence Index (60 in its max configuration); Kimi is explicitly tuned for tool loops. |
+| General agentic + tool calling | Kimi K3 | Claude Sonnet 5 · Qwen 3.8 Max (API only) | K3 scores 57 on the Artificial Analysis Intelligence Index (60 in its max configuration); Kimi is explicitly tuned for tool loops. |
 | Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice actually shows up in output quality. |
-| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro ~80.6% SWE-bench Verified; GLM-5.2 strong on terminal-style benchmarks. |
-| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active at roughly $0.14/$0.28 per M tokens. |
-| Long context | Qwen 3.8 Max · Kimi K3 | Claude Opus 5 (1M) | All are 1M-class. Prefill cost still scales with what you actually send. |
-| Vision, documents, charts | Qwen 3.8 Max | Claude Opus 5 | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
+| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro reports 79.4% SWE-bench Verified at its default Think High effort, 80.6% at maximum effort. GLM-5.2 strong on terminal-style benchmarks. |
+| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active. Published rates are $0.14 in on a cache miss and $0.28 out per M tokens; the vendor has announced a significant increase. |
+| Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you actually send. |
+| Vision, documents, charts | Qwen 3.5 VL | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
 
 
 ### 22.1 The API layer: every way to call a model
@@ -1671,12 +1686,12 @@ Version floors that matter in practice, taken from each project's own requiremen
 
 | Runtime | Floor for this stack | Why |
 |---|---|---|
-| Python | 3.10 minimum, 3.11 recommended | vLLM and SGLang publish wheels for 3.9 to 3.12; pydantic v2 idioms assume 3.10 unions |
-| Node.js | 20 LTS | Vercel AI SDK 5 and Next.js 15 target Node 18 and up; 20 is the current LTS floor |
-| TypeScript | 5.x | Mastra and the AI SDK publish types against 5.x |
-| Java | 17 | Spring AI 1.x and LangChain4j both set 17 as the baseline |
-| CUDA | 12.x driver | PyTorch 2.4 and later ship cu12x wheels; the driver must be at least the toolkit version |
-| ROCm | 6.x and later | PyTorch ROCm wheels; check the compatibility matrix for your GPU (linked in section 27) |
+| Python | 3.10 minimum | vLLM declares 3.10 to 3.14; SGLang declares 3.10 and up with no upper bound. 3.9 is below both |
+| Node.js | 22 minimum, 24 preferred | Node 20 reached end of life on 30 April 2026. Node 24 is Active LTS; Node 22 is in maintenance until April 2027. Mastra and the Vercel AI SDK both pin `engines.node >=22` |
+| TypeScript | No published floor | Neither Mastra nor the AI SDK declares a TypeScript minimum. They constrain Node instead. Match their toolchain if you need a number |
+| Java | 17 | Spring AI and LangChain4j both set 17 in their parent POMs |
+| CUDA | Driver 525 or newer for CUDA 12.x, 580 or newer for 13.x | Current PyTorch ships cu126 through cu132, spanning CUDA 12 and 13. Minor version compatibility means the driver needs the major-family minimum, not a match to the toolkit |
+| ROCm | 7.1 or newer | Current PyTorch ROCm wheels are built for 7.1 and 7.2 only. ROCm 6.4 tops out at an older PyTorch |
 
 ### 23.2 Language pairs that ship
 
@@ -1755,7 +1770,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
-| **Aider** ★ | Apache-2.0, free | ✅ any | Git-native pair programming, every edit is a commit. The terminal pioneer |
+| **Aider** | Apache-2.0, free | ✅ any | Git-native pair programming, every edit is a commit. The terminal pioneer, but **dormant**: no commits since May 2026. Still works; no longer developed |
 | **Claude Code** | Paid (subscription or API) | Anthropic models | Tops current rankings; per-subagent model control, but paid and single-vendor |
 | **OpenCode** | Open source, free | ✅ any | Vendor-neutral terminal agent |
 | **Gemini CLI** | Free tier available | Gemini | Generous free quota; good for exploration |
@@ -1768,9 +1783,9 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
 | **Cline** ★ | Open source, free | ✅ any | Best-in-class governance, Plan/Act approval, permissioned file, terminal, browser and MCP access. ~58K stars |
-| **Roo Code** ★ | Open source, free | ✅ any | Cline fork; the usual recommendation for VS Code users starting today |
+| **Roo Code** | Open source | ✅ any | **Shut down May 2026**, repository archived. Its README points users to Cline; ZooCode is a community fork |
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
-| **Continue** ★ | Apache-2.0, free | ✅ any | The JetBrains pick. ~35K stars; acquired by Cursor, extension remains open source |
+| **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
 | **GitHub Copilot** | $10/mo Pro | GitHub-selected | Deepest GitHub integration |
 | **Tabnine** | Free tier; paid teams | ✅ any, self-host | The air-gapped and on-prem option; fits open-weight deployments |
 | **Qodo** | Free tier | ✅ any | Test generation and PR review agents |
@@ -1781,7 +1796,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 | Tool | Licence / cost | Best for |
 |---|---|---|
 | **Cursor** ★ | $20/mo Pro | Best end-to-end IDE flow if you'll pay for one |
-| **Windsurf** | Paid | Agentic-first editor |
+| **Windsurf** | Paid | **Rebranded to Devin Desktop** (Cognition); windsurf.com now redirects there. The JetBrains plugin remains separate |
 | **Zed** | Free tier, open source | Fast native editor; free and model-agnostic |
 | **Void** | Open source | Open-source Cursor alternative |
 | **Trae** | Free | ByteDance's AI IDE; unusually generous free tier |
@@ -1801,13 +1816,13 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | If you… | Use |
 |---|---|
-| Live in the terminal | **Aider** (free) or **Claude Code** (paid, strongest) |
-| Use VS Code | **Roo Code** or **Cline**: free, model-agnostic, approval-gated |
-| Use JetBrains | **Continue** |
+| Live in the terminal | **Goose** (free, vendor-neutral governance) or **Claude Code** (paid, strongest) |
+| Use VS Code | **Cline** or **Kilo Code**: free, model-agnostic, approval-gated |
+| Use JetBrains | **Kilo Code**, which ships a JetBrains build. Continue was the long-standing answer but is now read-only |
 | Want an IDE that does it all and will pay | **Cursor** |
 | Need fully autonomous, sandboxed runs | **OpenHands** |
-| Cannot send code off-premises | **Cline / Roo Code / Aider** pointed at your own served model |
-| Have zero budget | **opencode · Cline · Aider · Kilo Code · Zed** are all free and model-agnostic |
+| Cannot send code off-premises | **Cline / Kilo Code / Goose** pointed at your own served model |
+| Have zero budget | **opencode · Cline · Kilo Code · Goose · Zed** are all free and model-agnostic |
 
 
 ### 24.6 Prompt-to-app builders
@@ -1890,7 +1905,7 @@ the trust boundary: the moment untrusted text reaches a tool that can write some
 | Tool calls come back empty or malformed | Schema drift between contract and prompt | Validate against the JSON Schema; regenerate once with the error in context |
 | RAG cites the wrong passages | Chunking or embedder changed after indexing | Re-embed the corpus; embedder and index version together (section 25) |
 | Same input, different CI results | Sampling nondeterminism | Temperature 0 and pinned seeds; judged metrics take the median of three runs |
-| Agent loops without finishing | No step budget enforced | The section 9 budget kills it; alert when it fires |
+| Agent loops without finishing | No step budget enforced | The section 7 budget kills it; alert when it fires |
 | 429 storms from a provider | Retries without backoff amplifying load | Backoff plus jitter, a circuit breaker, then the fallback chain (section 17) |
 | Blank page with JavaScript on | UI hides content before a scripted reveal | Content visible by default; motion is an enhancement (section 6) |
 
@@ -1907,8 +1922,8 @@ their cards before relying on them months from now.
 | Model | Verified fact | Primary source |
 |---|---|---|
 | Kimi K3 | 2.8T total / 104B active MoE · 1M context · custom Kimi K3 License | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
-| Qwen 3.8 Max | 2.4T total / 95B active · ~1M context · licence not yet published | [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
-| DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 80.6 in the card's own eval table | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
+| Qwen 3.8 Max | Announced with 2.4T total / 95B active and ~1M context, but no downloadable weights are published under the Qwen organisation. Treat as an API model | [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
+| DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 79.4 at Think High, 80.6 at Think Max, per the card's own mode comparison | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | DeepSeek V4 Flash | 284B / 13B active · MIT · $0.14 in / $0.28 out per M tokens, increase announced | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) |
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
 | GLM-4.5-Air | Fast tier · MIT | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |

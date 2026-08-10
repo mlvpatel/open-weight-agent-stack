@@ -17,7 +17,7 @@ flowchart TB
     end
 
     DEC["Pinned decoding<br/>temperature · top-p · stop · max tokens · seed<br/>versioned with the prompt, not a runtime whim"]
-    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · injected content cannot win"]
+    PREC["Instruction precedence<br/>system contract beats retrieved text<br/>beats user text · policy restated after untrusted input"]
     JUDGE["Judge prompt<br/>physically separate artifact<br/>no self-grading"]
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6
