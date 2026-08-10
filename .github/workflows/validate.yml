@@ -69,6 +69,33 @@ jobs:
           fi
           echo "gate correctly rejects malformed HTML"
 
+  invariants:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: internal anchors, relative links, and stated counts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/check_invariants.py
+      - name: the gate rejects a broken reference
+        run: |
+          # prove the checker is not vacuous before trusting a pass
+          cp MANUAL.md /tmp/manual.bak
+          python3 - <<'EOP'
+          import pathlib
+          p = pathlib.Path("MANUAL.md")
+          p.write_text(p.read_text().replace("## 22. Task-to-model routing", "## 22. Renamed", 1))
+          EOP
+          if SKIP_REPO_DESCRIPTION=1 python3 scripts/check_invariants.py; then
+            echo "::error::Invariant checker passed against a deliberately broken anchor."
+            cp /tmp/manual.bak MANUAL.md
+            exit 1
+          fi
+          cp /tmp/manual.bak MANUAL.md
+          echo "checker correctly rejects a broken reference"
+
   links:
     runs-on: ubuntu-latest
     steps:
@@ -76,15 +103,25 @@ jobs:
       - name: check every external link
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
-          args: --no-progress --max-concurrency 8 --accept 200,201,202,204,206,301,302,308,403,429 MANUAL.md README.md docs/
+          args: >-
+            --no-progress
+            --max-concurrency 8
+            --max-retries 3
+            --retry-wait-time 10
+            --accept 200,201,202,204,206,301,302,308
+            --exclude-mail
+            MANUAL.md README.md docs/
           fail: true
+          # 403 and 429 are no longer accepted as success. A rate-limited or
+          # forbidden response is not evidence that a page exists, and treating
+          # it as success is how a link checker quietly stops checking.
 
   deploy:
     # Job-level condition, never a workflow-level path filter: a workflow skipped
     # by paths reports Pending forever and would block required checks, while a
     # job skipped by a conditional reports Success.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [diagrams, html, links]
+    needs: [diagrams, html, links, invariants]
     runs-on: ubuntu-latest
     permissions:
       contents: read
