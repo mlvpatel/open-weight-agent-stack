@@ -74,7 +74,9 @@ def main() -> int:
         ("code-agent descriptions avoid ranking claims", excludes("manual", "Tops current rankings")
          and excludes("manual", "The most autonomous of the group")),
         ("Codex plan access is accurately scoped", includes("manual", "Included with eligible ChatGPT plans")
-         and excludes("manual", "| **Codex CLI** | Paid |")),
+         and excludes("manual", "| **Codex CLI** | Paid |")
+         and includes("manual", "https://developers.openai.com/codex/pricing")
+         and excludes("manual", "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan")),
         ("Copilot is not a single-model service", includes("manual", "Multiple models, plan and surface dependent")),
         ("volatile-source coverage is scoped", includes("manual", "tracked set of volatile model and tool claims")
          and includes("manual", "records primary sources for a tracked set of volatile claims")

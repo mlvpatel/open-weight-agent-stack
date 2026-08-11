@@ -2023,7 +2023,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Tabnine | [tabnine.com](https://www.tabnine.com/) |
 | Qodo | [qodo.ai](https://www.qodo.ai/) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
-| Codex plan availability | [OpenAI Help Center](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan) |
+| Codex plan availability | [OpenAI Codex pricing](https://developers.openai.com/codex/pricing) |
 | Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
 | GitHub Copilot model availability | [GitHub Docs](https://docs.github.com/en/copilot/reference/ai-models/supported-models) |
 | Devin, and Devin Desktop (formerly Windsurf) | [devin.ai](https://devin.ai/) |
