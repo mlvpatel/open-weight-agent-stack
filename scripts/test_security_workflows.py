@@ -10,6 +10,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 CODEQL = REPO / ".github" / "workflows" / "codeql.yml"
 VALIDATE = REPO / ".github" / "workflows" / "validate.yml"
+LYCHEE = REPO / "lychee.toml"
 CODEQL_ACTION_SHA = "5595ccaf912efad79be6eef63a5619ff05969be3"
 CHECKOUT_ACTION_SHA = "3d3c42e5aac5ba805825da76410c181273ba90b1"
 
@@ -20,6 +21,22 @@ def read(path: Path) -> str:
 
 def fail(message: str) -> None:
     raise AssertionError(message)
+
+
+def accepts_status(specification: str, status: int) -> bool:
+    """Return whether a lychee status specification accepts ``status``."""
+    for token in (part.strip() for part in specification.split(",")):
+        if "..=" in token:
+            start, end = token.split("..=", 1)
+            if (not start or status >= int(start)) and (not end or status <= int(end)):
+                return True
+        elif ".." in token:
+            start, end = token.split("..", 1)
+            if (not start or status >= int(start)) and (not end or status < int(end)):
+                return True
+        elif token and status == int(token):
+            return True
+    return False
 
 
 def test_codeql_workflow_is_pinned_and_scans_repo_languages() -> None:
@@ -95,8 +112,36 @@ def test_browser_gate_is_hermetic_and_surfaces_mermaid_failures() -> None:
         fail("the CI browser path must execute the synthetic Mermaid-failure assertion")
 
 
+def test_link_checker_throttles_rate_limited_hosts_without_accepting_failures() -> None:
+    workflow = read(VALIDATE)
+    if "--config lychee.toml" not in workflow:
+        fail("link checking must load the committed per-host throttle configuration")
+    accept_match = re.search(r"--accept\s+([0-9.,=]+)", workflow)
+    if not accept_match:
+        fail("link checking must declare its accepted HTTP statuses")
+    for rejected in (403, 429):
+        if accepts_status(accept_match.group(1), rejected):
+            fail(f"link checking must not accept HTTP {rejected} as evidence that a source exists")
+    if not LYCHEE.is_file():
+        fail("link checking must commit its per-host throttle configuration")
+    config = read(LYCHEE)
+    for expected in ('[hosts."docs.vllm.ai"]', "concurrency = 1", 'request_interval = "2s"'):
+        if expected not in config:
+            fail(f"docs.vllm.ai throttle configuration is missing {expected!r}")
+
+
+def test_status_acceptance_parser_covers_exact_codes_and_ranges() -> None:
+    for specification in ("403", "400..500", "..=429", "429.."):
+        if not accepts_status(specification, 403 if "403" in specification else 429):
+            fail(f"status parser failed to recognize {specification!r}")
+    if accepts_status("200,201,202,204,206,301,302,308", 403):
+        fail("status parser incorrectly accepted HTTP 403")
+
+
 if __name__ == "__main__":
     test_codeql_workflow_is_pinned_and_scans_repo_languages()
     test_browser_gate_blocks_deploy_when_it_fails()
     test_browser_gate_is_hermetic_and_surfaces_mermaid_failures()
+    test_link_checker_throttles_rate_limited_hosts_without_accepting_failures()
+    test_status_acceptance_parser_covers_exact_codes_and_ranges()
     print("security workflow contracts pass")
