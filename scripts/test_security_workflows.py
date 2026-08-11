@@ -10,7 +10,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 CODEQL = REPO / ".github" / "workflows" / "codeql.yml"
 VALIDATE = REPO / ".github" / "workflows" / "validate.yml"
-LYCHEE = REPO / "lychee.toml"
+MANUAL = REPO / "MANUAL.md"
 CODEQL_ACTION_SHA = "5595ccaf912efad79be6eef63a5619ff05969be3"
 CHECKOUT_ACTION_SHA = "3d3c42e5aac5ba805825da76410c181273ba90b1"
 
@@ -112,22 +112,31 @@ def test_browser_gate_is_hermetic_and_surfaces_mermaid_failures() -> None:
         fail("the CI browser path must execute the synthetic Mermaid-failure assertion")
 
 
-def test_link_checker_throttles_rate_limited_hosts_without_accepting_failures() -> None:
+def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -> None:
     workflow = read(VALIDATE)
-    if "--config lychee.toml" not in workflow:
-        fail("link checking must load the committed per-host throttle configuration")
     accept_match = re.search(r"--accept\s+([0-9.,=]+)", workflow)
     if not accept_match:
         fail("link checking must declare its accepted HTTP statuses")
     for rejected in (403, 429):
         if accepts_status(accept_match.group(1), rejected):
             fail(f"link checking must not accept HTTP {rejected} as evidence that a source exists")
-    if not LYCHEE.is_file():
-        fail("link checking must commit its per-host throttle configuration")
-    config = read(LYCHEE)
-    for expected in ('[hosts."docs.vllm.ai"]', "concurrency = 1", 'request_interval = "2s"'):
-        if expected not in config:
-            fail(f"docs.vllm.ai throttle configuration is missing {expected!r}")
+
+    manual = read(MANUAL)
+    if "https://docs.vllm.ai/" in manual:
+        fail("vLLM evidence links must not use the hosted docs endpoint that rate-limits CI")
+    precise_quantization_claim = (
+        "vLLM supports quantized inference with AWQ, GPTQ/GPTQModel, and FP8 W8A8"
+    )
+    if precise_quantization_claim not in manual:
+        fail("the vLLM quantization claim must use the terminology supported by its source")
+    vllm_commit = "b2506d62aec7e6bccc5959b829221a7ae217abf3"
+    for source_target in (
+        "docs/features/quantization/README.md#L8-L57",
+        "docs/serving/online_serving/openai_compatible_server.md#L1-L24",
+    ):
+        stable_url = f"https://github.com/vllm-project/vllm/blob/{vllm_commit}/{source_target}"
+        if stable_url not in manual:
+            fail(f"manual is missing immutable official vLLM evidence: {stable_url}")
 
 
 def test_status_acceptance_parser_covers_exact_codes_and_ranges() -> None:
@@ -142,6 +151,6 @@ if __name__ == "__main__":
     test_codeql_workflow_is_pinned_and_scans_repo_languages()
     test_browser_gate_blocks_deploy_when_it_fails()
     test_browser_gate_is_hermetic_and_surfaces_mermaid_failures()
-    test_link_checker_throttles_rate_limited_hosts_without_accepting_failures()
+    test_link_checker_uses_stable_primary_sources_without_accepting_failures()
     test_status_acceptance_parser_covers_exact_codes_and_ranges()
     print("security workflow contracts pass")

@@ -194,7 +194,6 @@ jobs:
         with:
           args: >-
             --no-progress
-            --config lychee.toml
             --max-concurrency 8
             --max-retries 3
             --retry-wait-time 10

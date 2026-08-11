@@ -1,5 +1,0 @@
-# Keep strict status checking while pacing hosts that throttle GitHub runners.
-# HTTP 403 and 429 remain failures; this file only prevents avoidable bursts.
-[hosts."docs.vllm.ai"]
-concurrency = 1
-request_interval = "2s"

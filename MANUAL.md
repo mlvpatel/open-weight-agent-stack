@@ -1962,13 +1962,13 @@ before relying on them months from now.
 
 | Claim in this manual | What the source says | Primary source |
 |---|---|---|
-| vLLM serves AWQ, GPTQ and FP8 | Quantization docs list AutoAWQ, GPTQModel, FP8 W8A8 with a hardware matrix | [vLLM docs](https://docs.vllm.ai/en/latest/features/quantization/) |
+| vLLM supports quantized inference with AWQ, GPTQ/GPTQModel, and FP8 W8A8 | The supported-format list names AutoAWQ, GPTQModel, and FP8 W8A8; its hardware matrix lists AWQ, GPTQ, and llm-compressor FP8 W8A8 | [vLLM source docs](https://github.com/vllm-project/vllm/blob/b2506d62aec7e6bccc5959b829221a7ae217abf3/docs/features/quantization/README.md#L8-L57) |
 | SGLang prefix caching pays for agents | Official figures: up to 5× throughput (blog), up to 6.4× (paper) | [LMSYS blog](https://lmsys.org/blog/2024-01-17-sglang/) · [Paper](https://arxiv.org/abs/2312.07104) |
 | FP8 needs Ada, Hopper or newer | TensorRT-LLM support matrix lists FP8 on SM89/SM90, not Ampere | [Support matrix](https://nvidia.github.io/TensorRT-LLM/reference/support-matrix.html) |
 | llama.cpp spans CPU, Metal, CUDA, Vulkan via GGUF | README backend table; GGUF conversion ships in-repo | [Repo](https://github.com/ggml-org/llama.cpp) |
 | MLX beats llama.cpp under 14B on Apple Silicon | Published comparison: 20-87% higher generation throughput, gap near zero at 27B+ | [Benchmark](https://groundy.com/articles/mlx-vs-llamacpp-on-apple-silicon-which-runtime-to-use-for-local-llm-inference/) · [arXiv study](https://arxiv.org/abs/2511.05502) |
 | ROCm on Windows covers only select new hardware | Compatibility matrix: native Windows 11 for Radeon AI PRO R9000 and Ryzen AI Max PRO 400, plus WSL2 | [ROCm matrix](https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html) |
-| The OpenAI-compatible API is the serving lingua franca | vLLM documents its OpenAI-compatible server (/v1/chat/completions and friends) | [vLLM serving docs](https://docs.vllm.ai/en/latest/serving/online_serving/) |
+| The OpenAI-compatible API is the serving lingua franca | vLLM documents its OpenAI-compatible server (/v1/chat/completions and friends) | [vLLM source docs](https://github.com/vllm-project/vllm/blob/b2506d62aec7e6bccc5959b829221a7ae217abf3/docs/serving/online_serving/openai_compatible_server.md#L1-L24) |
 | PagedAttention ends KV fragmentation | Paged, virtual-memory-style KV allocation; the mechanism behind vLLM's batching density | [Paper](https://arxiv.org/abs/2309.06180) |
 | Speculative decoding preserves output quality | Draft-and-verify decoding with an acceptance rule that keeps the target model's distribution | [Paper](https://arxiv.org/abs/2211.17192) |
 | NVIDIA NIM catalogue | Hosted trials and downloadable optimised inference containers | [build.nvidia.com](https://build.nvidia.com/models) |
