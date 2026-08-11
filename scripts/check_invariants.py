@@ -13,7 +13,6 @@ Checks:
 """
 from __future__ import annotations
 
-import json
 import os
 import re
 import subprocess
@@ -23,7 +22,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib.manual import REPO, load, markdown_files, slug  # noqa: E402
+from lib.manual import REPO, load, markdown_files  # noqa: E402
 
 FAILURES: list[str] = []
 SUMMARY: list[str] = []

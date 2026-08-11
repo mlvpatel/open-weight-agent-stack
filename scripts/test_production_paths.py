@@ -2,6 +2,8 @@
 """Exercise the non-network production paths used by the local quality gate."""
 from __future__ import annotations
 
+import base64
+import hashlib
 import os
 import shutil
 import tempfile
@@ -18,6 +20,22 @@ from lib import manual, render
 
 
 REPO = Path(__file__).resolve().parent.parent
+
+
+def copy_build_fixture(directory: str) -> Path:
+    repo = Path(directory)
+    (repo / "MANUAL.md").write_text((REPO / "MANUAL.md").read_text())
+    shutil.copytree(REPO / "assets", repo / "assets")
+    shutil.copytree(REPO / "docs", repo / "docs")
+    shutil.copytree(REPO / "site", repo / "site")
+    return repo
+
+
+def inline_script_span(template: str) -> tuple[int, int, int, int]:
+    opening = template.index("<script>\n")
+    body = opening + len("<script>")
+    closing = template.index("</script>", body)
+    return opening, body, closing, closing + len("</script>")
 
 
 class ProductionPathTests(unittest.TestCase):
@@ -50,14 +68,45 @@ class ProductionPathTests(unittest.TestCase):
     def test_generated_artifacts_and_invariants_hold_without_network(self) -> None:
         original_site = (REPO / "site" / "index.html").read_bytes()
         with tempfile.TemporaryDirectory() as directory:
-            repo = Path(directory)
-            (repo / "MANUAL.md").write_text((REPO / "MANUAL.md").read_text())
-            shutil.copytree(REPO / "assets", repo / "assets")
-            shutil.copytree(REPO / "docs", repo / "docs")
-            shutil.copytree(REPO / "site", repo / "site")
+            repo = copy_build_fixture(directory)
             self.assertEqual(build_site.build(repo), 0)
             self.assertIn("Content-Security-Policy", (repo / "site" / "index.html").read_text())
         self.assertEqual((REPO / "site" / "index.html").read_bytes(), original_site)
+
+    def test_csp_hash_accepts_mixed_case_inline_script_tags(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo = copy_build_fixture(directory)
+            template_path = repo / "site" / "template.html"
+            template = template_path.read_text()
+            opening, body_start, closing, end = inline_script_span(template)
+            script_body = template[body_start:closing]
+            template_path.write_text(
+                template[:opening] + "<ScRiPt>" + script_body + "</sCrIpT>" + template[end:]
+            )
+
+            self.assertEqual(build_site.build(repo), 0)
+            digest = base64.b64encode(hashlib.sha256(script_body.encode()).digest()).decode()
+            self.assertIn(f"'sha256-{digest}'", (repo / "site" / "index.html").read_text())
+
+    def test_csp_hash_rejects_multiple_inline_scripts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo = copy_build_fixture(directory)
+            template_path = repo / "site" / "template.html"
+            template_path.write_text(
+                template_path.read_text().replace(
+                    "</body>", "<script>window.unexpected = true;</script>\n</body>", 1
+                )
+            )
+            self.assertEqual(build_site.build(repo), 1)
+
+    def test_csp_hash_rejects_missing_inline_script(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo = copy_build_fixture(directory)
+            template_path = repo / "site" / "template.html"
+            template = template_path.read_text()
+            opening, _, _, end = inline_script_span(template)
+            template_path.write_text(template[:opening] + template[end:])
+            self.assertEqual(build_site.build(repo), 1)
 
         original_env = os.environ.get("SKIP_REPO_DESCRIPTION")
         os.environ["SKIP_REPO_DESCRIPTION"] = "1"

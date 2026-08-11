@@ -13,6 +13,7 @@ import hashlib
 import json
 import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import quote
 
@@ -22,6 +23,49 @@ from lib.render import render  # noqa: E402
 
 SITE_URL = "https://mlvpatel.github.io/open-weight-agent-stack/"
 REPOSITORY_FILE_URL = "https://github.com/mlvpatel/open-weight-agent-stack/blob/main/"
+
+
+class _InlineScriptCollector(HTMLParser):
+    """Collect exact inline-script bodies; ``HTMLParser`` normalizes tag case."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.scripts: list[str] = []
+        self._chunks: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() != "script" or any(name.lower() == "src" for name, _ in attrs):
+            return
+        if self._chunks is not None:
+            return
+        self._chunks = []
+
+    def handle_data(self, data: str) -> None:
+        if self._chunks is not None:
+            self._chunks.append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        if self._chunks is not None:
+            self._chunks.append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        if self._chunks is not None:
+            self._chunks.append(f"&#{name};")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "script" and self._chunks is not None:
+            self.scripts.append("".join(self._chunks))
+            self._chunks = None
+
+
+def extract_single_inline_script(document: str) -> str | None:
+    """Return the sole complete inline script, or ``None`` if ambiguous."""
+    parser = _InlineScriptCollector()
+    parser.feed(document)
+    parser.close()
+    if parser._chunks is not None or len(parser.scripts) != 1:
+        return None
+    return parser.scripts[0]
 
 
 def publish_repository_markdown_links(markdown: str, repo: Path = REPO) -> str:
@@ -102,11 +146,11 @@ def build(repo: Path = REPO) -> int:
     # frame-ancestors, report-uri and sandbox are ignored in that form per the
     # spec, and everything else applies. style-src permits inline because
     # Mermaid injects styles while rendering.
-    inline = re.search(r"<script>(.*?)</script>", out, re.S)
-    if not inline:
-        print("error: no inline script found; the CSP hash would be wrong", file=sys.stderr)
+    inline = extract_single_inline_script(out)
+    if inline is None:
+        print("error: expected exactly one complete inline script; the CSP hash would be wrong", file=sys.stderr)
         return 1
-    digest = base64.b64encode(hashlib.sha256(inline.group(1).encode()).digest()).decode()
+    digest = base64.b64encode(hashlib.sha256(inline.encode()).digest()).decode()
     csp = (
         "default-src 'none'; "
         f"script-src 'self' 'sha256-{digest}'; "
