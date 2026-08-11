@@ -24,6 +24,7 @@ REPO = Path(__file__).resolve().parent.parent
 MINIMUM_PERCENT = 80.0
 TEST_SCRIPTS = (
     "test_claim_contracts.py",
+    "test_memory_catalogue.py",
     "test_render_security.py",
     "test_site_links.py",
     "test_watch_upstream.py",

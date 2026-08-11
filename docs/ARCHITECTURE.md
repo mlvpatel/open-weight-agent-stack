@@ -173,7 +173,7 @@ flowchart TB
 | RAG pipeline | Ground answers in your corpus | Docling · BGE-M3 · Qdrant / pgvector · reranker |
 | Model serving | Tokens per second | SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX |
 | Tool layer | Reach external systems safely | MCP servers · OpenAPI tools · sandboxed execution |
-| Memory and cache | State and speed | LangGraph store · Redis · Mem0 · Postgres |
+| Memory and cache | State and speed | LangGraph store · Redis · Hermes Agent (bounded runtime-managed context and external providers) · Claude-Mem (hook-based developer-session capture) · MemPalace (local-first verbatim structured retrieval) · GBrain (structured/provenance-aware institutional memory) · MemSearch (Markdown source of truth plus hybrid/Milvus derived index) · Mem0 (managed or self-hosted extracted-memory lifecycle) · Postgres |
 | Guardrails and evals | Quality and safety, inline and offline | Outlines · Guardrails AI · Llama Guard · Ragas · Promptfoo |
 | Observability | Trace and measure everything | Langfuse · Phoenix · OpenTelemetry · Prometheus · Grafana |
 

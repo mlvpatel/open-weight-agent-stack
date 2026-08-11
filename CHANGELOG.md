@@ -2,6 +2,10 @@
 
 ## 1.1.1 - 2026-08-11 (local release candidate)
 
+**Deployment memory catalogue.** The manual and Layer 9 now distinguish six deployment-memory
+roles and document their source links, write gates, authority inheritance, egress review, and
+end-to-end erasure boundaries.
+
 **Published-site integrity.** Repository-local Markdown links are converted to
 stable GitHub document URLs in the generated Pages site, and regression checks
 now reject generated-site links that would 404 under a repository path.
