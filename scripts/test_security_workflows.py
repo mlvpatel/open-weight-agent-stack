@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import json
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -35,6 +36,21 @@ def accepts_status(specification: str, status: int) -> bool:
             if (not start or status >= int(start)) and (not end or status < int(end)):
                 return True
         elif token and status == int(token):
+            return True
+    return False
+
+
+def contains_markdown_host(document: str, target_host: str) -> bool:
+    """Return whether Markdown text contains an HTTP(S) URL for an exact host."""
+    normalized_target = target_host.rstrip(".").lower()
+    targets = re.findall(r"https?://[^\s<>\"']+", document, flags=re.IGNORECASE)
+    for target in targets:
+        candidate = target.rstrip(".,;:!?)]}")
+        try:
+            hostname = urlsplit(candidate).hostname
+        except ValueError:
+            continue
+        if hostname is not None and hostname.rstrip(".").lower() == normalized_target:
             return True
     return False
 
@@ -122,7 +138,7 @@ def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -
             fail(f"link checking must not accept HTTP {rejected} as evidence that a source exists")
 
     manual = read(MANUAL)
-    if "https://docs.vllm.ai/" in manual:
+    if contains_markdown_host(manual, "docs.vllm.ai"):
         fail("vLLM evidence links must not use the hosted docs endpoint that rate-limits CI")
     precise_quantization_claim = (
         "vLLM supports quantized inference with AWQ, GPTQ/GPTQModel, and FP8 W8A8"
@@ -147,10 +163,26 @@ def test_status_acceptance_parser_covers_exact_codes_and_ranges() -> None:
         fail("status parser incorrectly accepted HTTP 403")
 
 
+def test_markdown_host_matching_is_exact() -> None:
+    lookalike = "[lookalike](https://docs.vllm.ai.example.invalid/path)"
+    if contains_markdown_host(lookalike, "docs.vllm.ai"):
+        fail("host matching must not treat a lookalike subdomain as docs.vllm.ai")
+    valid_forms = (
+        "[inline](https://docs.vllm.ai/en/latest/)",
+        "[titled](<HTTPS://DOCS.VLLM.AI./en/latest/> \"vLLM docs\")",
+        "[reference]: https://docs.vllm.ai/en/latest/ 'vLLM docs'",
+        "<https://docs.vllm.ai/en/latest/>",
+    )
+    for target in valid_forms:
+        if not contains_markdown_host(target, "docs.vllm.ai"):
+            fail(f"host matching must recognize exact target form: {target}")
+
+
 if __name__ == "__main__":
     test_codeql_workflow_is_pinned_and_scans_repo_languages()
     test_browser_gate_blocks_deploy_when_it_fails()
     test_browser_gate_is_hermetic_and_surfaces_mermaid_failures()
     test_link_checker_uses_stable_primary_sources_without_accepting_failures()
     test_status_acceptance_parser_covers_exact_codes_and_ranges()
+    test_markdown_host_matching_is_exact()
     print("security workflow contracts pass")
