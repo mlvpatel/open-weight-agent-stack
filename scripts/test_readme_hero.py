@@ -15,6 +15,9 @@ README = REPO / "README.md"
 HERO = REPO / "docs" / "assets" / "readme-architecture.jpg"
 HERO_CONTRACT = REPO / "docs" / "assets" / "readme-architecture.json"
 OLD_PREVIEW = REPO / "docs" / "assets" / "preview.png"
+SELECTED_TAGLINE = (
+    "Design, route, secure, and operate agents across open-weight and hosted models."
+)
 
 
 def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -72,6 +75,7 @@ def jpeg_dimensions(path: Path) -> tuple[int, int]:
 class ReadmeHeroTests(unittest.TestCase):
     def test_readme_uses_the_explanatory_architecture_hero(self) -> None:
         readme = README.read_text(encoding="utf-8")
+        self.assertIn(f"**{SELECTED_TAGLINE}**", readme)
         image = re.search(r'<img\s+src="([^"]+)"\s+alt="([^"]+)"\s+width="820">', readme)
         self.assertIsNotNone(image)
         assert image is not None
@@ -94,6 +98,7 @@ class ReadmeHeroTests(unittest.TestCase):
             "Exact image reviewed visually at full and 820px rendered widths",
         )
         self.assertEqual(contract["title"], "The Open-Weight Agent Stack")
+        self.assertEqual(contract["subtitle"], SELECTED_TAGLINE)
         self.assertEqual(
             contract["bands"],
             [

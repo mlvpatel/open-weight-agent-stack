@@ -2,7 +2,7 @@
 
 # The Open-Weight Agent Stack
 
-**A performance-first build manual for agentic AI on open-weight models.**
+**Design, route, secure, and operate agents across open-weight and hosted models.**
 
 Hardware and serving, retrieval, memory, identity, security, and operations.
 27 sections and 18 reusable diagrams, with model, licence, and benchmark claims traced to primary sources.
