@@ -30,6 +30,10 @@ only after this candidate is pushed and the workflow runs on GitHub.
 the actual local gates and distinguish them from GitHub settings that require
 owner action after push.
 
+**Attribution transparency.** A contributor record now separates accountable
+human maintenance, evidenced AI assistance, and deterministic repository
+automation without fabricating GitHub identities or rewriting commit history.
+
 ## 1.1.0
 
 Trustworthy and self-maintaining.
