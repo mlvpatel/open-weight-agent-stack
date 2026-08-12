@@ -130,6 +130,7 @@ docs/MODELS.md       Per-model licences. Never per family: most families disagre
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
 docs/VERIFICATION.md What the automated checks do and do not prove.
 docs/FRESHNESS.md    How the upstream watcher works and how to enable pull requests.
+CONTRIBUTORS.md      Human accountability, evidenced AI assistance, and repository automation.
 site/template.html   Design chrome. site/index.html is GENERATED; never edit it by hand.
 diagrams/src/        All 18 diagrams as standalone .mmd files, reusable anywhere.
 assets/              The single Mermaid theme both the site and the SVGs render from.
@@ -190,6 +191,14 @@ npm run browser:check                 # generated site smoke test in Chromium
 Corrections are the most valued contribution, and the bar is one sentence long: **every correction needs a primary source.** A model card, a licence file, official documentation, or a paper. News articles and blog roundups do not qualify, because they are themselves uncited summaries.
 
 If you find a claim whose source does not support it, that is the most valuable issue you can open. No automation can find those. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Contributors and AI assistance
+
+The [GitHub Contributors graph](https://github.com/mlvpatel/open-weight-agent-stack/graphs/contributors)
+shows eligible account-linked commit authors and co-authors after their work
+reaches the default branch. The separate
+[AI-assistance record](CONTRIBUTORS.md) documents evidenced AI help, human
+accountability, and repository automation without inventing GitHub identities.
 
 ## Licence and citation
 
