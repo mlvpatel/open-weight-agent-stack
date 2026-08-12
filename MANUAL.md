@@ -146,7 +146,7 @@ section 1, and the numbered sections that follow open each layer up.
 | 6 | Model layer | Serving runtime and models | Prompt | SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX · LM Studio · any API |
 | 7 | Tools via MCP | External systems | Harness | MCP servers · OpenAPI specs · GitHub · Slack · Jira · databases · filesystem · web search |
 | 8 | Code agent | Writes and tests code | Harness | Cline · Kilo Code · OpenHands · Goose · Cursor · Claude Code · Zed |
-| 9 | Memory and cache | State and speed | Context | LangGraph store · Redis · Mem0 · SQLite · DuckDB · Postgres · Supabase |
+| 9 | Memory and cache | State and speed | Context | LangGraph store · Redis/Valkey · Hermes Agent · Claude-Mem · MemPalace · GBrain · MemSearch · Mem0 · Postgres/Supabase/SQLite · DuckDB |
 | 10 | Guardrails and evals | Quality and safety | Eval | Outlines · Guardrails AI · NeMo Guardrails · Llama Guard · Ragas · Promptfoo · DeepEval |
 | 11 | Observability | Trace and measure | Eval | Langfuse · Phoenix · OpenTelemetry · Grafana + Loki · Helicone |
 | 12 | Deployment | Wherever you can run it | Loop | Mac/MLX · single GPU · multi-GPU node · CPU only · WSL2 · Docker · Kubernetes · rented GPU · API only |
@@ -858,6 +858,32 @@ unless re-confirmed. Redact PII at write time rather than read time, so nothing 
 in a store that outlives the conversation. And because stored text re-enters future windows, every
 write gate here is also the control for memory poisoning (ASI06 in section 19).
 
+### 12.1 Deployment memory catalogue
+
+Choose the memory role before choosing a product. The following systems can be composed, but none
+replaces the system of record or the controls around it.
+
+| System | Deployment role | Primary source |
+|---|---|---|
+| Hermes Agent | Bounded runtime-managed context and external providers | [memory](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory) · [providers](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory-providers) |
+| Claude-Mem | Hook-based developer-session capture, compression, and reinjection | [repository](https://github.com/thedotmack/claude-mem) · [architecture](https://docs.claude-mem.ai/architecture/overview) |
+| MemPalace | Local-first verbatim structured retrieval | [repository](https://github.com/MemPalace/mempalace) |
+| GBrain | Structured/provenance-aware institutional memory | [repository](https://github.com/garrytan/gbrain) · [memory verbs](https://github.com/garrytan/gbrain/blob/master/docs/protocol/MEMORY_VERBS_v1.md) |
+| MemSearch | Markdown source of truth plus hybrid/Milvus derived index | [repository](https://github.com/zilliztech/memsearch) · [architecture](https://zilliztech.github.io/memsearch/architecture/) |
+| Mem0 | Managed or self-hosted extracted-memory lifecycle | [repository](https://github.com/mem0ai/mem0) · [add](https://docs.mem0.ai/core-concepts/memory-operations/add) · [expiration](https://docs.mem0.ai/platform/features/memory-expiration) |
+
+### 12.2 Deployment memory safety and lifecycle boundary
+
+Retrieved memory is untrusted data, never instructions. Hooks and MCP inherit tool authority, so
+their installation, credentials, and reachable tools need the same review as an executor. Writes
+require provenance, corroboration, quarantine for uncertain material, and principal and tenant
+scoping before promotion. Local-first is configuration-specific: provider and telemetry egress must
+be reviewed for the chosen deployment.
+
+Decay, expiration, and index reset are not verified deletion. An erasure workflow must cover
+canonical sources and derived indexes, caches, traces, backups, and provider copies; verify the
+deletion path for each store instead of treating a lifecycle control as evidence of erasure.
+
 ---
 
 ## 13. Guardrails, evals and the improvement loop
@@ -1473,10 +1499,12 @@ flowchart LR
     subgraph CAT_ME["Memory and cache"]
         ME1["★ LangGraph store"]
         ME2["★ Redis · semantic cache"]
-        ME3["Mem0"]
-        ME4["SQLite"]
-        ME5["DuckDB · analytics"]
-        ME6["Supabase"]
+        ME3["Hermes Agent · Claude-Mem<br/>runtime and session memory"]
+        ME4["MemPalace · MemSearch<br/>verbatim and Markdown recall"]
+        ME5["GBrain · provenance-aware"]
+        ME6["Mem0 · extracted lifecycle"]
+        ME7["Postgres · SQLite<br/>durable stores"]
+        ME8["DuckDB · Supabase<br/>analytics and hosted state"]
     end
     subgraph CAT_PA["Document parsing"]
         PA1["★ Docling"]
@@ -1541,7 +1569,7 @@ flowchart LR
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
     class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
-    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,VS6,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
+    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,VS6,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,ME7,ME8,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
 ```
 
 ---
@@ -2043,4 +2071,15 @@ Every link below resolves to the project's official home.
 | Retrieval and data | [Qdrant](https://github.com/qdrant/qdrant) · [Milvus](https://github.com/milvus-io/milvus) · [pgvector](https://github.com/pgvector/pgvector) · [LanceDB](https://github.com/lancedb/lancedb) · [Chroma](https://github.com/chroma-core/chroma) · [BGE-M3](https://huggingface.co/BAAI/bge-m3) · [Docling](https://github.com/docling-project/docling) · [Unstructured](https://github.com/Unstructured-IO/unstructured) · [RAGFlow](https://github.com/infiniflow/ragflow) · [Airflow](https://github.com/apache/airflow) · [Prefect](https://github.com/PrefectHQ/prefect) · [Dagster](https://github.com/dagster-io/dagster) |
 | Evals, guardrails, observability | [Ragas](https://github.com/explodinggradients/ragas) · [Promptfoo](https://github.com/promptfoo/promptfoo) · [DeepEval](https://github.com/confident-ai/deepeval) · [Langfuse](https://github.com/langfuse/langfuse) · [Phoenix](https://github.com/Arize-ai/phoenix) · [Outlines](https://github.com/dottxt-ai/outlines) · [Guardrails AI](https://github.com/guardrails-ai/guardrails) · [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) |
 | Fine-tuning | [Unsloth](https://github.com/unslothai/unsloth) · [Axolotl](https://github.com/axolotl-ai-cloud/axolotl) · [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) · [PEFT](https://github.com/huggingface/peft) · [TRL](https://github.com/huggingface/trl) |
-| Speech, media, memory, sandboxing | [Whisper](https://github.com/openai/whisper) · [faster-whisper](https://github.com/SYSTRAN/faster-whisper) · [Piper](https://github.com/OHF-Voice/piper1-gpl) · [Kokoro](https://github.com/hexgrad/kokoro) · [FLUX](https://huggingface.co/black-forest-labs) · [Mem0](https://github.com/mem0ai/mem0) · [LiteLLM](https://github.com/BerriAI/litellm) · [OpenRouter](https://openrouter.ai) · [E2B](https://github.com/e2b-dev/e2b) · [Modal](https://modal.com) · [gVisor](https://gvisor.dev) · [Firecracker](https://firecracker-microvm.github.io) · [CopilotKit](https://github.com/CopilotKit/CopilotKit) · [assistant-ui](https://github.com/assistant-ui/assistant-ui) |
+| Speech, media, sandboxing | [Whisper](https://github.com/openai/whisper) · [faster-whisper](https://github.com/SYSTRAN/faster-whisper) · [Piper](https://github.com/OHF-Voice/piper1-gpl) · [Kokoro](https://github.com/hexgrad/kokoro) · [FLUX](https://huggingface.co/black-forest-labs) · [LiteLLM](https://github.com/BerriAI/litellm) · [OpenRouter](https://openrouter.ai) · [E2B](https://github.com/e2b-dev/e2b) · [Modal](https://modal.com) · [gVisor](https://gvisor.dev) · [Firecracker](https://firecracker-microvm.github.io) · [CopilotKit](https://github.com/CopilotKit/CopilotKit) · [assistant-ui](https://github.com/assistant-ui/assistant-ui) |
+
+### 27.7 Deployment memory catalogue
+
+| System | Primary source |
+|---|---|
+| Hermes Agent memory and providers | [memory](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory) · [providers](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory-providers) |
+| Claude-Mem architecture and telemetry | [repository](https://github.com/thedotmack/claude-mem) · [architecture](https://docs.claude-mem.ai/architecture/overview) · [telemetry](https://docs.claude-mem.ai/telemetry) |
+| MemPalace | [github.com/MemPalace/mempalace](https://github.com/MemPalace/mempalace) |
+| GBrain protocol | [repository](https://github.com/garrytan/gbrain) · [MEMORY_VERBS_v1](https://github.com/garrytan/gbrain/blob/master/docs/protocol/MEMORY_VERBS_v1.md) |
+| MemSearch architecture | [repository](https://github.com/zilliztech/memsearch) · [architecture](https://zilliztech.github.io/memsearch/architecture/) |
+| Mem0 add and expiration lifecycle | [repository](https://github.com/mem0ai/mem0) · [add](https://docs.mem0.ai/core-concepts/memory-operations/add) · [expiration](https://docs.mem0.ai/platform/features/memory-expiration) |

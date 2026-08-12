@@ -40,10 +40,12 @@ flowchart LR
     subgraph CAT_ME["Memory and cache"]
         ME1["★ LangGraph store"]
         ME2["★ Redis · semantic cache"]
-        ME3["Mem0"]
-        ME4["SQLite"]
-        ME5["DuckDB · analytics"]
-        ME6["Supabase"]
+        ME3["Hermes Agent · Claude-Mem<br/>runtime and session memory"]
+        ME4["MemPalace · MemSearch<br/>verbatim and Markdown recall"]
+        ME5["GBrain · provenance-aware"]
+        ME6["Mem0 · extracted lifecycle"]
+        ME7["Postgres · SQLite<br/>durable stores"]
+        ME8["DuckDB · Supabase<br/>analytics and hosted state"]
     end
     subgraph CAT_PA["Document parsing"]
         PA1["★ Docling"]
@@ -108,4 +110,4 @@ flowchart LR
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
     class FE1,OR1,SV1,SV2,MD1,MD2,EM1,VS1,RR1,PA1,ME1,ME2,TL1,CA1,CA2,CA3,GR1,EV1,EV2,OB1,DP1,DP2 pick
-    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,VS6,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt
+    class FE2,FE3,FE4,FE5,OR2,OR3,OR4,OR5,SV3,SV4,SV5,MD3,MD4,MD5,MD6,MD7,MD8,MD9,MD10,EM2,EM3,EM4,VS2,VS3,VS4,VS5,VS6,RR2,RR3,PA2,PA3,PA4,ME3,ME4,ME5,ME6,ME7,ME8,TL2,TL3,CA4,GR2,GR3,GR4,EV3,EV4,OB2,OB3,OB4,OB5,OB6,DP3,DP4,DP5 alt

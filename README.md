@@ -105,6 +105,7 @@ Two shortcuts worth knowing. If you only read one page, read [section 2](MANUAL.
 | Which licence a model actually carries | [docs/MODELS.md](docs/MODELS.md) |
 | Security, mapped to OWASP's ten agentic risks | [Section 19](MANUAL.md#19-threat-model) |
 | Databases, queues, and state | [Section 16](MANUAL.md#16-databases-and-state) |
+| Deployment memory systems and their safety boundary | [Section 12.1](MANUAL.md#121-deployment-memory-catalogue) · [Layer 9](docs/layers/09-memory-and-cache.md) |
 | How to test an agent system | [Section 13.1](MANUAL.md#131-the-agent-test-pyramid) |
 | What to version, and what rollback restores | [Section 25](MANUAL.md#25-versioning-and-change-control) |
 | Why it broke, first hour | [Section 26.1](MANUAL.md#261-when-it-breaks-the-first-hour-table) |
