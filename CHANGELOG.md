@@ -2,6 +2,11 @@
 
 ## 1.1.1 - 2026-08-11 (local release candidate)
 
+**README architecture hero.** The cropped website screenshot is replaced by a
+compact light-theme request-and-answer map that remains readable at GitHub's
+rendered width, with automated checks for dimensions, weight, alt text, visible
+copy, theme, and stale-asset removal.
+
 **Deployment memory catalogue.** The manual and Layer 9 now distinguish six deployment-memory
 roles and document their source links, write gates, authority inheritance, egress review, and
 end-to-end erasure boundaries.

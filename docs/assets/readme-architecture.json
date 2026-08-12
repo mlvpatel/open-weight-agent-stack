@@ -1,0 +1,40 @@
+{
+  "theme": "light",
+  "visualKind": "high-level flow map",
+  "imageSha256": "cfe7103969b82a5af9f283c5d891622fb04d98ee1070f338f8dcf17fad624e73",
+  "verification": "Exact image reviewed visually at full and 820px rendered widths",
+  "eyebrow": "PERFORMANCE-FIRST BUILD MANUAL",
+  "title": "The Open-Weight Agent Stack",
+  "subtitle": "Design, build, secure, and operate agentic AI on open-weight models.",
+  "bands": [
+    {
+      "name": "EXPERIENCE",
+      "detail": "Clients · API · Edge"
+    },
+    {
+      "name": "CONTROL PLANE",
+      "detail": "Identity · Gateway · Orchestrator"
+    },
+    {
+      "name": "GROUNDING & STATE",
+      "detail": "RAG · Memory · Tools via MCP"
+    },
+    {
+      "name": "INFERENCE",
+      "detail": "Router · Open-weight models · Serving"
+    },
+    {
+      "name": "FOUNDATIONS",
+      "detail": "Hardware · Security · Observability"
+    }
+  ],
+  "flow": [
+    "REQUEST",
+    "ANSWER"
+  ],
+  "stats": [
+    "27 SECTIONS",
+    "18 DIAGRAMS",
+    "SOURCE-LINKED CLAIMS"
+  ]
+}

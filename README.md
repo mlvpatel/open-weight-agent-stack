@@ -16,7 +16,7 @@ Hardware and serving, retrieval, memory, identity, security, and operations.
 
 **[Read the manual](MANUAL.md)** · **[Live site](https://mlvpatel.github.io/open-weight-agent-stack/)** · **[Architecture in C4](docs/ARCHITECTURE.md)** · **[Model licences](docs/MODELS.md)** · **[What CI proves](docs/VERIFICATION.md)**
 
-<img src="docs/assets/preview.png" alt="The opening page of the manual, showing the section index and summary statistics" width="820">
+<img src="docs/assets/readme-architecture.jpg" alt="High-level flow map showing a request moving through experience, control plane, grounding and state, inference, and foundations, with the answer returning" width="820">
 
 <br>
 
