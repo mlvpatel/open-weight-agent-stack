@@ -43,7 +43,7 @@ class ProductionPathTests(unittest.TestCase):
         parsed = manual.load()
 
         self.assertEqual(parsed.section_count, 27)
-        self.assertEqual(parsed.diagram_count, 18)
+        self.assertEqual(parsed.diagram_count, 19)
         self.assertGreater(parsed.link_count, parsed.unique_links)
         self.assertIn("1-how-to-read-this-manual", parsed.anchors)
         self.assertEqual(manual.slug("A Test: Heading!"), "a-test-heading")

@@ -9,6 +9,9 @@ const puppeteer = require("puppeteer");
 const repo = path.resolve(__dirname, "..");
 const site = path.join(repo, "site");
 const basePath = "/open-weight-agent-stack/";
+// The manual's diagram count, stated once. It appeared as five separate literals
+// in this file, which is the same drift risk the count invariants exist to remove.
+const EXPECTED_DIAGRAMS = 19;
 const simulateMermaidFailure = process.argv.includes("--simulate-mermaid-failure");
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -86,10 +89,10 @@ function collectBrowserSignals(page, baseUrl) {
 }
 
 async function inspectNormalSite(page) {
-  await page.waitForFunction(() => {
+  await page.waitForFunction((expected) => {
     const plates = Array.from(document.querySelectorAll(".plate-body"));
-    return plates.length === 18 && plates.every((plate) => plate.querySelector("svg"));
-  }, { timeout: 30000 });
+    return plates.length === expected && plates.every((plate) => plate.querySelector("svg"));
+  }, { timeout: 30000 }, EXPECTED_DIAGRAMS);
 
   return page.evaluate(() => {
     const plates = Array.from(document.querySelectorAll(".plate-body"));
@@ -117,7 +120,7 @@ async function inspectNormalSite(page) {
 }
 
 async function inspectMermaidFailure(page) {
-  await page.waitForFunction(() => document.querySelectorAll(".mermaid-fallback").length === 18, { timeout: 30000 });
+  await page.waitForFunction((expected) => document.querySelectorAll(".mermaid-fallback").length === expected, { timeout: 30000 }, EXPECTED_DIAGRAMS);
   return page.evaluate(() => Array.from(document.querySelectorAll(".mermaid-fallback"), (element) => ({
     text: element.textContent,
     visible: element.getBoundingClientRect().width > 10 && element.getBoundingClientRect().height > 10,
@@ -158,7 +161,7 @@ async function run() {
       const fallbacks = await inspectMermaidFailure(page);
       const unexpectedErrors = signals.consoleErrors.filter((message) => !message.includes("Mermaid failed to render diagrams"));
       const failures = [
-        ...(fallbacks.length === 18 ? [] : [`expected 18 Mermaid fallbacks, saw ${fallbacks.length}`]),
+        ...(fallbacks.length === EXPECTED_DIAGRAMS ? [] : [`expected ${EXPECTED_DIAGRAMS} Mermaid fallbacks, saw ${fallbacks.length}`]),
         ...fallbacks.filter((item) => !item.visible || item.text !== "Diagram unavailable: Mermaid rendering failed. See the manual source.")
           .map(() => "Mermaid fallback was not safely visible with its expected text"),
         ...(signals.consoleErrors.some((message) => message.includes("Mermaid failed to render diagrams")) ? [] : ["synthetic Mermaid failure was not logged"]),
@@ -168,13 +171,13 @@ async function run() {
         ...interceptionErrors,
       ];
       if (failures.length) throw new Error(failures.join("\n"));
-      console.log("browser failure-path passed: synthetic Mermaid run failure produced 18 visible safe fallbacks");
+      console.log(`browser failure-path passed: synthetic Mermaid run failure produced ${EXPECTED_DIAGRAMS} visible safe fallbacks`);
       return;
     }
 
     const result = await inspectNormalSite(page);
     const failures = [
-      ...(result.plates === 18 && result.svgs === 18 ? [] : [`expected all 18 Mermaid diagrams as SVGs, saw ${result.svgs}/${result.plates}`]),
+      ...(result.plates === EXPECTED_DIAGRAMS && result.svgs === EXPECTED_DIAGRAMS ? [] : [`expected all ${EXPECTED_DIAGRAMS} Mermaid diagrams as SVGs, saw ${result.svgs}/${result.plates}`]),
       ...(result.hidden ? [`${result.hidden} Mermaid SVGs are not visible`] : []),
       ...(result.images ? [`${result.images} images did not load`] : []),
       ...(result.unsafeLinks.length ? [`deploy-unsafe links: ${result.unsafeLinks.join(", ")}`] : []),
@@ -186,7 +189,7 @@ async function run() {
       ...signals.failedResponses.map((message) => `failed response: ${message}`),
     ];
     if (failures.length) throw new Error(failures.join("\n"));
-    console.log("browser normal-path passed: all 18 Mermaid diagrams rendered with deploy-safe links and no failed requests");
+    console.log(`browser normal-path passed: all ${EXPECTED_DIAGRAMS} Mermaid diagrams rendered with deploy-safe links and no failed requests`);
   } finally {
     if (browser) await browser.close();
     await closeServer(server);

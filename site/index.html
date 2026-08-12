@@ -555,7 +555,7 @@
       because an agent loop multiplies every millisecond it spends.</p>
     <dl class="stats">
       <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>18<span>standard Mermaid</span></dd></div>
+      <div class="stat"><dt>Diagrams</dt><dd>19<span>standard Mermaid</span></dd></div>
       <div class="stat"><dt>Sources</dt><dd>163<span>primary, CI-checked</span></dd></div>
     </dl>
   </div>
@@ -1698,6 +1698,26 @@ flowchart LR
 <div class="sec-head"><h2>22. Task-to-model routing</h2></div>
 <p>The open-weight frontier moved to <strong>trillion-scale MoE</strong>, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. Qwen 3.8 Max is announced at 2.4T but has no published weights, which is its own lesson: announced is not downloadable. At 4-bit, K3 alone needs well over a terabyte of memory to hold.</p>
 <p><strong>So &quot;open-weight&quot; no longer implies &quot;self-hostable&quot;.</strong> The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the <em>mid-tier</em> story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.</p>
+<p>Read the positions below as indicative. Parameter counts and licences are sourced in section 27, but where a model sits on either axis is an engineering judgement, not a measurement: capability tiers are not a single published number, and whether something &quot;fits one node&quot; depends on the node. What the figure is for is the scatter along the horizontal axis. MIT and Apache-2.0 models appear at both extremes, which is the point: a permissive licence tells you what you may do with the weights, never whether you can afford to run them.</p>
+<figure class="plate"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
+quadrantChart
+    title Size decides where a model can run; the licence does not
+    x-axis "Fits one node" --&gt; "Cluster or API only"
+    y-axis "Utility tier" --&gt; "Frontier tier"
+    quadrant-1 "Frontier tier, API only"
+    quadrant-2 "Frontier tier, self-hostable"
+    quadrant-3 "Utility tier, self-hostable"
+    quadrant-4 "Utility tier, API only"
+    "Kimi K3 2.8T, custom": [0.92, 0.94]
+    "Qwen 3.8 Max, no weights": [0.97, 0.86]
+    "DeepSeek V4 Pro 1.6T, MIT": [0.83, 0.91]
+    "GLM-5.2 753B, MIT": [0.72, 0.80]
+    "DeepSeek V4 Flash 284B, MIT": [0.45, 0.63]
+    "gpt-oss-120b, Apache-2.0": [0.30, 0.54]
+    "GLM-4.5-Air, MIT": [0.24, 0.46]
+    "Qwen 3.6 27B, Apache-2.0": [0.15, 0.37]
+    "Gemma 4 12B, Apache-2.0": [0.10, 0.27]
+    "Phi-4-mini 3.8B, MIT": [0.05, 0.14]</pre></div><figcaption><span class="fno">Fig. 18</span></figcaption></figure>
 <p>Route by task shape. Assume every row is measured on your own eval set before it ships. Vendors refresh open models as dated checkpoints (DeepSeek&#x27;s Flash-0731, for instance); production pins the exact checkpoint ID, never the family name (section 25).</p>
 <div class="table-wrap"><table><thead><tr><th scope="col">Task</th><th scope="col">Open-weight</th><th scope="col">Frontier API</th><th scope="col">Notes</th></tr></thead><tbody><tr><th scope="row">Extraction, classification, routing</th><td>GLM-4.5-Air · Qwen 3.5 9B · Phi-4-mini · Gemma 4</td><td>Claude Haiku 4.5</td><td>Constrained decoding matters more than model size. Self-host this tier.</td></tr><tr><th scope="row">General agentic + tool calling</th><td>Kimi K3</td><td>Claude Sonnet 5 · Qwen 3.8 Max (API only)</td><td>K3 scores 57 on the Artificial Analysis Intelligence Index (60 in its max configuration); Kimi is explicitly tuned for tool loops.</td></tr><tr><th scope="row">Hard reasoning, long-horizon</th><td>DeepSeek V4 Pro</td><td>Claude Opus 5</td><td>The tier where model choice actually shows up in output quality.</td></tr><tr><th scope="row">Coding and terminal work</th><td>DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next</td><td>Claude Opus 5</td><td>V4 Pro reports 79.4% SWE-bench Verified at its default Think High effort, 80.6% at maximum effort. GLM-5.2 strong on terminal-style benchmarks.</td></tr><tr><th scope="row">High-volume, cost-sensitive</th><td>DeepSeek V4 Flash</td><td>Claude Haiku 4.5</td><td>Flash is 284B/13B active. Published rates are $0.14 in on a cache miss and $0.28 out per M tokens; the vendor has announced a significant increase.</td></tr><tr><th scope="row">Long context</th><td>Kimi K3</td><td>Claude Opus 5 (1M) · Qwen 3.8 Max (API only)</td><td>All are 1M-class. Prefill cost still scales with what you actually send.</td></tr><tr><th scope="row">Vision, documents, charts</th><td>Qwen 3.5 27B (vision is native to the 3.5 line)</td><td>Claude Opus 5 · Qwen 3.8 Max (API only)</td><td>Give the model crop/zoom tools, cheaper than raising reasoning effort.</td></tr></tbody></table></div>
 <h3 id="221-the-api-layer-every-way-to-call-a-model">22.1 The API layer: every way to call a model</h3>
@@ -1738,7 +1758,7 @@ flowchart TB
     classDef alt fill:#e8f0fe,stroke:#0071e3,color:#003a70
     class Q1,Q2,Q3,Q4 q
     class CASDK,CMA pick
-    class ADK,BR,OAI,OWN alt</pre></div><figcaption><span class="fno">Fig. 18</span></figcaption></figure>
+    class ADK,BR,OAI,OWN alt</pre></div><figcaption><span class="fno">Fig. 19</span></figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th scope="col">Option</th><th scope="col">Harness</th><th scope="col">Deployment</th><th scope="col">Strongest at</th></tr></thead><tbody><tr><th scope="row"><strong>Claude Agent SDK</strong></th><td>✅ built-in tools, subagents, hooks</td><td>❌ you host</td><td>Coding and filesystem agents; richest MCP ecosystem; on-prem friendly</td></tr><tr><th scope="row"><strong>Claude Managed Agents</strong></th><td>✅</td><td>✅ per-session sandbox</td><td>Scheduled work, long-running sessions, credential vaults, persistent memory</td></tr><tr><th scope="row"><strong>OpenAI Agents SDK</strong></th><td>✅ handoffs, guardrails</td><td>❌ you host</td><td>Many lightweight agents; voice; free model swapping</td></tr><tr><th scope="row"><strong>Google ADK</strong></th><td>✅</td><td>Vertex Agent Engine</td><td>GCP-native enterprise; multi-language; model-agnostic by design</td></tr><tr><th scope="row"><strong>Bedrock AgentCore</strong></th><td>✅</td><td>AWS</td><td>AWS-native IAM, billing, and data residency</td></tr><tr><th scope="row"><strong>Own loop</strong></th><td>❌ you write it</td><td>❌ you host</td><td>Full control; no framework to fight</td></tr></tbody></table></div>
 <p><strong>Three things worth knowing before you commit.</strong></p>
 <p><em>Google ADK is model-agnostic, not Gemini-only</em>, it supports Gemini, Claude, Ollama, vLLM and LiteLLM out of the box, so choosing it does not lock your model choice. (There is no separate &quot;Gemini ADK&quot;.) Google ADK documents SDKs for Python, TypeScript, Go, Java, and Kotlin; confirm feature parity for the language and release you deploy.</p>

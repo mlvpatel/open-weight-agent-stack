@@ -1580,6 +1580,34 @@ The open-weight frontier moved to **trillion-scale MoE**, and that changes the a
 
 **So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.
 
+Read the positions below as indicative. Parameter counts and licences are sourced in section 27,
+but where a model sits on either axis is an engineering judgement, not a measurement: capability
+tiers are not a single published number, and whether something "fits one node" depends on the node.
+What the figure is for is the scatter along the horizontal axis. MIT and Apache-2.0 models appear at
+both extremes, which is the point: a permissive licence tells you what you may do with the weights,
+never whether you can afford to run them.
+
+```mermaid
+quadrantChart
+    title Size decides where a model can run; the licence does not
+    x-axis "Fits one node" --> "Cluster or API only"
+    y-axis "Utility tier" --> "Frontier tier"
+    quadrant-1 "Frontier tier, API only"
+    quadrant-2 "Frontier tier, self-hostable"
+    quadrant-3 "Utility tier, self-hostable"
+    quadrant-4 "Utility tier, API only"
+    "Kimi K3 2.8T, custom": [0.92, 0.94]
+    "Qwen 3.8 Max, no weights": [0.97, 0.86]
+    "DeepSeek V4 Pro 1.6T, MIT": [0.83, 0.91]
+    "GLM-5.2 753B, MIT": [0.72, 0.80]
+    "DeepSeek V4 Flash 284B, MIT": [0.45, 0.63]
+    "gpt-oss-120b, Apache-2.0": [0.30, 0.54]
+    "GLM-4.5-Air, MIT": [0.24, 0.46]
+    "Qwen 3.6 27B, Apache-2.0": [0.15, 0.37]
+    "Gemma 4 12B, Apache-2.0": [0.10, 0.27]
+    "Phi-4-mini 3.8B, MIT": [0.05, 0.14]
+```
+
 Route by task shape. Assume every row is measured on your own eval set before it ships. Vendors
 refresh open models as dated checkpoints (DeepSeek's Flash-0731, for instance); production pins the
 exact checkpoint ID, never the family name (section 25).

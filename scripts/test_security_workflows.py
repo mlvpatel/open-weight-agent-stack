@@ -109,7 +109,11 @@ def test_browser_gate_is_hermetic_and_surfaces_mermaid_failures() -> None:
         "/open-weight-agent-stack/",
         "--simulate-mermaid-failure",
         "failed requests",
-        "all 18 Mermaid diagrams",
+        # Bind to the single declared count rather than a spelled-out number, so this
+        # assertion survives a change to the diagram count instead of becoming a
+        # sixth place the number has to be edited.
+        "EXPECTED_DIAGRAMS",
+        "Mermaid diagrams",
     ):
         if expected not in browser_test:
             fail(f"browser gate must include {expected!r}")
