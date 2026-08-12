@@ -69,7 +69,7 @@ Hardware and serving, retrieval, memory, identity, security, and operations.
 
 ## What this is
 
-The complete blueprint for building agentic AI on open-weight models: choosing hardware and serving it fast, grounding answers in your own data, guarding every input, and operating the loop in production. Latency and throughput are the ruling metrics, because an agent loop multiplies every millisecond it spends.
+The complete blueprint for building agentic AI across open-weight and hosted models: choosing hardware and serving it fast, routing through provider APIs when they fit, grounding answers in your own data, guarding every input, and operating the loop in production. Latency and throughput are the ruling metrics, because an agent loop multiplies every millisecond it spends.
 
 ```mermaid
 flowchart LR

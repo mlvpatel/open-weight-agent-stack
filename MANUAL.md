@@ -1,10 +1,10 @@
 # The Open-Weight Agent Stack: A Performance-First Build Manual
 
-The complete blueprint for building agentic AI on open-weight models: choosing hardware and serving
-it fast, grounding answers in your own data, guarding every input, and operating the loop in
-production. Hardware is assumed rather than minimised; **latency and throughput** are the ruling
-metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls
-pays each cost eight times.
+The complete blueprint for building agentic AI across open-weight and hosted models: choosing
+hardware and serving it fast, routing through provider APIs when they fit, grounding answers in your
+own data, guarding every input, and operating the loop in production. Hardware is assumed rather
+than minimised; **latency and throughput** are the ruling metrics, because an agent loop multiplies
+every millisecond, a turn that makes eight model calls pays each cost eight times.
 
 **A note on names.** "Open-weight" and "open-source" are not interchangeable, and licences vary
 *within* a family far more than the family name suggests. Llama is licensed per generation, none of

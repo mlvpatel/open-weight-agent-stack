@@ -18,6 +18,10 @@ OLD_PREVIEW = REPO / "docs" / "assets" / "preview.png"
 SELECTED_TAGLINE = (
     "Design, route, secure, and operate agents across open-weight and hosted models."
 )
+HYBRID_INTRO = (
+    "The complete blueprint for building agentic AI across open-weight and hosted models:"
+)
+OPEN_WEIGHT_ONLY_INTRO = "building agentic AI on open-weight models:"
 
 
 def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -76,6 +80,8 @@ class ReadmeHeroTests(unittest.TestCase):
     def test_readme_uses_the_explanatory_architecture_hero(self) -> None:
         readme = README.read_text(encoding="utf-8")
         self.assertIn(f"**{SELECTED_TAGLINE}**", readme)
+        self.assertIn(HYBRID_INTRO, readme)
+        self.assertNotIn(OPEN_WEIGHT_ONLY_INTRO, readme)
         image = re.search(r'<img\s+src="([^"]+)"\s+alt="([^"]+)"\s+width="820">', readme)
         self.assertIsNotNone(image)
         assert image is not None
@@ -113,7 +119,7 @@ class ReadmeHeroTests(unittest.TestCase):
                 },
                 {
                     "name": "INFERENCE",
-                    "detail": "Router · Open-weight models · Serving",
+                    "detail": "Router · Models + APIs · Serving",
                 },
                 {
                     "name": "FOUNDATIONS",
@@ -134,6 +140,11 @@ class ReadmeHeroTests(unittest.TestCase):
                 "SOURCE-LINKED CLAIMS",
             ],
         )
+
+    def test_manual_opening_matches_hybrid_scope(self) -> None:
+        manual = (REPO / "MANUAL.md").read_text(encoding="utf-8")
+        self.assertIn(HYBRID_INTRO, manual)
+        self.assertNotIn(OPEN_WEIGHT_ONLY_INTRO, manual)
 
     def test_hero_is_a_readable_retina_asset_without_excess_weight(self) -> None:
         self.assertTrue(HERO.is_file())

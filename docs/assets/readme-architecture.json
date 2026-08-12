@@ -1,7 +1,7 @@
 {
   "theme": "light",
   "visualKind": "high-level flow map",
-  "imageSha256": "818e8633174926595c9d2602dfbb813bfccafcd50637cdf49bad8ed10a357362",
+  "imageSha256": "213aee1eb0d41c3ec05cdefdadeb79a44c5cfaa57c20d1270138b4216b66b2aa",
   "verification": "Exact image reviewed visually at full and 820px rendered widths",
   "eyebrow": "PERFORMANCE-FIRST BUILD MANUAL",
   "title": "The Open-Weight Agent Stack",
@@ -21,7 +21,7 @@
     },
     {
       "name": "INFERENCE",
-      "detail": "Router · Open-weight models · Serving"
+      "detail": "Router · Models + APIs · Serving"
     },
     {
       "name": "FOUNDATIONS",

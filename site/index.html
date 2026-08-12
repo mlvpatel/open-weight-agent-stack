@@ -8,13 +8,13 @@
      else applies. style-src allows inline because Mermaid injects styles at render. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KyghYG+e38CID4kbwsISgtwNEgDTpK1eyagxQhG7SNI='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>The Open-Weight Agent Stack, Build Manual</title>
-<meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
+<meta name="description" content="A performance-first build manual for agentic AI across open-weight and hosted models: routing, hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="The Open-Weight Agent Stack, Build Manual">
-<meta property="og:description" content="A performance-first build manual for agentic AI on open-weight models.">
+<meta property="og:description" content="A performance-first build manual for agentic AI across open-weight and hosted models.">
 <meta property="og:url" content="https://mlvpatel.github.io/open-weight-agent-stack/">
-<meta property="og:image" content="https://mlvpatel.github.io/open-weight-agent-stack/preview.png">
+<meta property="og:image" content="https://mlvpatel.github.io/open-weight-agent-stack/preview.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9889;</text></svg>">
 <style>
@@ -550,9 +550,9 @@
   <div class="hero-in">
     <span class="eyebrow">Performance-first build manual</span>
     <h1>The Open-Weight<br>Agent Stack</h1>
-    <p class="subtitle">The complete blueprint for agentic AI on open-weight models: hardware and serving,
-      retrieval, memory, security and operations. Latency and throughput are the ruling metrics,
-      because an agent loop multiplies every millisecond it spends.</p>
+    <p class="subtitle">The complete blueprint for agentic AI across open-weight and hosted models:
+      routing, hardware and serving, retrieval, memory, security and operations. Latency and
+      throughput are the ruling metrics, because an agent loop multiplies every millisecond it spends.</p>
     <dl class="stats">
       <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
       <div class="stat"><dt>Diagrams</dt><dd>18<span>standard Mermaid</span></dd></div>
@@ -567,7 +567,7 @@
     <ul><li><a href="#1-how-to-read-this-manual"><span class="n">01</span> How to read this manual</a></li><li><a href="#2-what-can-you-actually-run"><span class="n">02</span> What can you actually run?</a></li><li><a href="#3-the-thirteen-layer-stack"><span class="n">03</span> The thirteen-layer stack</a></li><li><a href="#4-the-design-method-hld-lld-and-the-rules"><span class="n">04</span> The design method: HLD, LLD and the rules</a></li><li><a href="#5-master-architecture"><span class="n">05</span> Master architecture</a></li><li><a href="#6-request-lifecycle"><span class="n">06</span> Request lifecycle</a></li><li><a href="#7-agent-control-loop"><span class="n">07</span> Agent control loop</a></li><li><a href="#8-rag-pipeline-internals"><span class="n">08</span> RAG pipeline internals</a></li><li><a href="#9-model-routing"><span class="n">09</span> Model routing</a></li><li><a href="#10-prompt-and-turn-contract"><span class="n">10</span> Prompt and turn contract</a></li><li><a href="#11-trust-boundaries"><span class="n">11</span> Trust boundaries</a></li><li><a href="#12-memory-and-data-tiers"><span class="n">12</span> Memory and data tiers</a></li><li><a href="#13-guardrails-evals-and-the-improvement-loop"><span class="n">13</span> Guardrails, evals and the improvement loop</a></li><li><a href="#14-deployment-topology"><span class="n">14</span> Deployment topology</a></li><li><a href="#15-data-lifecycle-deletion-and-re-indexing"><span class="n">15</span> Data lifecycle, deletion and re-indexing</a></li><li><a href="#16-databases-and-state"><span class="n">16</span> Databases and state</a></li><li><a href="#17-serving-budgets-and-rollback"><span class="n">17</span> Serving, budgets and rollback</a></li><li><a href="#18-identity-delegation-and-authority"><span class="n">18</span> Identity, delegation and authority</a></li><li><a href="#19-threat-model"><span class="n">19</span> Threat model</a></li><li><a href="#20-latency-budget"><span class="n">20</span> Latency budget</a></li><li><a href="#21-technology-catalogue"><span class="n">21</span> Technology catalogue</a></li><li><a href="#22-task-to-model-routing"><span class="n">22</span> Task-to-model routing</a></li><li><a href="#23-platform-and-sdk-choice"><span class="n">23</span> Platform and SDK choice</a></li><li><a href="#24-code-agents-the-full-landscape"><span class="n">24</span> Code agents: the full landscape</a></li><li><a href="#25-versioning-and-change-control"><span class="n">25</span> Versioning and change control</a></li><li><a href="#26-build-order-and-troubleshooting"><span class="n">26</span> Build order and troubleshooting</a></li><li><a href="#27-sources-and-verification"><span class="n">27</span> Sources and verification</a></li></ul>
   </nav>
   <main>
-<p>The complete blueprint for building agentic AI on open-weight models: choosing hardware and serving it fast, grounding answers in your own data, guarding every input, and operating the loop in production. Hardware is assumed rather than minimised; <strong>latency and throughput</strong> are the ruling metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls pays each cost eight times.</p>
+<p>The complete blueprint for building agentic AI across open-weight and hosted models: choosing hardware and serving it fast, routing through provider APIs when they fit, grounding answers in your own data, guarding every input, and operating the loop in production. Hardware is assumed rather than minimised; <strong>latency and throughput</strong> are the ruling metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls pays each cost eight times.</p>
 <p><strong>A note on names.</strong> &quot;Open-weight&quot; and &quot;open-source&quot; are not interchangeable, and licences vary <em>within</em> a family far more than the family name suggests. Llama is licensed per generation, none of them OSI-approved. Gemma 4&#x27;s core series is Apache-2.0 while Gemma 3 and earlier, and the sibling variants, keep custom terms. Qwen 2 and 2.5 are generally Apache-2.0, but some sizes and older generations use Qwen-specific terms. Mistral ships four different licences at once, and its flagship is the permissive one. MiniMax M2.7 requires prior written authorisation for commercial use. The named DeepSeek V4 Pro / V4 Flash and GLM-5.2 / GLM-4.5-Air checkpoints are MIT; Kimi K3 has its own licence. Never infer a licence from a family name: check the model card, and see <a href="https://github.com/mlvpatel/open-weight-agent-stack/blob/main/docs/MODELS.md">docs/MODELS.md</a> for the per-model breakdown. The Sources and verification section at the end of this manual records primary sources for a tracked set of volatile claims.</p>
 <section id="1-how-to-read-this-manual" class="reveal">
 <div class="sec-head"><h2>1. How to read this manual</h2></div>
