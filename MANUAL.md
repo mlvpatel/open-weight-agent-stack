@@ -2007,7 +2007,7 @@ before relying on them months from now.
 | Devstral Small 2 | Mistral's open coding model · Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512) |
 | Laguna S 2.1 | poolside's coding model · OpenMDW licence | [Model card](https://huggingface.co/poolside/Laguna-S-2.1) |
 | NVFP4 checkpoints | NVIDIA's prequantised open flagships | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
-| Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://www.llama.com/llama4/license/) |
+| Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://github.com/meta-llama/llama-models/blob/main/models/llama4/LICENSE) |
 | Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Terms](https://ai.google.dev/gemma/terms) |
 | Phi-4 / Phi-4-mini | MIT · 14B / 3.8B | [Model card](https://huggingface.co/microsoft/phi-4) |
 | Kokoro | 82M parameters · Apache-2.0 | [Model card](https://huggingface.co/hexgrad/Kokoro-82M) |
