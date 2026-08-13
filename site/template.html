@@ -277,28 +277,54 @@
   .plate-body pre.mermaid { margin: 0; text-align: center; min-width: min-content; }
   .plate-body svg { max-width: 100%; height: auto; }
 
-  /* Legibility floor.
-     Mermaid emits width="100%" with a viewBox, so a diagram whose intrinsic
-     width is 3000px was being squeezed into an 800px column: a 0.26 scale that
-     renders 15px labels at 4px, where adjacent text visually merges. The
-     overflow-x above never engaged, because the SVG obediently shrank instead
-     of overflowing. The inline script measures each diagram after render and,
-     when fitting it to the column would fall below the floor, pins an explicit
-     width so it renders at the floor scale and this container scrolls instead.
-     Presentation only: no diagram source changes, and the SVG is unmodified. */
-  .plate-body { scrollbar-gutter: stable; overscroll-behavior-x: contain; }
-  .plate[data-scrolls="true"] .plate-body { cursor: grab; }
-  .plate[data-scrolls="true"] .plate-body svg { max-width: none; }
-  .plate[data-scrolls="true"] .plate-body:focus-visible {
-    outline: 2px solid var(--accent); outline-offset: 2px;
+  /* Diagram legibility, without a nested horizontal scroll.
+     Mermaid emits width="100%" over a viewBox, so a diagram whose intrinsic
+     width is 3000px squeezes into an 800px column and renders its 15px labels
+     at 4px. An earlier fix pinned an explicit width and let this container
+     scroll, which raised the type size and broke the figure: the diagram was
+     clipped mid-node, ran to roughly 2000px tall, and showed a fragment of
+     itself. Content wider than its container is the defect, not the remedy.
+     A figure now always fits its column whole, and one that is too dense to
+     read at that size offers a full-size view instead, where scrolling is
+     expected rather than imposed on the page. */
+  /* .plate is a flex column with explicit order: body 1, caption 2, readnote 3.
+     A new child defaults to order 0, which would float the control above the
+     diagram. Place it after the caption. */
+  .plate-figtools { order: 3; display: flex; justify-content: center; margin-top: 4px; }
+  .plate .readnote { order: 4; }
+  .plate-zoom {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 44px; padding: 10px 18px;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    color: var(--accent); background: var(--surface);
+    border: 1px solid var(--border-strong); border-radius: 980px;
+    cursor: pointer;
   }
-  .plate[data-scrolls="true"] figcaption::after {
-    content: "scroll to see the full width";
-    font-size: 12px; color: var(--muted); font-style: italic;
+  .plate-zoom:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .plate-zoom svg { width: 16px; height: 16px; flex: none; }
+
+  dialog.figview {
+    width: min(96vw, 1600px); max-width: none;
+    height: min(92vh, 1200px); max-height: none;
+    padding: 0; border: 0; border-radius: var(--r-card, 12px);
+    background: var(--surface); color: var(--body);
+    box-shadow: 0 24px 64px rgba(15, 23, 42, .28);
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .plate-body { scroll-behavior: smooth; }
+  dialog.figview::backdrop { background: rgba(15, 23, 42, .55); }
+  .figview-head {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
+    padding: var(--s4) var(--s5); border-bottom: 1px solid var(--border);
   }
+  .figview-head h2 { font-size: 16px; font-weight: 600; }
+  .figview-close {
+    min-width: 44px; min-height: 44px; padding: 0 var(--s4);
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    color: var(--body); background: var(--surface-2);
+    border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
+  }
+  .figview-close:hover { background: var(--border); }
+  .figview-body { overflow: auto; height: calc(100% - 69px); padding: var(--s5); }
+  .figview-body svg { display: block; margin: 0 auto; max-width: none; height: auto; }
   .mermaid-fallback {
     margin: 0;
     padding: var(--s3);
@@ -612,43 +638,76 @@
 (async function () {
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
 
-  // Keep every rendered diagram above a legibility floor.
-  // Mermaid emits width="100%" over a viewBox, so a diagram whose intrinsic
-  // width is 3000px silently scales to 0.26 inside an 800px column and renders
-  // its 15px labels at 4px, where adjacent text visually merges. Measure each
-  // one after render; when fitting it to the column would fall below the floor,
-  // pin an explicit width so it renders at the floor scale and let the plate
-  // scroll instead. A scrollable region must also be reachable by keyboard,
-  // so it takes a tabindex and an accessible name.
+  // A figure always fits its column whole. Mermaid emits width="100%" over a
+  // viewBox, so a diagram whose intrinsic width is 3000px scales to about 0.26
+  // in an 800px column and renders its 15px labels near 4px. Pinning a wider
+  // width and scrolling the container fixed the type size and broke the figure:
+  // it clipped mid-node and ran to roughly 2000px tall, showing a fragment.
+  // Content wider than its container is the defect, not the remedy.
+  // So the inline figure is never resized. One that cannot be read at column
+  // width instead offers a full-size view, in a native dialog that brings
+  // focus trapping and Escape-to-close with it, where scrolling is expected.
   const MIN_SCALE = 0.62;
-  function fitDiagrams() {
+  const viewer = document.createElement("dialog");
+  viewer.className = "figview";
+  viewer.innerHTML =
+    '<div class="figview-head"><h2 id="figview-title"></h2>' +
+    '<button type="button" class="figview-close">Close</button></div>' +
+    '<div class="figview-body"></div>';
+  viewer.setAttribute("aria-labelledby", "figview-title");
+  const viewerTitle = viewer.querySelector("#figview-title");
+  const viewerBody = viewer.querySelector(".figview-body");
+  viewer.querySelector(".figview-close").addEventListener("click", function () {
+    viewer.close();
+  });
+  viewer.addEventListener("close", function () { viewerBody.replaceChildren(); });
+  // Clicking the backdrop falls on the dialog itself, never on its children.
+  viewer.addEventListener("click", function (event) {
+    if (event.target === viewer) viewer.close();
+  });
+  document.body.appendChild(viewer);
+
+  function openViewer(svg, label) {
+    viewerTitle.textContent = label;
+    // Show a copy, so the figure stays in the page and stays counted.
+    const copy = svg.cloneNode(true);
+    copy.removeAttribute("id");
+    copy.style.width = svg.viewBox.baseVal.width + "px";
+    viewerBody.replaceChildren(copy);
+    viewer.showModal();
+  }
+
+  function addFullSizeControls() {
     for (const plate of document.querySelectorAll("figure.plate")) {
       const svg = plate.querySelector("svg");
-      const body = plate.querySelector(".plate-body");
-      if (!svg || !body) continue;
+      const caption = plate.querySelector("figcaption");
+      if (!svg || !caption) continue;
       const box = svg.viewBox && svg.viewBox.baseVal;
       if (!box || !box.width) continue;
-      // Clear any previous pin first, then measure what the diagram actually
-      // renders at. The container's own width overstates it, because Mermaid's
-      // inline max-width and the plate's padding both take a slice, and that
-      // gap is enough to let a diagram sit just under the floor undetected.
-      // Measuring the rendered box also makes this correct on resize.
-      svg.style.width = "";
-      const natural = svg.getBoundingClientRect().width;
-      if (natural <= 0) continue;
-      if (natural / box.width < MIN_SCALE) {
-        svg.style.width = Math.round(box.width * MIN_SCALE) + "px";
-        plate.dataset.scrolls = "true";
-        body.tabIndex = 0;
-        body.setAttribute("role", "region");
-        body.setAttribute("aria-label", "Diagram, scrollable horizontally");
-      } else {
-        svg.style.width = "";
-        delete plate.dataset.scrolls;
-        body.removeAttribute("tabindex");
-        body.removeAttribute("role");
-        body.removeAttribute("aria-label");
-      }
+      const rendered = svg.getBoundingClientRect().width;
+      if (rendered <= 0) continue;
+
+      const label = (caption.textContent || "Diagram").trim();
+      let tools = plate.querySelector(".plate-figtools");
+      const needed = rendered / box.width < MIN_SCALE;
+      if (!needed) { if (tools) tools.remove(); continue; }
+      if (tools) continue;
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "plate-zoom";
+      button.setAttribute("aria-label", "View " + label + " at full size");
+      button.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>' +
+        '<path d="M11 8v6"></path><path d="M8 11h6"></path></svg>View full size';
+      button.addEventListener("click", function () { openViewer(svg, label); });
+
+      tools = document.createElement("div");
+      tools.className = "plate-figtools";
+      tools.appendChild(button);
+      caption.insertAdjacentElement("afterend", tools);
     }
   }
 
@@ -658,12 +717,22 @@
     }
     window.mermaid.initialize({ startOnLoad: false });
     await window.mermaid.run({ nodes: diagrams });
-    fitDiagrams();
+    addFullSizeControls();
+    // Re-evaluate when the column changes width. A window resize listener alone
+    // is not enough: the shell drops its sidebar at 1024px, which changes the
+    // column width without a window resize the listener would act on. Observe
+    // the figure, not the scroll container, so a control being added or removed
+    // cannot feed back into the measurement.
     let resizeTimer;
-    window.addEventListener("resize", function () {
+    const refit = function () {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(fitDiagrams, 150);
-    });
+      resizeTimer = window.setTimeout(addFullSizeControls, 150);
+    };
+    if (window.ResizeObserver) {
+      const observer = new window.ResizeObserver(refit);
+      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
+    }
+    window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
     for (const diagram of diagrams) {
