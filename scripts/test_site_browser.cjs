@@ -115,6 +115,15 @@ async function inspectNormalSite(page) {
       csp: Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]')),
       content: document.body.innerText.includes("Performance-first build manual"),
       fallbackCount: document.querySelectorAll(".mermaid-fallback").length,
+      sections: Array.from(document.querySelectorAll("main > section")).map((section) => {
+        const style = getComputedStyle(section);
+        return {
+          id: section.id,
+          opacity: style.opacity,
+          visibility: style.visibility,
+          text: section.innerText,
+        };
+      }),
     };
   });
 }
@@ -135,7 +144,7 @@ async function run() {
     const baseUrl = await listen(server);
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: await puppeteer.executablePath(),
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || await puppeteer.executablePath(),
       userDataDir,
     });
     const page = await browser.newPage();
@@ -176,6 +185,9 @@ async function run() {
     }
 
     const result = await inspectNormalSite(page);
+    const section23 = result.sections.find((section) => section.id === "23-platform-and-sdk-choice");
+    const section27 = result.sections.find((section) => section.id === "27-sources-and-verification");
+    const hiddenSections = result.sections.filter((section) => section.opacity !== "1" || section.visibility === "hidden");
     const failures = [
       ...(result.plates === EXPECTED_DIAGRAMS && result.svgs === EXPECTED_DIAGRAMS ? [] : [`expected all ${EXPECTED_DIAGRAMS} Mermaid diagrams as SVGs, saw ${result.svgs}/${result.plates}`]),
       ...(result.hidden ? [`${result.hidden} Mermaid SVGs are not visible`] : []),
@@ -184,6 +196,10 @@ async function run() {
       ...(result.csp ? [] : ["generated site is missing its meta CSP"]),
       ...(result.content ? [] : ["generated manual content is missing"]),
       ...(result.fallbackCount ? [`normal Mermaid rendering unexpectedly used ${result.fallbackCount} fallbacks`] : []),
+      ...(result.sections.length === 27 ? [] : [`expected 27 numbered sections, saw ${result.sections.length}`]),
+      ...(hiddenSections.length ? [`sections hidden from view: ${hiddenSections.map((section) => section.id).join(", ")}`] : []),
+      ...(section23 && section23.text.includes("Claude Agent SDK") && section23.text.includes("23.5 Where it runs in the cloud") ? [] : ["section 23 is missing its platform and SDK content"]),
+      ...(section27 && section27.text.includes("Last verified") && section27.text.includes("27.7 Deployment memory catalogue") ? [] : ["section 27 is missing its sources and verification content"]),
       ...signals.consoleErrors.map((message) => `console error: ${message}`),
       ...signals.failedRequests.map((message) => `failed request: ${message}`),
       ...signals.failedResponses.map((message) => `failed response: ${message}`),
