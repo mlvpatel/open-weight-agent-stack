@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import pathlib
 import re
+import sys
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from lib.render import FIGURE_TITLES  # noqa: E402
 NAMES = ["concentric-rings", "hardware-paths", "master-architecture", "request-lifecycle", "agent-control-loop",
          "rag-pipeline", "model-routing", "prompt-contract", "trust-boundaries", "memory-tiers",
          "guardrails-evals", "deployment-topology", "data-lifecycle", "serving-budgets",
@@ -20,6 +23,9 @@ def main() -> int:
     blocks = re.findall(r"```mermaid\n(.*?)```", markdown, re.S)
     if len(blocks) != len(NAMES):
         print(f"expected {len(NAMES)} mermaid blocks, found {len(blocks)}: update NAMES")
+        return 1
+    if len(FIGURE_TITLES) != len(NAMES):
+        print(f"expected {len(NAMES)} figure titles, found {len(FIGURE_TITLES)}: update FIGURE_TITLES")
         return 1
     output = ROOT / "diagrams" / "src"
     output.mkdir(parents=True, exist_ok=True)

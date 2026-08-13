@@ -2,7 +2,7 @@
   "theme": "base",
   "themeVariables": {
     "fontFamily": "sans-serif",
-    "fontSize": "15px",
+    "fontSize": "20px",
     "primaryColor": "#e8f0fe",
     "primaryBorderColor": "#0071e3",
     "primaryTextColor": "#1d1d1f",
@@ -47,8 +47,10 @@
   "flowchart": {
     "curve": "basis",
     "htmlLabels": true,
-    "nodeSpacing": 38,
-    "rankSpacing": 46
+    "useMaxWidth": false,
+    "nodeSpacing": 64,
+    "padding": 16,
+    "rankSpacing": 80
   },
   "sequence": {
     "actorMargin": 44

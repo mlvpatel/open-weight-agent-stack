@@ -71,3 +71,22 @@ npm run sbom
 ```
 
 Skipping the copy turns the build red rather than silently shipping the old bundle.
+
+## Continuity
+
+Git is the system of record. There is no separate database to back up. A usable copy of the manual and the toolchain exists in every clone, including GitHub's copy of `main`.
+
+Recovery objective: republish from a known-good commit. Practical recovery: clone the repository, confirm `site/index.html` matches `python3 scripts/build_site.py`, and push to a Pages-enabled repository. GitHub Pages itself has no custom RTO we can set; if Pages is unavailable, the markdown in the repository remains readable on GitHub.
+
+## If the owner GitHub account is compromised
+
+This is the realistic incident, because one person can push to `main` once required checks pass.
+
+1. From a second device, recover the account with the recovery codes GitHub showed when two-factor authentication was enabled. If that fails, use GitHub Support's account-recovery process.
+2. Revoke active sessions, personal access tokens, SSH keys, and any GitHub App installed on this repository, including the freshness watcher app if `APP_ID` is set.
+3. Rotate `APP_PRIVATE_KEY` and any other repository secrets.
+4. Review recent commits, workflow runs, and Pages deploys. Revert anything that did not come from you.
+5. Rebuild and redeploy from a commit you trust: `python3 scripts/build_site.py` and the existing `generated` job.
+
+Do not enable required signatures or administrator-enforced branch protection until a second identity exists. Those settings can lock the only maintainer out of the repository they are meant to protect.
+

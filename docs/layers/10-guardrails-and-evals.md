@@ -27,4 +27,4 @@ Guards run in milliseconds on every request: schema enforcement, injection scree
 
 ## Wiring it in
 
-Measure over-refusal next to correct-refusal, or hardening quietly costs usefulness. Calibrate the LLM judge against human labels before trusting it; judged metrics take the median of three runs. Red-team suites map one-to-one to the ASI risks in [section 19](../../MANUAL.md#19-threat-model) and block release on failure.
+Measure over-refusal next to correct-refusal, or hardening quietly costs usefulness. Calibrate the LLM judge against human labels before trusting it; judged metrics take the median of three runs. Red-team suites map one-to-one to the ASI risks in [section 19](../../MANUAL.md#19-threat-model) and block release on failure when your release policy requires it.
