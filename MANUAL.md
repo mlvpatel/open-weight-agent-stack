@@ -32,15 +32,15 @@ wraps the one before it, and a failure in an inner ring cannot be repaired by an
 
 ```mermaid
 flowchart TB
-    subgraph LOOP["<b>Loop</b><br/>scheduling · bounded rework · termination<br/>sections 7, 9, 17, 20, 25"]
+    subgraph LOOP["<b>Loop</b> · sections 7, 9, 17, 20, 25"]
         direction TB
-        subgraph EVAL["<b>Eval</b><br/>how good becomes a reproducible verdict<br/>section 13"]
+        subgraph EVAL["<b>Eval</b> · section 13"]
             direction TB
-            subgraph HARN["<b>Harness</b><br/>tools · sandboxing · credentials · trust boundaries<br/>sections 5, 6, 11, 14, 18, 19"]
+            subgraph HARN["<b>Harness</b> · sections 5, 6, 11, 14, 18, 19"]
                 direction TB
-                subgraph CTX["<b>Context</b><br/>what enters the window, and its provenance<br/>sections 8, 12, 15, 16"]
+                subgraph CTX["<b>Context</b> · sections 8, 12, 15, 16"]
                     direction TB
-                    subgraph PROM["<b>Prompt</b><br/>one model turn: contract · schema · refusal path<br/>section 10"]
+                    subgraph PROM["<b>Prompt</b> · section 10"]
                         direction TB
                         CORE["One model turn"]
                     end
@@ -491,17 +491,17 @@ stateDiagram-v2
     [*] --> Intake
     Intake --> Planning : goal parsed
 
-    Planning --> Retrieving : needs documents
+    Planning --> Retrieving : needs docs
     Planning --> ToolUse : needs live data or action
     Planning --> Coding : needs code written or run
     Planning --> Generating : model knowledge is enough
 
     Retrieving --> Generating : context assembled
-    Retrieving --> Planning : nothing relevant found
+    Retrieving --> Planning : no hits
 
     ToolUse --> Observing : tool returned
     ToolUse --> TransientRetry : timeout or 5xx
-    TransientRetry --> ToolUse : own budget, no rework cycle spent
+    TransientRetry --> ToolUse
     TransientRetry --> Failed : transient budget exhausted
 
     Coding --> Testing : patch written
@@ -1618,23 +1618,23 @@ never whether you can afford to run them.
 
 ```mermaid
 quadrantChart
-    title Size decides where a model can run; the licence does not
-    x-axis "Fits one node" --> "Cluster or API only"
+    title Size decides where a model runs, not licence
+    x-axis "Fits one node" --> "Cluster or API"
     y-axis "Utility tier" --> "Frontier tier"
-    quadrant-1 "Frontier tier, API only"
-    quadrant-2 "Frontier tier, self-hostable"
-    quadrant-3 "Utility tier, self-hostable"
-    quadrant-4 "Utility tier, API only"
-    "Kimi K3 2.8T, custom": [0.92, 0.94]
-    "Qwen 3.8 Max, no weights": [0.97, 0.86]
-    "DeepSeek V4 Pro 1.6T, MIT": [0.83, 0.91]
-    "GLM-5.2 753B, MIT": [0.72, 0.80]
-    "DeepSeek V4 Flash 284B, MIT": [0.45, 0.63]
-    "gpt-oss-120b, Apache-2.0": [0.30, 0.54]
-    "GLM-4.5-Air, MIT": [0.24, 0.46]
-    "Qwen 3.6 27B, Apache-2.0": [0.15, 0.37]
-    "Gemma 4 12B, Apache-2.0": [0.10, 0.27]
-    "Phi-4-mini 3.8B, MIT": [0.05, 0.14]
+    quadrant-1 "API only"
+    quadrant-2 "Self-hostable"
+    quadrant-3 "Self-hostable"
+    quadrant-4 "API only"
+    "K3 2.8T custom": [0.78, 0.80]
+    "Qwen 3.8 Max none": [0.86, 0.66]
+    "V4 Pro 1.6T MIT": [0.66, 0.73]
+    "GLM-5.2 753B MIT": [0.60, 0.60]
+    "V4 Flash 284B MIT": [0.38, 0.66]
+    "gpt-oss-120b Apache": [0.26, 0.56]
+    "GLM-4.5-Air MIT": [0.30, 0.34]
+    "Qwen 3.6 27B Apache": [0.20, 0.26]
+    "Gemma 4 12B Apache": [0.13, 0.18]
+    "Phi-4-mini 3.8B MIT": [0.07, 0.10]
 ```
 
 Route by task shape. Assume every row is measured on your own eval set before it ships. Vendors

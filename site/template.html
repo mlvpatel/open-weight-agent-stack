@@ -31,7 +31,7 @@
     --fs-small: 14.5px;
     --fs-body: 16px;
     --fs-body-lg: 17px;
-    --fs-h3: 19px;
+    --fs-h3: 26px;
 
     --bg: #fbfbfd;
     --surface: #FFFFFF;
@@ -196,6 +196,29 @@
 
   section { scroll-margin-top: var(--s5); }
   section + section { margin-top: var(--s8); }
+
+  /* ---------------- flow: vertical rhythm ---------------- */
+  /* The resets above zero every margin, and section + section only separates
+     whole sections, so nothing ever restored spacing *inside* a section once
+     the page became generated. Measured on the built site: all 44 adjacent
+     paragraph pairs sat at a 0px gap, and all 26 subsection headings had 0px
+     above and below, flush against the prose on both sides. The orphaned
+     .callout / .card / .readnote rules are the giveaway: the stylesheet was
+     written for hand-authored markup that carried its own spacing classes,
+     and the generator emits plain <p>, <h3>, <hr> and <figure> instead.
+     One flow rule restores the rhythm for whatever the generator emits. */
+  main section > * + * { margin-top: var(--s5); }
+  /* A heading belongs to what follows it, so it takes a large space above and
+     a small one below. Equal gaps are what made these read as floating. */
+  main section > h3 { margin-top: var(--s7); }
+  main section > h3 + * { margin-top: var(--s3); }
+  main h3 {
+    font-size: var(--fs-h3); font-weight: 600;
+    letter-spacing: -.012em; line-height: 1.25;
+  }
+  main section > hr {
+    margin: var(--s7) 0 0; border: 0; border-top: 1px solid var(--border);
+  }
 
   .sec-head { display: flex; flex-direction: column; gap: var(--s3); margin-bottom: var(--s5); }
   .sec-head h2 {
@@ -667,14 +690,33 @@
   });
   document.body.appendChild(viewer);
 
+  let viewerSeq = 0;
   function openViewer(svg, label) {
     viewerTitle.textContent = label;
     // Show a copy, so the figure stays in the page and stays counted.
+    // Mermaid scopes every rule it emits to the SVG's own id, as
+    // <style>#id .node rect{...}</style>, and points arrowheads at url(#id-...).
+    // Dropping that id strips every fill and stroke, which renders the edges as
+    // solid black wedges over the diagram. Keeping it would duplicate an id in
+    // the document and let the original win the lookup. So rewrite the id
+    // throughout the copy, which keeps the copy self-contained and collision
+    // free while the original stays untouched in the page.
     const copy = svg.cloneNode(true);
-    copy.removeAttribute("id");
+    const oldId = svg.getAttribute("id");
+    if (oldId) {
+      const newId = oldId + "-fullsize-" + (viewerSeq += 1);
+      copy.innerHTML = copy.innerHTML.split(oldId).join(newId);
+      copy.setAttribute("id", newId);
+    }
+    copy.style.maxWidth = "none";
     copy.style.width = svg.viewBox.baseVal.width + "px";
     viewerBody.replaceChildren(copy);
     viewer.showModal();
+    // A diagram wider than the viewer starts scrolled to its top left, which on
+    // a sparse layout is an empty corner and reads as a blank dialog. Start in
+    // the middle horizontally, where the content actually is.
+    viewerBody.scrollLeft = Math.max(0, (viewerBody.scrollWidth - viewerBody.clientWidth) / 2);
+    viewerBody.scrollTop = 0;
   }
 
   function addFullSizeControls() {

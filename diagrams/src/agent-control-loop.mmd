@@ -2,17 +2,17 @@ stateDiagram-v2
     [*] --> Intake
     Intake --> Planning : goal parsed
 
-    Planning --> Retrieving : needs documents
+    Planning --> Retrieving : needs docs
     Planning --> ToolUse : needs live data or action
     Planning --> Coding : needs code written or run
     Planning --> Generating : model knowledge is enough
 
     Retrieving --> Generating : context assembled
-    Retrieving --> Planning : nothing relevant found
+    Retrieving --> Planning : no hits
 
     ToolUse --> Observing : tool returned
     ToolUse --> TransientRetry : timeout or 5xx
-    TransientRetry --> ToolUse : own budget, no rework cycle spent
+    TransientRetry --> ToolUse
     TransientRetry --> Failed : transient budget exhausted
 
     Coding --> Testing : patch written
