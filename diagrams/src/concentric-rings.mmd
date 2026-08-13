@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph LOOP["<b>Loop</b><br/>scheduling · bounded rework · termination<br/>sections 7, 9, 17, 20, 25"]
+        direction TB
+        subgraph EVAL["<b>Eval</b><br/>how good becomes a reproducible verdict<br/>section 13"]
+            direction TB
+            subgraph HARN["<b>Harness</b><br/>tools · sandboxing · credentials · trust boundaries<br/>sections 5, 6, 11, 14, 18, 19"]
+                direction TB
+                subgraph CTX["<b>Context</b><br/>what enters the window, and its provenance<br/>sections 8, 12, 15, 16"]
+                    direction TB
+                    subgraph PROM["<b>Prompt</b><br/>one model turn: contract · schema · refusal path<br/>section 10"]
+                        direction TB
+                        CORE["One model turn"]
+                    end
+                end
+            end
+        end
+    end
+
+    NOTE["A failure in an inner ring<br/>cannot be repaired by an outer one.<br/>Fix inward-out."]
+    NOTE -.-> PROM

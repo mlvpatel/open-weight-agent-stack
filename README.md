@@ -5,7 +5,7 @@
 **A performance-first build manual for agentic AI on open-weight models.**
 
 Hardware and serving, retrieval, memory, identity, security, and operations.
-27 sections and 19 reusable diagrams, with model, licence, and benchmark claims traced to primary sources.
+27 sections and 20 reusable diagrams, with model, licence, and benchmark claims traced to primary sources.
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![freshness](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml)
@@ -132,7 +132,7 @@ docs/VERIFICATION.md What the automated checks do and do not prove.
 docs/FRESHNESS.md    How the upstream watcher works and how to enable pull requests.
 CONTRIBUTORS.md      Human accountability, evidenced AI assistance, and repository automation.
 site/template.html   Design chrome. site/index.html is GENERATED; never edit it by hand.
-diagrams/src/        All 19 diagrams as standalone .mmd files, reusable anywhere.
+diagrams/src/        All 20 diagrams as standalone .mmd files, reusable anywhere.
 assets/              The single Mermaid theme both the site and the SVGs render from.
 scripts/             Extract diagrams, generate the site, check invariants, watch upstream.
 .github/workflows/   Six validation jobs, a CodeQL workflow, plus the weekly freshness watcher.
@@ -143,7 +143,7 @@ scripts/             Extract diagrams, generate the site, check invariants, watc
 The generated Pages site now converts repository-local documentation links to
 stable GitHub URLs, so they do not 404 when served below
 `/open-weight-agent-stack/`. A sandboxed Chromium gate serves that exact path,
-requires all 19 Mermaid diagrams to be visible, and makes a Mermaid failure
+requires all 20 Mermaid diagrams to be visible, and makes a Mermaid failure
 visible instead of swallowing it.
 
 The candidate also has a deterministic, schema-validated SBOM; measured Python

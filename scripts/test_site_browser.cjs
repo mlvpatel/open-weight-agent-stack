@@ -11,7 +11,7 @@ const site = path.join(repo, "site");
 const basePath = "/open-weight-agent-stack/";
 // The manual's diagram count, stated once. It appeared as five separate literals
 // in this file, which is the same drift risk the count invariants exist to remove.
-const EXPECTED_DIAGRAMS = 19;
+const EXPECTED_DIAGRAMS = 20;
 const simulateMermaidFailure = process.argv.includes("--simulate-mermaid-failure");
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],

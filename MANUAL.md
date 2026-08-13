@@ -30,6 +30,33 @@ wraps the one before it, and a failure in an inner ring cannot be repaired by an
 | Eval | how "good" becomes a reproducible verdict | 13 |
 | Loop | scheduling, bounded rework, termination | 7, 9, 17, 20, 25 |
 
+```mermaid
+flowchart TB
+    subgraph LOOP["<b>Loop</b><br/>scheduling · bounded rework · termination<br/>sections 7, 9, 17, 20, 25"]
+        direction TB
+        subgraph EVAL["<b>Eval</b><br/>how good becomes a reproducible verdict<br/>section 13"]
+            direction TB
+            subgraph HARN["<b>Harness</b><br/>tools · sandboxing · credentials · trust boundaries<br/>sections 5, 6, 11, 14, 18, 19"]
+                direction TB
+                subgraph CTX["<b>Context</b><br/>what enters the window, and its provenance<br/>sections 8, 12, 15, 16"]
+                    direction TB
+                    subgraph PROM["<b>Prompt</b><br/>one model turn: contract · schema · refusal path<br/>section 10"]
+                        direction TB
+                        CORE["One model turn"]
+                    end
+                end
+            end
+        end
+    end
+
+    NOTE["A failure in an inner ring<br/>cannot be repaired by an outer one.<br/>Fix inward-out."]
+    NOTE -.-> PROM
+```
+
+Read the nesting as containment, not as a call sequence. A retrieval bug is a Context failure, and no
+amount of loop scheduling or eval rigour outside it will repair the answer; that is what the innermost
+arrow is warning about.
+
 **Identity is a first-class layer.** The retrieval filter, the cache key and the tool allow-list all
 enforce an entitlement scope; section 18 is what issues it, and section 19 maps the whole design
 against the OWASP Top 10 for Agentic Applications.
@@ -520,15 +547,17 @@ stateDiagram-v2
 
 ## 8. RAG pipeline internals
 
-Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is, indicative,
-the upgrade that buys the most quality per unit of added machinery over naive top-k cosine search.
+Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is the upgrade that
+buys the most quality per unit of added machinery over naive top-k cosine search. That ranking is
+indicative.
 
 
 ### 8.1 RAG variants: adopt one when its failure mode appears
 
 The pipeline above is the default for a reason: on most corpora, hybrid retrieval plus reranking
-is, indicative, the best quality for the least machinery. The named variants exist because specific failure modes defeat it. Start
-with the default; reach for a variant only when you can name the failure you are fixing.
+buys the best quality for the least machinery. That judgement is indicative. The named variants
+exist because specific failure modes defeat it. Start with the default; reach for a variant only
+when you can name the failure you are fixing.
 
 | Variant | The failure it fixes | Cost |
 |---|---|---|
@@ -1764,6 +1793,9 @@ language can face any orchestrator language calling any serving stack. The one l
 is orchestrator state, framework checkpoints serialise in their own runtime, so choose the
 orchestrator's language deliberately and let everything else differ.
 
+Which pairing is most common, and which reaches production fastest, are indicative: no survey
+measures either across this stack.
+
 | Pair | Where it fits |
 |---|---|
 | TypeScript front end + Python orchestrator | The most common split: Next.js UI, LangGraph or CrewAI behind an API |
@@ -2008,7 +2040,7 @@ before relying on them months from now.
 | Laguna S 2.1 | poolside's coding model · OpenMDW licence | [Model card](https://huggingface.co/poolside/Laguna-S-2.1) |
 | NVFP4 checkpoints | NVIDIA's prequantised open flagships | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://github.com/meta-llama/llama-models/blob/main/models/llama4/LICENSE) |
-| Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Terms](https://ai.google.dev/gemma/terms) |
+| Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Model card](https://huggingface.co/google/gemma-4-12B-it) · [Terms](https://ai.google.dev/gemma/terms) |
 | Phi-4 / Phi-4-mini | MIT · 14B / 3.8B | [Model card](https://huggingface.co/microsoft/phi-4) |
 | Kokoro | 82M parameters · Apache-2.0 | [Model card](https://huggingface.co/hexgrad/Kokoro-82M) |
 | BGE-M3 | Dense + sparse + multi-vector in one model · 100+ languages · MIT | [Model card](https://huggingface.co/BAAI/bge-m3) |
