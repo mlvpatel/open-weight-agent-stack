@@ -30,7 +30,7 @@ Six validation jobs run on every push to `main`, on every pull request, and week
 
 **`browser`**
 - The generated site is opened in Chromium.
-- All 18 Mermaid diagrams must render as visible SVGs.
+- All 20 Mermaid diagrams must render as visible SVGs.
 - Browser console and page errors, failed local requests, unloaded images, and deploy-unsafe links fail the gate.
 - A synthetic Mermaid bundle/run failure must produce visible safe fallback text for every diagram and a useful console error rather than being silently swallowed.
 - Repository-relative documentation links are rejected in the generated site because GitHub Pages serves from a repository path, not the repository root.
@@ -61,10 +61,10 @@ This is the part that matters, and the part most repositories leave unsaid.
 
 - **Whether a source supports the claim it is cited for.** A link can resolve perfectly while pointing at a page that says something different, or nothing relevant at all. Only a human reading both can catch that.
 - **Whether a resolving link still shows the same content.** Model cards get edited. Licences change. A URL that worked yesterday may describe a different licence today and still return a success status. The freshness watcher covers licence and gating changes for a named set of models; it does not cover prose.
-- **Whether a number is current.** Parameter counts, benchmark scores, prices, and version floors move. A stale number is invisible to a link checker.
+- **Whether a number is current.** Parameter counts, benchmark scores, prices, and version floors move. A stale number is invisible to a link checker. Section 27 and `docs/MODELS.md` carry a human **Last verified** date for the named Hugging Face licence tags.
 - **Whether a recommendation is good.** Rankings, "best for" columns, and suggested defaults are editorial judgement informed by research. They are argued, not proven.
 - **Whether an `indicative` heuristic holds on your hardware.** It is a starting point for capacity planning, not a guarantee.
-- **Whether prose in `docs/` agrees with prose in the manual.** Only the generated site is checked for drift; the layer guides and architecture document are maintained by hand.
+- **Whether prose in `docs/` agrees with prose in the manual.** CI now fails if a layer file is missing or the index table drifts. It still cannot prove that a layer guide's wording matches the manual. The architecture document's container diagram is compared to `diagrams/src`; its surrounding prose is not.
 - **Whether CodeQL is required in GitHub branch protection.** This repository can commit the workflow, but the hosted required-check list is a GitHub setting and must be enabled after the first `codeql` run exists.
 - **Whether branch-protection trade-offs are accepted.** As verified on 2026-08-11, the required contexts are `diagrams`, `generated`, `invariants`, `html`, and `links`; `browser` and CodeQL are pending owner action after push. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
 

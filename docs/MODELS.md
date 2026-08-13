@@ -4,6 +4,8 @@ The families this stack draws from. **Licences are stated per model, never per f
 
 Every licence below is linked to a model card or vendor licence document where practical. The linked primary source wins over this page; check the exact checkpoint before you commit.
 
+**Last verified:** 13 August 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of `other` means the card ships a named custom licence, not an OSI-approved SPDX id.
+
 ## Read this first
 
 Three traps that have caught people, all verified against primary sources:
@@ -28,9 +30,9 @@ These are specific checkpoints, not a licence promise for every model published 
 | Phi-4, Phi-4-mini | Microsoft | MIT | [Phi-4](https://huggingface.co/microsoft/phi-4) · [Phi-4-mini](https://huggingface.co/microsoft/Phi-4-mini-instruct) |
 | KAT-Coder V2.5 | Kwaipilot | Apache-2.0 | [KAT-Coder V2.5 Dev](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
 | Kokoro-82M | hexgrad | Apache-2.0 | [hexgrad](https://huggingface.co/hexgrad/Kokoro-82M) |
-| Laguna S 2.1 | poolside | OpenMDW 1.1 | [poolside](https://huggingface.co/poolside) |
-| LFM2.5 | Liquid AI | LFM Open License v1.0 | [LiquidAI](https://huggingface.co/LiquidAI) |
-| Kimi K3 | Moonshot AI | Kimi K3 License (custom) | [moonshotai](https://huggingface.co/moonshotai) |
+| Laguna S 2.1 | poolside | OpenMDW 1.1 | [Laguna-S-2.1](https://huggingface.co/poolside/Laguna-S-2.1) |
+| LFM2.5 | Liquid AI | LFM Open License v1.0 (card tag `other`, `license_name` lfm1.0) | [LFM2.5-2.6B](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
+| Kimi K3 | Moonshot AI | Kimi K3 License (custom; card tag `other`, `license_name` kimi-k3) | [Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 
 ## Split by model
 

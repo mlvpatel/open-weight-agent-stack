@@ -19,6 +19,8 @@ FILES = {
     "rag": REPO / "docs" / "layers" / "05-rag-pipeline.md",
     "model_layer": REPO / "docs" / "layers" / "06-model-layer.md",
     "code_agents": REPO / "docs" / "layers" / "08-code-agent.md",
+    "guardrails": REPO / "docs" / "layers" / "10-guardrails-and-evals.md",
+    "architecture": REPO / "docs" / "ARCHITECTURE.md",
 }
 TEXT = {name: " ".join(path.read_text().split()) for name, path in FILES.items()}
 FAILURES: list[str] = []
@@ -82,6 +84,21 @@ def main() -> int:
          and includes("manual", "records primary sources for a tracked set of volatile claims")
          and excludes("manual", "Every volatile claim in this manual traces")
          and excludes("manual", "links every volatile claim to its primary source")),
+        ("licence tags carry a last-verified date", includes("manual", "13 August 2026")
+         and includes("models", "13 August 2026")
+         and "Last verified" in TEXT["manual"]
+         and "Last verified" in TEXT["models"]),
+        ("DeepSeek V4 Flash no longer cites a dead pricing URL as a rate card", includes("manual", "now opens the first-API-call guide")
+         and excludes("manual", "$0.14 in / $0.28 out per M tokens, increase announced")),
+        ("Continue is read-only in the manual and the layer guide", includes("manual", "Read-only since 2026")
+         and includes("code_agents", "Read-only since 2026")),
+        ("layer red-team gate is policy-scoped", includes("guardrails", "when your release policy requires it")
+         and excludes("guardrails", "block release on failure.")),
+        ("architecture follows section 27 for named models", includes("architecture", "Named models, licences, and the memory catalogue follow")
+         and includes("architecture", "Hermes Agent")),
+        ("gpt-oss 120b size is the card figure", includes("manual", "117B total / 5.1B active for 120b")),
+        ("Cursor Pro price is dated", includes("manual", "https://cursor.com/pricing")
+         and includes("manual", "$20/mo Pro as of 13 August 2026")),
     ]
     for name, passed in checks:
         check(name, passed)

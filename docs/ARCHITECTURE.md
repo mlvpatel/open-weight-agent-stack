@@ -1,6 +1,6 @@
 # Architecture, in C4
 
-This document explains the open-weight agent stack through the four C4 levels: context, containers, components, code. Each level answers one question and stops where the next decision lives. The method itself is covered in [MANUAL.md, section 4](../MANUAL.md#4-the-design-method-hld-lld-and-the-rules).
+This document explains the open-weight agent stack through the four C4 levels: context, containers, components, code. Each level answers one question and stops where the next decision lives. The method itself is covered in [MANUAL.md, section 4](../MANUAL.md#4-the-design-method-hld-lld-and-the-rules). Named models, licences, and the memory catalogue follow [section 27](../MANUAL.md#27-sources-and-verification); last verified 13 August 2026.
 
 ## Level 1: system context
 

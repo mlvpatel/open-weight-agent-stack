@@ -16,6 +16,31 @@ import re
 
 from .manual import slug
 
+# Human titles for published figures. Order matches extract_diagrams.NAMES
+# and the mermaid fences in MANUAL.md. Captions are chrome, not new claims.
+FIGURE_TITLES = (
+    "Concentric rings",
+    "Hardware paths",
+    "Master architecture",
+    "Request lifecycle",
+    "Agent control loop",
+    "RAG pipeline",
+    "Model routing",
+    "Prompt contract",
+    "Trust boundaries",
+    "Memory tiers",
+    "Guardrails and evals",
+    "Deployment topology",
+    "Data lifecycle",
+    "Serving budgets",
+    "Identity delegation",
+    "Threat write-paths",
+    "Latency budget",
+    "Technology catalogue",
+    "Task-to-model quadrant",
+    "Platform SDK",
+)
+
 
 # Only these may appear in an href. Anything else becomes inert text.
 # javascript: and data: are the executable ones; vbscript: still works in some
@@ -119,10 +144,19 @@ def render(md: str, mermaid_init: str) -> tuple[str, int]:
             body = "\n".join(buf)
             if lang == "mermaid":
                 fig += 1
+                title = FIGURE_TITLES[fig - 1] if fig <= len(FIGURE_TITLES) else ""
+                number = f"Fig. {fig:02d}"
+                label = f"{number}. {title}" if title else number
+                studio = "dark" if fig % 2 else "light"
+                title_html = f" {html.escape(title, quote=True)}" if title else ""
                 out.append(
-                    f'<figure class="plate"><div class="plate-body">'
-                    f'<pre class="mermaid">{html.escape(mermaid_init + body, quote=False)}</pre></div>'
-                    f'<figcaption><span class="fno">Fig. {fig:02d}</span></figcaption></figure>'
+                    f'<figure class="plate" data-studio="{studio}" '
+                    f'aria-label="{html.escape(label, quote=True)}">'
+                    f'<div class="plate-body">'
+                    f'<pre class="mermaid">{html.escape(mermaid_init + body, quote=False)}</pre>'
+                    f'</div>'
+                    f'<figcaption><span class="fno">{html.escape(number, quote=True)}</span>'
+                    f'{title_html}</figcaption></figure>'
                 )
             else:
                 out.append(f"<pre><code>{html.escape(body)}</code></pre>")

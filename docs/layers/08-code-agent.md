@@ -13,7 +13,7 @@ The code agent is a tool-using client of the rest of the stack: it edits files, 
 | Cline | IDE extension, any model, permissioned | [github.com/cline/cline](https://github.com/cline/cline) |
 | Kilo Code | Actively maintained Cline-lineage option, ships a JetBrains build | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
 | Aider | Terminal, git-native; check releases and repository activity at evaluation time | [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider) |
-| Continue | Verify current project maintenance status from its repository before adoption | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
+| Continue | **Read-only since 2026**, declared in its README; the 2.0.0 release was final | [github.com/continuedev/continue](https://github.com/continuedev/continue) |
 | OpenHands | Self-hostable agent with configurable Docker execution | [github.com/OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) |
 | Goose | Terminal agent, extensible; now under the Linux Foundation's Agentic AI Foundation | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | AI-first IDE | [cursor.com](https://cursor.com/) |

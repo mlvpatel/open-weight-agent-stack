@@ -124,8 +124,9 @@ def check_counts(m) -> None:
     patterns = [
         (r"(\d+)\s+sections", "sections"),
         (r"(\d+)\s+(?:reusable\s+)?diagrams", "diagrams"),
+        (r"(\d+)\s+Mermaid diagrams", "diagrams"),
     ]
-    for f in [REPO / "README.md", REPO / "MANUAL.md"]:
+    for f in [REPO / "README.md", REPO / "MANUAL.md", REPO / "docs" / "VERIFICATION.md"]:
         text = f.read_text()
         for pat, key in patterns:
             for hit in re.finditer(pat, text):
@@ -136,6 +137,33 @@ def check_counts(m) -> None:
                     fail(f"counts: {f.name} says {stated} {key}, measured {facts[key]} — near: ...{ctx}...")
     require_nonzero("counts", checked, "stated counts")
     SUMMARY.append(f"counts: {checked} stated counts verified ({facts['sections']} sections, {facts['diagrams']} diagrams)")
+
+
+def check_layer_files() -> None:
+    """The thirteen layer guides must exist and match the index table.
+
+    Prose agreement with MANUAL.md is still a human check. This gate only
+    stops a missing or renamed file from leaving a dead README link.
+    """
+    readme = REPO / "docs" / "layers" / "README.md"
+    if not readme.exists():
+        fail("layers: expected docs/layers/README.md")
+        return
+    listed = re.findall(r"\[(\d{2}-[a-z0-9-]+\.md)\]", readme.read_text())
+    require_nonzero("layers", len(listed), "layer files in README")
+    if len(listed) != 13:
+        fail(f"layers: README lists {len(listed)} files, expected 13")
+        return
+    directory = REPO / "docs" / "layers"
+    on_disk = sorted(p.name for p in directory.glob("*.md") if p.name != "README.md")
+    expected = sorted(listed)
+    if on_disk != expected:
+        fail(f"layers: README lists {expected}, directory has {on_disk}")
+        return
+    for name in listed:
+        if not (directory / name).is_file():
+            fail(f"layers: {name} is listed but missing")
+    SUMMARY.append(f"layers: {len(listed)} files exist and match the index")
 
 
 def check_architecture_diagram() -> None:
@@ -195,6 +223,7 @@ def main() -> int:
     check_relative_files()
     check_generated_site_links()
     check_counts(m)
+    check_layer_files()
     check_architecture_diagram()
     check_repo_description(m)
 

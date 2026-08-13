@@ -111,6 +111,23 @@ def main() -> int:
     D().feed(body)
     check("document render blocks handler injection", not found, str(found))
 
+    print("\nmermaid fence isolation:")
+    mermaid_ok, count = render(
+        "# T\n\n```mermaid\nflowchart LR\nA[ok]\n```\n",
+        "%%{init: {}}%%\n",
+    )
+    check("mermaid figure is counted", count == 1)
+    check("mermaid source stays inside pre", "<pre class=\"mermaid\">" in mermaid_ok)
+    breakout, _ = render(
+        "# T\n\n```mermaid\n</pre><img src=x onerror=alert(1)>\n```\n",
+        "%%{init: {}}%%\n",
+    )
+    check(
+        "mermaid fence cannot break out of pre",
+        "<img" not in breakout.lower() and "<pre class=\"mermaid\">" in breakout,
+        breakout[:180],
+    )
+
     if FAILURES:
         print(f"\n{len(FAILURES)} test(s) failed", file=sys.stderr)
         return 1

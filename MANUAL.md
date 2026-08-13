@@ -109,7 +109,7 @@ download the artefact that matches your stack instead of converting after the fa
 | **AMD on Windows** | **llama.cpp with Vulkan** | By VRAM | **ROCm on Windows covers only select new hardware** (Radeon AI PRO R9000, Ryzen AI Max PRO 400). Vulkan ships with every AMD driver, no CUDA emulation needed |
 | **Intel Arc / Core Ultra** | IPEX-LLM · OpenVINO · Vulkan | 7-14B at 4-bit | Improving quickly; verify your model is supported |
 | **Windows, any GPU** | LM Studio / Ollama native, or **WSL2** for the Linux stack | As per GPU row | WSL2 is how you get vLLM/SGLang on Windows |
-| **CPU only** | llama.cpp | 3-8B, 3-7 tok/s, indicative | CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length |
+| **CPU only** | llama.cpp | 3-8B, indicative 3-7 tok/s | 7B Q4, batch 1, recent desktop CPU under llama.cpp. CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length |
 | **NVIDIA DGX Spark** | SGLang · vLLM · Ollama | 70B-class at 4-bit | GB10, 128 GB unified memory; the desktop supercomputer tier |
 | **NVIDIA Jetson (edge)** | llama.cpp · TensorRT-LLM | 3-13B on-device | Orin and Thor modules; agents at the edge, no rack required |
 | **Cloud accelerators** | Managed runtimes | By instance | TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5 |
@@ -549,7 +549,7 @@ stateDiagram-v2
 
 Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is the upgrade that
 buys the most quality per unit of added machinery over naive top-k cosine search. That ranking is
-indicative.
+indicative: it is an engineering default, not a published bake-off across RAG variants.
 
 
 ### 8.1 RAG variants: adopt one when its failure mode appears
@@ -1057,8 +1057,9 @@ flowchart TB
 ```
 
 CPU-only chat is possible, but a GPU is usually the practical choice for responsive or concurrent use.
-CPU-only inference runs at, indicative, 3-7 tok/s for a 7B model, which can make a 500-token answer
-take one to three minutes; it suits batch work and limited, low-concurrency chat.
+CPU-only inference runs at, indicative, 3-7 tok/s for a 7B Q4 model on a recent desktop CPU under
+llama.cpp at batch 1, which can make a 500-token answer take one to three minutes; it suits batch
+work and limited, low-concurrency chat. Measure your processor and context length.
 
 ---
 
@@ -1417,8 +1418,9 @@ flowchart LR
 
 ## 20. Latency budget
 
-The performance view. Ranges below are indicative for a 7-32B model on one modern GPU, measure your
-own, but the *shape* holds: retrieval and guards are noise, and generation is everything.
+The performance view. Ranges below are indicative for a 7-32B model on one modern NVIDIA GPU at
+batch 1: order-of-magnitude planning figures, not a benchmark. Measure your own, but the *shape*
+holds: retrieval and guards are noise, and generation is everything.
 
 The number that matters for an agent is not the turn, it is the turn multiplied by the loop. A
 plan-act-observe cycle that runs eight model calls pays the prefill cost eight times, which is why
@@ -1890,7 +1892,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Best for |
 |---|---|---|
-| **Cursor** ★ | $20/mo Pro | Best end-to-end IDE flow if you'll pay for one |
+| **Cursor** ★ | $20/mo Pro as of 13 August 2026; [cursor.com/pricing](https://cursor.com/pricing) | Best end-to-end IDE flow if you'll pay for one |
 | **Windsurf** | Paid | **Rebranded to Devin Desktop** (Cognition); windsurf.com now redirects there. The JetBrains plugin remains separate |
 | **Zed** | Free tier, open source | Fast native editor; free and model-agnostic |
 | **Void** | Open source | Open-source Cursor alternative |
@@ -2014,26 +2016,30 @@ tracked set of volatile model and tool claims, rather than proving that every se
 remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
 before relying on them months from now.
 
+**Last verified:** 13 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
+re-read that day. Parameter counts below are as those cards stated then. Vendor list prices move;
+where a former pricing URL no longer publishes a rate card, the row says so.
+
 ### 27.1 Models and licences
 
 | Model | Verified fact | Primary source |
 |---|---|---|
-| Kimi K3 | 2.8T total / 104B active MoE · 1M context · custom Kimi K3 License | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
+| Kimi K3 | 2.8T total / 104B active MoE · 1M context · custom Kimi K3 License (card tag `other`, `license_name` kimi-k3) | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
 | Qwen 3.8 Max | Announced with 2.4T total / 95B active and ~1M context, but no downloadable weights are published under the Qwen organisation. Treat as an API model | [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
 | DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 79.4 at Think High, 80.6 at Think Max, per the card's own mode comparison | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
-| DeepSeek V4 Flash | 284B / 13B active · MIT · $0.14 in / $0.28 out per M tokens, increase announced | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) |
+| DeepSeek V4 Flash | 284B / 13B active · MIT · API list price is vendor-published and changes. The former docs URL `api-docs.deepseek.com/quick_start/pricing` now opens the first-API-call guide, not a rate card; re-check DeepSeek's current pricing page before budgeting | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [API docs](https://api-docs.deepseek.com/) |
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
 | GLM-4.5-Air | Fast tier · MIT | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
 | Qwen 3.6 27B / 3.5 9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
 | Qwen 2 / 2.5 licence examples | Qwen2.5-7B, 14B, 32B, and Coder-32B cards are Apache-2.0; other named checkpoints must be checked individually | [7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) · [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) · [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) · [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
-| gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
+| gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 · card states 117B total / 5.1B active for 120b | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
 | Gemma 4 | 12B instruction-tuned entry of the Apache-2.0 generation | [Model card](https://huggingface.co/google/gemma-4-12B-it) |
 | OLMo 3 | Fully open (weights, data, code) · Apache-2.0 | [Model card](https://huggingface.co/allenai/Olmo-3-1025-7B) |
 | Granite 4.1 | IBM's enterprise family · Apache-2.0 | [Model card](https://huggingface.co/ibm-granite/granite-4.1-30b) |
 | Ling 3.0 flash | Ant Group MoE · MIT | [Model card](https://huggingface.co/inclusionAI/Ling-3.0-flash) |
 | Hunyuan Hy3 | Tencent · Apache-2.0 | [Model card](https://huggingface.co/tencent/Hy3) |
 | MiniMax M2.7 | Non-commercial. Commercial use requires prior written authorisation, stated in the repository licence file rather than the card tag | [Model card](https://huggingface.co/MiniMaxAI/MiniMax-M2.7) · [Licence](https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/LICENSE) |
-| LFM2.5 (edge) | Liquid AI's edge family · LFM Open Licence | [Model card](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
+| LFM2.5 (edge) | Liquid AI's edge family · LFM Open Licence (card tag `other`, `license_name` lfm1.0) | [Model card](https://huggingface.co/LiquidAI/LFM2.5-2.6B) |
 | Qwen3-Coder-Next | Open coding specialist · Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | KAT-Coder V2.5 | Agentic coding MoE · Apache-2.0 | [Model card](https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev) |
 | Devstral Small 2 | Mistral's open coding model · Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512) |
@@ -2118,7 +2124,9 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Jules | [jules.google](https://jules.google/) |
 | v0 | [v0.dev](https://v0.dev/) |
 
-Pricing figures quoted in section 24 are `indicative`: vendors change them without notice, and this manual does not re-check them.
+Pricing figures quoted in section 24 are `indicative`: vendors change them without notice, and this
+manual does not re-check them on a schedule. Cursor Pro was $20/mo on [cursor.com/pricing](https://cursor.com/pricing)
+on 13 August 2026.
 
 ### 27.6 Libraries by layer
 
