@@ -31,7 +31,7 @@
     --fs-small: 14.5px;
     --fs-body: 16px;
     --fs-body-lg: 17px;
-    --fs-h3: 19px;
+    --fs-h3: 26px;
 
     --bg: #fbfbfd;
     --surface: #FFFFFF;
@@ -196,6 +196,29 @@
 
   section { scroll-margin-top: var(--s5); }
   section + section { margin-top: var(--s8); }
+
+  /* ---------------- flow: vertical rhythm ---------------- */
+  /* The resets above zero every margin, and section + section only separates
+     whole sections, so nothing ever restored spacing *inside* a section once
+     the page became generated. Measured on the built site: all 44 adjacent
+     paragraph pairs sat at a 0px gap, and all 26 subsection headings had 0px
+     above and below, flush against the prose on both sides. The orphaned
+     .callout / .card / .readnote rules are the giveaway: the stylesheet was
+     written for hand-authored markup that carried its own spacing classes,
+     and the generator emits plain <p>, <h3>, <hr> and <figure> instead.
+     One flow rule restores the rhythm for whatever the generator emits. */
+  main section > * + * { margin-top: var(--s5); }
+  /* A heading belongs to what follows it, so it takes a large space above and
+     a small one below. Equal gaps are what made these read as floating. */
+  main section > h3 { margin-top: var(--s7); }
+  main section > h3 + * { margin-top: var(--s3); }
+  main h3 {
+    font-size: var(--fs-h3); font-weight: 600;
+    letter-spacing: -.012em; line-height: 1.25;
+  }
+  main section > hr {
+    margin: var(--s7) 0 0; border: 0; border-top: 1px solid var(--border);
+  }
 
   .sec-head { display: flex; flex-direction: column; gap: var(--s3); margin-bottom: var(--s5); }
   .sec-head h2 {
@@ -659,11 +682,21 @@
     window.mermaid.initialize({ startOnLoad: false });
     await window.mermaid.run({ nodes: diagrams });
     fitDiagrams();
+    // Refit when the column changes width. A window resize listener alone is not
+    // enough: the shell drops its sidebar at 1024px, which changes the column
+    // width without the window necessarily reporting a size the listener acts on.
+    // Observe the figure rather than the scroll container, because pinning a width
+    // changes the container's scrollWidth and observing that could feed back.
     let resizeTimer;
-    window.addEventListener("resize", function () {
+    const refit = function () {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(fitDiagrams, 150);
-    });
+    };
+    if (window.ResizeObserver) {
+      const observer = new window.ResizeObserver(refit);
+      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
+    }
+    window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
     for (const diagram of diagrams) {
