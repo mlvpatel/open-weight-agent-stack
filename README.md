@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 163 primary sources, with the five concentric rings from prompt to loop" width="880">
+
 # The Open-Weight Agent Stack
 
 **A performance-first build manual for agentic AI on open-weight models.**
@@ -14,48 +16,57 @@ Hardware and serving, retrieval, memory, identity, security, and operations.
 [![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**[Read the manual](MANUAL.md)** · **[Live site](https://mlvpatel.github.io/open-weight-agent-stack/)** · **[Architecture in C4](docs/ARCHITECTURE.md)** · **[Model licences](docs/MODELS.md)** · **[What CI proves](docs/VERIFICATION.md)**
-
-<img src="docs/assets/preview.png" alt="The opening page of the manual, showing the section index and summary statistics" width="820">
+**[Read the manual](MANUAL.md)** &nbsp;·&nbsp; **[Live site](https://mlvpatel.github.io/open-weight-agent-stack/)** &nbsp;·&nbsp; **[Architecture in C4](docs/ARCHITECTURE.md)** &nbsp;·&nbsp; **[Model licences](docs/MODELS.md)** &nbsp;·&nbsp; **[What CI proves](docs/VERIFICATION.md)**
 
 <br>
 
-**Serving and runtimes**
+### What the manual covers
 
-![vLLM](https://img.shields.io/badge/vLLM-1a1a1a?style=flat-square)
-![SGLang](https://img.shields.io/badge/SGLang-1a1a1a?style=flat-square)
-![Ollama](https://img.shields.io/badge/Ollama-1a1a1a?style=flat-square&logo=ollama&logoColor=white)
-![llama.cpp](https://img.shields.io/badge/llama.cpp-1a1a1a?style=flat-square)
-![NVIDIA](https://img.shields.io/badge/TensorRT-76B900?style=flat-square&logo=nvidia&logoColor=white)
-![Apple MLX](https://img.shields.io/badge/MLX-1a1a1a?style=flat-square&logo=apple&logoColor=white)
+Every category below leads with more than one option, and at least one you can run yourself. Nothing here is an unmarked default.
 
-**Models and providers**
+**Serving and runtimes** &nbsp;·&nbsp; layer 6
 
-![Hugging Face](https://img.shields.io/badge/Hugging%20Face-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
-![gpt-oss](https://img.shields.io/badge/gpt--oss-412991?style=flat-square)
-![Meta](https://img.shields.io/badge/Llama-0467DF?style=flat-square&logo=meta&logoColor=white)
-![Google](https://img.shields.io/badge/Gemma-4285F4?style=flat-square&logo=google&logoColor=white)
-![Anthropic](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=anthropic&logoColor=white)
-![Qwen](https://img.shields.io/badge/Qwen-615CED?style=flat-square)
-![DeepSeek](https://img.shields.io/badge/DeepSeek-4D6BFE?style=flat-square)
-![Mistral](https://img.shields.io/badge/Mistral-FA520F?style=flat-square)
+![vLLM](https://img.shields.io/badge/vLLM-1a1a1a?style=for-the-badge&logo=vllm&logoColor=white)
+![SGLang](https://img.shields.io/badge/SGLang-1a1a1a?style=for-the-badge)
+![Ollama](https://img.shields.io/badge/Ollama-1a1a1a?style=for-the-badge&logo=ollama&logoColor=white)
+![llama.cpp](https://img.shields.io/badge/llama.cpp-1a1a1a?style=for-the-badge)
+![TensorRT](https://img.shields.io/badge/TensorRT--LLM-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
+![MLX](https://img.shields.io/badge/Apple%20MLX-1a1a1a?style=for-the-badge&logo=apple&logoColor=white)
 
-**Retrieval, state, and orchestration**
+**Open-weight models and providers** &nbsp;·&nbsp; [per-model licences](docs/MODELS.md)
 
-![LangChain](https://img.shields.io/badge/LangGraph-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
-![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?style=flat-square&logo=qdrant&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/pgvector-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-FF4438?style=flat-square&logo=redis&logoColor=white)
-![MCP](https://img.shields.io/badge/MCP-1a1a1a?style=flat-square)
+![Hugging Face](https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-4D6BFE?style=for-the-badge&logo=deepseek&logoColor=white)
+![Qwen](https://img.shields.io/badge/Qwen-615CED?style=for-the-badge&logo=qwen&logoColor=white)
+![Mistral](https://img.shields.io/badge/Mistral-FA520F?style=for-the-badge&logo=mistralai&logoColor=white)
+![Llama](https://img.shields.io/badge/Llama-0467DF?style=for-the-badge&logo=meta&logoColor=white)
+![Gemma](https://img.shields.io/badge/Gemma-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![gpt-oss](https://img.shields.io/badge/gpt--oss-412991?style=for-the-badge)
+![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
 
-**Operations**
+**Retrieval, memory and state** &nbsp;·&nbsp; layers 5, 9
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-![Ray](https://img.shields.io/badge/Ray-028CF0?style=flat-square&logo=ray&logoColor=white)
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
-![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-425CC7?style=flat-square&logo=opentelemetry&logoColor=white)
+![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?style=for-the-badge&logo=qdrant&logoColor=white)
+![pgvector](https://img.shields.io/badge/pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
+![Valkey](https://img.shields.io/badge/Valkey-1a1a1a?style=for-the-badge)
+![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?style=for-the-badge&logoColor=black)
+
+**Orchestration and tools** &nbsp;·&nbsp; layers 3, 7
+
+![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)
+![MCP](https://img.shields.io/badge/MCP-1a1a1a?style=for-the-badge&logo=modelcontextprotocol&logoColor=white)
+![CrewAI](https://img.shields.io/badge/CrewAI-FF5A50?style=for-the-badge)
+![Pydantic AI](https://img.shields.io/badge/Pydantic%20AI-E92063?style=for-the-badge)
+
+**Operations** &nbsp;·&nbsp; layers 11, 12
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Ray](https://img.shields.io/badge/Ray-028CF0?style=for-the-badge&logo=ray&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-425CC7?style=for-the-badge&logo=opentelemetry&logoColor=white)
 
 **This repository is built with**
 
@@ -81,6 +92,18 @@ flowchart LR
 ```
 
 The full four-level breakdown lives in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+### Who this is for, and what it is not
+
+It is written for the engineer who has to decide what to run, on what hardware, with which model, and how to operate it without being the only person who understands it. It assumes you can read a system diagram and would rather see the tradeoff than the recommendation.
+
+It is not a tutorial, and it does not benchmark models for you. Every routing table says to measure on your own eval set before shipping, because a benchmark that did not run on your data is someone else's result. Where a number has no published source, it is marked `indicative` rather than dressed up as a measurement.
+
+Three things follow from that, and they are the reason to read this rather than a blog post:
+
+- **Licences are stated per model, never per family.** Most families are not internally consistent: the same organisation ships Apache-2.0, custom, and non-commercial terms side by side, and a family-level claim is legal guidance by implication. [docs/MODELS.md](docs/MODELS.md) splits them.
+- **Open weight no longer implies self-hostable.** The frontier open models are trillion-scale and consumed through an API exactly like the closed ones. The line that decides where a model runs is size, not licence, and [section 22](MANUAL.md#22-task-to-model-routing) plots it.
+- **The security chapter maps to a published standard**, the OWASP Top 10 for Agentic Applications, using the official risk names rather than paraphrases.
 
 ## How to explore this repository
 
