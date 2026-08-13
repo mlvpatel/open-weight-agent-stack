@@ -30,6 +30,33 @@ wraps the one before it, and a failure in an inner ring cannot be repaired by an
 | Eval | how "good" becomes a reproducible verdict | 13 |
 | Loop | scheduling, bounded rework, termination | 7, 9, 17, 20, 25 |
 
+```mermaid
+flowchart TB
+    subgraph LOOP["<b>Loop</b><br/>scheduling · bounded rework · termination<br/>sections 7, 9, 17, 20, 25"]
+        direction TB
+        subgraph EVAL["<b>Eval</b><br/>how good becomes a reproducible verdict<br/>section 13"]
+            direction TB
+            subgraph HARN["<b>Harness</b><br/>tools · sandboxing · credentials · trust boundaries<br/>sections 5, 6, 11, 14, 18, 19"]
+                direction TB
+                subgraph CTX["<b>Context</b><br/>what enters the window, and its provenance<br/>sections 8, 12, 15, 16"]
+                    direction TB
+                    subgraph PROM["<b>Prompt</b><br/>one model turn: contract · schema · refusal path<br/>section 10"]
+                        direction TB
+                        CORE["One model turn"]
+                    end
+                end
+            end
+        end
+    end
+
+    NOTE["A failure in an inner ring<br/>cannot be repaired by an outer one.<br/>Fix inward-out."]
+    NOTE -.-> PROM
+```
+
+Read the nesting as containment, not as a call sequence. A retrieval bug is a Context failure, and no
+amount of loop scheduling or eval rigour outside it will repair the answer; that is what the innermost
+arrow is warning about.
+
 **Identity is a first-class layer.** The retrieval filter, the cache key and the tool allow-list all
 enforce an entitlement scope; section 18 is what issues it, and section 19 maps the whole design
 against the OWASP Top 10 for Agentic Applications.
@@ -520,15 +547,17 @@ stateDiagram-v2
 
 ## 8. RAG pipeline internals
 
-Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is, indicative,
-the upgrade that buys the most quality per unit of added machinery over naive top-k cosine search.
+Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is the upgrade that
+buys the most quality per unit of added machinery over naive top-k cosine search. That ranking is
+indicative.
 
 
 ### 8.1 RAG variants: adopt one when its failure mode appears
 
 The pipeline above is the default for a reason: on most corpora, hybrid retrieval plus reranking
-is, indicative, the best quality for the least machinery. The named variants exist because specific failure modes defeat it. Start
-with the default; reach for a variant only when you can name the failure you are fixing.
+buys the best quality for the least machinery. That judgement is indicative. The named variants
+exist because specific failure modes defeat it. Start with the default; reach for a variant only
+when you can name the failure you are fixing.
 
 | Variant | The failure it fixes | Cost |
 |---|---|---|
@@ -1580,6 +1609,34 @@ The open-weight frontier moved to **trillion-scale MoE**, and that changes the a
 
 **So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.
 
+Read the positions below as indicative. Parameter counts and licences are sourced in section 27,
+but where a model sits on either axis is an engineering judgement, not a measurement: capability
+tiers are not a single published number, and whether something "fits one node" depends on the node.
+What the figure is for is the scatter along the horizontal axis. MIT and Apache-2.0 models appear at
+both extremes, which is the point: a permissive licence tells you what you may do with the weights,
+never whether you can afford to run them.
+
+```mermaid
+quadrantChart
+    title Size decides where a model can run; the licence does not
+    x-axis "Fits one node" --> "Cluster or API only"
+    y-axis "Utility tier" --> "Frontier tier"
+    quadrant-1 "Frontier tier, API only"
+    quadrant-2 "Frontier tier, self-hostable"
+    quadrant-3 "Utility tier, self-hostable"
+    quadrant-4 "Utility tier, API only"
+    "Kimi K3 2.8T, custom": [0.92, 0.94]
+    "Qwen 3.8 Max, no weights": [0.97, 0.86]
+    "DeepSeek V4 Pro 1.6T, MIT": [0.83, 0.91]
+    "GLM-5.2 753B, MIT": [0.72, 0.80]
+    "DeepSeek V4 Flash 284B, MIT": [0.45, 0.63]
+    "gpt-oss-120b, Apache-2.0": [0.30, 0.54]
+    "GLM-4.5-Air, MIT": [0.24, 0.46]
+    "Qwen 3.6 27B, Apache-2.0": [0.15, 0.37]
+    "Gemma 4 12B, Apache-2.0": [0.10, 0.27]
+    "Phi-4-mini 3.8B, MIT": [0.05, 0.14]
+```
+
 Route by task shape. Assume every row is measured on your own eval set before it ships. Vendors
 refresh open models as dated checkpoints (DeepSeek's Flash-0731, for instance); production pins the
 exact checkpoint ID, never the family name (section 25).
@@ -1735,6 +1792,9 @@ inference, MCP for tools, A2A where agents from different vendors call each othe
 language can face any orchestrator language calling any serving stack. The one language-locked piece
 is orchestrator state, framework checkpoints serialise in their own runtime, so choose the
 orchestrator's language deliberately and let everything else differ.
+
+Which pairing is most common, and which reaches production fastest, are indicative: no survey
+measures either across this stack.
 
 | Pair | Where it fits |
 |---|---|
@@ -1980,7 +2040,7 @@ before relying on them months from now.
 | Laguna S 2.1 | poolside's coding model · OpenMDW licence | [Model card](https://huggingface.co/poolside/Laguna-S-2.1) |
 | NVFP4 checkpoints | NVIDIA's prequantised open flagships | [huggingface.co/nvidia](https://huggingface.co/nvidia) |
 | Llama | Llama 4 Community License, custom, not on the OSI-approved list | [Licence](https://github.com/meta-llama/llama-models/blob/main/models/llama4/LICENSE) |
-| Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Terms](https://ai.google.dev/gemma/terms) |
+| Gemma | Gemma Terms of Use for older versions; Gemma 4 under Apache-2.0 | [Model card](https://huggingface.co/google/gemma-4-12B-it) · [Terms](https://ai.google.dev/gemma/terms) |
 | Phi-4 / Phi-4-mini | MIT · 14B / 3.8B | [Model card](https://huggingface.co/microsoft/phi-4) |
 | Kokoro | 82M parameters · Apache-2.0 | [Model card](https://huggingface.co/hexgrad/Kokoro-82M) |
 | BGE-M3 | Dense + sparse + multi-vector in one model · 100+ languages · MIT | [Model card](https://huggingface.co/BAAI/bge-m3) |

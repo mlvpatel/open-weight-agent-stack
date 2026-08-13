@@ -43,7 +43,7 @@ class ProductionPathTests(unittest.TestCase):
         parsed = manual.load()
 
         self.assertEqual(parsed.section_count, 27)
-        self.assertEqual(parsed.diagram_count, 18)
+        self.assertEqual(parsed.diagram_count, 20)
         self.assertGreater(parsed.link_count, parsed.unique_links)
         self.assertIn("1-how-to-read-this-manual", parsed.anchors)
         self.assertEqual(manual.slug("A Test: Heading!"), "a-test-heading")
@@ -130,10 +130,19 @@ class ProductionPathTests(unittest.TestCase):
             extract_diagrams.ROOT = root
             try:
                 self.assertEqual(extract_diagrams.main(), 0)
-                self.assertEqual(
-                    (root / "diagrams" / "src" / "master-architecture.mmd").read_text().strip(),
-                    manual.load().diagrams[1].strip(),
-                )
+                # NAMES is positional: entry N must be the manual's Nth mermaid block.
+                # Spot-checking one entry passes even when a diagram inserted earlier in
+                # the manual has shifted every later name onto the wrong content, so
+                # check the whole alignment.
+                parsed = manual.load().diagrams
+                self.assertEqual(len(parsed), len(extract_diagrams.NAMES))
+                for index, name in enumerate(extract_diagrams.NAMES):
+                    self.assertEqual(
+                        (root / "diagrams" / "src" / f"{name}.mmd").read_text().strip(),
+                        parsed[index].strip(),
+                        f"{name}.mmd does not match the manual's diagram at position {index}: "
+                        "extract_diagrams.NAMES is misaligned with MANUAL.md",
+                    )
             finally:
                 extract_diagrams.ROOT = original_root
 

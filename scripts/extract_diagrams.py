@@ -7,11 +7,11 @@ import re
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-NAMES = ["hardware-paths", "master-architecture", "request-lifecycle", "agent-control-loop",
+NAMES = ["concentric-rings", "hardware-paths", "master-architecture", "request-lifecycle", "agent-control-loop",
          "rag-pipeline", "model-routing", "prompt-contract", "trust-boundaries", "memory-tiers",
          "guardrails-evals", "deployment-topology", "data-lifecycle", "serving-budgets",
          "identity-delegation", "threat-write-paths", "latency-budget", "technology-catalogue",
-         "platform-sdk"]
+         "task-to-model-quadrant", "platform-sdk"]
 
 
 def main() -> int:
