@@ -276,6 +276,29 @@
   }
   .plate-body pre.mermaid { margin: 0; text-align: center; min-width: min-content; }
   .plate-body svg { max-width: 100%; height: auto; }
+
+  /* Legibility floor.
+     Mermaid emits width="100%" with a viewBox, so a diagram whose intrinsic
+     width is 3000px was being squeezed into an 800px column: a 0.26 scale that
+     renders 15px labels at 4px, where adjacent text visually merges. The
+     overflow-x above never engaged, because the SVG obediently shrank instead
+     of overflowing. The inline script measures each diagram after render and,
+     when fitting it to the column would fall below the floor, pins an explicit
+     width so it renders at the floor scale and this container scrolls instead.
+     Presentation only: no diagram source changes, and the SVG is unmodified. */
+  .plate-body { scrollbar-gutter: stable; overscroll-behavior-x: contain; }
+  .plate[data-scrolls="true"] .plate-body { cursor: grab; }
+  .plate[data-scrolls="true"] .plate-body svg { max-width: none; }
+  .plate[data-scrolls="true"] .plate-body:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .plate[data-scrolls="true"] figcaption::after {
+    content: "scroll to see the full width";
+    font-size: 12px; color: var(--muted); font-style: italic;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .plate-body { scroll-behavior: smooth; }
+  }
   .mermaid-fallback {
     margin: 0;
     padding: var(--s3);
@@ -465,6 +488,13 @@
   .plate { display: flex; flex-direction: column; background: var(--surface-2);
     border: 0; border-radius: var(--r-card); box-shadow: none;
     padding: clamp(20px, 4vw, 48px); }
+
+  /* No breakout here on purpose. The shell is a deliberate 232px sidebar plus a
+     content column under a 1360px cap, so there is no unused width to expand a
+     figure into at any viewport, and a negative margin would only collide with
+     the sidebar or push the page into a horizontal scroll. Diagram legibility is
+     handled entirely by the floor rule in the plates block above, which scrolls
+     the figure inside its own container and leaves the page layout untouched. */
   .plate-body { order: 1; background: transparent; }
   .plate figcaption { order: 2; justify-content: center; margin-top: 18px;
     font-family: var(--sans); font-size: 14px; letter-spacing: 0;
@@ -581,12 +611,59 @@
 <script>
 (async function () {
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+
+  // Keep every rendered diagram above a legibility floor.
+  // Mermaid emits width="100%" over a viewBox, so a diagram whose intrinsic
+  // width is 3000px silently scales to 0.26 inside an 800px column and renders
+  // its 15px labels at 4px, where adjacent text visually merges. Measure each
+  // one after render; when fitting it to the column would fall below the floor,
+  // pin an explicit width so it renders at the floor scale and let the plate
+  // scroll instead. A scrollable region must also be reachable by keyboard,
+  // so it takes a tabindex and an accessible name.
+  const MIN_SCALE = 0.62;
+  function fitDiagrams() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      const svg = plate.querySelector("svg");
+      const body = plate.querySelector(".plate-body");
+      if (!svg || !body) continue;
+      const box = svg.viewBox && svg.viewBox.baseVal;
+      if (!box || !box.width) continue;
+      // Clear any previous pin first, then measure what the diagram actually
+      // renders at. The container's own width overstates it, because Mermaid's
+      // inline max-width and the plate's padding both take a slice, and that
+      // gap is enough to let a diagram sit just under the floor undetected.
+      // Measuring the rendered box also makes this correct on resize.
+      svg.style.width = "";
+      const natural = svg.getBoundingClientRect().width;
+      if (natural <= 0) continue;
+      if (natural / box.width < MIN_SCALE) {
+        svg.style.width = Math.round(box.width * MIN_SCALE) + "px";
+        plate.dataset.scrolls = "true";
+        body.tabIndex = 0;
+        body.setAttribute("role", "region");
+        body.setAttribute("aria-label", "Diagram, scrollable horizontally");
+      } else {
+        svg.style.width = "";
+        delete plate.dataset.scrolls;
+        body.removeAttribute("tabindex");
+        body.removeAttribute("role");
+        body.removeAttribute("aria-label");
+      }
+    }
+  }
+
   try {
     if (!window.mermaid) {
       throw new Error("Mermaid browser bundle did not load");
     }
     window.mermaid.initialize({ startOnLoad: false });
     await window.mermaid.run({ nodes: diagrams });
+    fitDiagrams();
+    let resizeTimer;
+    window.addEventListener("resize", function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(fitDiagrams, 150);
+    });
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
     for (const diagram of diagrams) {
