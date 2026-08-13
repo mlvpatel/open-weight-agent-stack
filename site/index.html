@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0xZXwxg8QWtd9hcfnI6XQPDKHbPAS6qN0pWL0G5aiO4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-idLcsjKbFFNrZo0b41Sy9nm3d3tk3jeLX8/NK3LseiQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
@@ -31,7 +31,7 @@
     --fs-small: 14.5px;
     --fs-body: 16px;
     --fs-body-lg: 17px;
-    --fs-h3: 19px;
+    --fs-h3: 26px;
 
     --bg: #fbfbfd;
     --surface: #FFFFFF;
@@ -196,6 +196,29 @@
 
   section { scroll-margin-top: var(--s5); }
   section + section { margin-top: var(--s8); }
+
+  /* ---------------- flow: vertical rhythm ---------------- */
+  /* The resets above zero every margin, and section + section only separates
+     whole sections, so nothing ever restored spacing *inside* a section once
+     the page became generated. Measured on the built site: all 44 adjacent
+     paragraph pairs sat at a 0px gap, and all 26 subsection headings had 0px
+     above and below, flush against the prose on both sides. The orphaned
+     .callout / .card / .readnote rules are the giveaway: the stylesheet was
+     written for hand-authored markup that carried its own spacing classes,
+     and the generator emits plain <p>, <h3>, <hr> and <figure> instead.
+     One flow rule restores the rhythm for whatever the generator emits. */
+  main section > * + * { margin-top: var(--s5); }
+  /* A heading belongs to what follows it, so it takes a large space above and
+     a small one below. Equal gaps are what made these read as floating. */
+  main section > h3 { margin-top: var(--s7); }
+  main section > h3 + * { margin-top: var(--s3); }
+  main h3 {
+    font-size: var(--fs-h3); font-weight: 600;
+    letter-spacing: -.012em; line-height: 1.25;
+  }
+  main section > hr {
+    margin: var(--s7) 0 0; border: 0; border-top: 1px solid var(--border);
+  }
 
   .sec-head { display: flex; flex-direction: column; gap: var(--s3); margin-bottom: var(--s5); }
   .sec-head h2 {
@@ -605,15 +628,15 @@
 <div class="table-wrap"><table><thead><tr><th scope="col">Ring</th><th scope="col">What it governs</th><th scope="col">Sections</th></tr></thead><tbody><tr><th scope="row">Prompt</th><td>one model turn: contract, schema, refusal path</td><td>10</td></tr><tr><th scope="row">Context</th><td>what enters the window, and its provenance</td><td>8, 12, 15, 16</td></tr><tr><th scope="row">Harness</th><td>tools, sandboxing, credentials, trust boundaries</td><td>5, 6, 11, 14, 18, 19</td></tr><tr><th scope="row">Eval</th><td>how &quot;good&quot; becomes a reproducible verdict</td><td>13</td></tr><tr><th scope="row">Loop</th><td>scheduling, bounded rework, termination</td><td>7, 9, 17, 20, 25</td></tr></tbody></table></div>
 <figure class="plate"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"15px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"nodeSpacing":38,"rankSpacing":46},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
-    subgraph LOOP["&lt;b&gt;Loop&lt;/b&gt;&lt;br/&gt;scheduling · bounded rework · termination&lt;br/&gt;sections 7, 9, 17, 20, 25"]
+    subgraph LOOP["&lt;b&gt;Loop&lt;/b&gt; · sections 7, 9, 17, 20, 25"]
         direction TB
-        subgraph EVAL["&lt;b&gt;Eval&lt;/b&gt;&lt;br/&gt;how good becomes a reproducible verdict&lt;br/&gt;section 13"]
+        subgraph EVAL["&lt;b&gt;Eval&lt;/b&gt; · section 13"]
             direction TB
-            subgraph HARN["&lt;b&gt;Harness&lt;/b&gt;&lt;br/&gt;tools · sandboxing · credentials · trust boundaries&lt;br/&gt;sections 5, 6, 11, 14, 18, 19"]
+            subgraph HARN["&lt;b&gt;Harness&lt;/b&gt; · sections 5, 6, 11, 14, 18, 19"]
                 direction TB
-                subgraph CTX["&lt;b&gt;Context&lt;/b&gt;&lt;br/&gt;what enters the window, and its provenance&lt;br/&gt;sections 8, 12, 15, 16"]
+                subgraph CTX["&lt;b&gt;Context&lt;/b&gt; · sections 8, 12, 15, 16"]
                     direction TB
-                    subgraph PROM["&lt;b&gt;Prompt&lt;/b&gt;&lt;br/&gt;one model turn: contract · schema · refusal path&lt;br/&gt;section 10"]
+                    subgraph PROM["&lt;b&gt;Prompt&lt;/b&gt; · section 10"]
                         direction TB
                         CORE["One model turn"]
                     end
@@ -922,17 +945,17 @@ stateDiagram-v2
     [*] --&gt; Intake
     Intake --&gt; Planning : goal parsed
 
-    Planning --&gt; Retrieving : needs documents
+    Planning --&gt; Retrieving : needs docs
     Planning --&gt; ToolUse : needs live data or action
     Planning --&gt; Coding : needs code written or run
     Planning --&gt; Generating : model knowledge is enough
 
     Retrieving --&gt; Generating : context assembled
-    Retrieving --&gt; Planning : nothing relevant found
+    Retrieving --&gt; Planning : no hits
 
     ToolUse --&gt; Observing : tool returned
     ToolUse --&gt; TransientRetry : timeout or 5xx
-    TransientRetry --&gt; ToolUse : own budget, no rework cycle spent
+    TransientRetry --&gt; ToolUse
     TransientRetry --&gt; Failed : transient budget exhausted
 
     Coding --&gt; Testing : patch written
@@ -1957,11 +1980,21 @@ flowchart TB
     window.mermaid.initialize({ startOnLoad: false });
     await window.mermaid.run({ nodes: diagrams });
     fitDiagrams();
+    // Refit when the column changes width. A window resize listener alone is not
+    // enough: the shell drops its sidebar at 1024px, which changes the column
+    // width without the window necessarily reporting a size the listener acts on.
+    // Observe the figure rather than the scroll container, because pinning a width
+    // changes the container's scrollWidth and observing that could feed back.
     let resizeTimer;
-    window.addEventListener("resize", function () {
+    const refit = function () {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(fitDiagrams, 150);
-    });
+    };
+    if (window.ResizeObserver) {
+      const observer = new window.ResizeObserver(refit);
+      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
+    }
+    window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
     for (const diagram of diagrams) {
