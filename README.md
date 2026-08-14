@@ -1,80 +1,89 @@
 <div align="center">
 
-<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 163 primary sources, with the five concentric rings from prompt to loop" width="880">
+<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 164 primary sources, with the five concentric rings from prompt to loop" width="880">
+
+**Performance-first build manual**
 
 # The Open-Weight Agent Stack
 
-**A performance-first build manual for agentic AI on open-weight models.**
+The complete blueprint for agentic AI on open-weight models: hardware and serving, retrieval, memory, security and operations. Latency and throughput are the ruling metrics, because an agent loop multiplies every millisecond it spends.
 
-Hardware and serving, retrieval, memory, identity, security, and operations.
-27 sections and 20 reusable diagrams, with model, licence, and benchmark claims traced to primary sources.
+**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **164** primary sources
+
+[![Read the manual](https://img.shields.io/badge/Read_the_manual-0071e3?style=for-the-badge)](https://mlvpatel.github.io/open-weight-agent-stack/)
+[![View on GitHub](https://img.shields.io/badge/View_on_GitHub-1d1d1f?style=for-the-badge)](https://github.com/mlvpatel/open-weight-agent-stack)
+
+[Manual](MANUAL.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Models](docs/MODELS.md) &nbsp;·&nbsp; [What CI proves](docs/VERIFICATION.md)
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![freshness](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml)
 [![codeql](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/codeql.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/codeql.yml)
 [![release](https://img.shields.io/github/v/release/mlvpatel/open-weight-agent-stack?color=0071e3)](https://github.com/mlvpatel/open-weight-agent-stack/releases/latest)
-[![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-blue.svg)](LICENSE)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![licence: CC BY 4.0](https://img.shields.io/badge/licence-CC%20BY%204.0-0071e3.svg)](LICENSE)
 
-**[Read the manual](MANUAL.md)** &nbsp;·&nbsp; **[Live site](https://mlvpatel.github.io/open-weight-agent-stack/)** &nbsp;·&nbsp; **[Architecture in C4](docs/ARCHITECTURE.md)** &nbsp;·&nbsp; **[Model licences](docs/MODELS.md)** &nbsp;·&nbsp; **[What CI proves](docs/VERIFICATION.md)**
+</div>
 
-<br>
+### Five rings. Innermost first.
+
+A failure in an inner ring cannot be repaired by an outer one.
+
+| | Ring | What it governs |
+|---|---|---|
+| 01 | **Prompt** | One model turn |
+| 02 | **Context** | What enters the window |
+| 03 | **Harness** | Tools, sandbox, trust |
+| 04 | **Eval** | A reproducible verdict |
+| 05 | **Loop** | Bounded rework |
 
 ### What the manual covers
 
 Every category below leads with more than one option, and at least one you can run yourself. Nothing here is an unmarked default.
 
+<div align="center">
+
 **Serving and runtimes** &nbsp;·&nbsp; layer 6
 
-![vLLM](https://img.shields.io/badge/vLLM-1a1a1a?style=for-the-badge&logo=vllm&logoColor=white)
-![SGLang](https://img.shields.io/badge/SGLang-1a1a1a?style=for-the-badge)
-![Ollama](https://img.shields.io/badge/Ollama-1a1a1a?style=for-the-badge&logo=ollama&logoColor=white)
-![llama.cpp](https://img.shields.io/badge/llama.cpp-1a1a1a?style=for-the-badge)
-![TensorRT](https://img.shields.io/badge/TensorRT--LLM-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
-![MLX](https://img.shields.io/badge/Apple%20MLX-1a1a1a?style=for-the-badge&logo=apple&logoColor=white)
+![vLLM](https://img.shields.io/badge/vLLM-1d1d1f?style=for-the-badge&logo=vllm&logoColor=white)
+![SGLang](https://img.shields.io/badge/SGLang-1d1d1f?style=for-the-badge)
+![Ollama](https://img.shields.io/badge/Ollama-1d1d1f?style=for-the-badge&logo=ollama&logoColor=white)
+![llama.cpp](https://img.shields.io/badge/llama.cpp-1d1d1f?style=for-the-badge)
+![TensorRT](https://img.shields.io/badge/TensorRT--LLM-1d1d1f?style=for-the-badge&logo=nvidia&logoColor=white)
+![MLX](https://img.shields.io/badge/Apple%20MLX-1d1d1f?style=for-the-badge&logo=apple&logoColor=white)
 
 **Open-weight models and providers** &nbsp;·&nbsp; [per-model licences](docs/MODELS.md)
 
-![Hugging Face](https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
-![DeepSeek](https://img.shields.io/badge/DeepSeek-4D6BFE?style=for-the-badge&logo=deepseek&logoColor=white)
-![Qwen](https://img.shields.io/badge/Qwen-615CED?style=for-the-badge&logo=qwen&logoColor=white)
-![Mistral](https://img.shields.io/badge/Mistral-FA520F?style=for-the-badge&logo=mistralai&logoColor=white)
-![Llama](https://img.shields.io/badge/Llama-0467DF?style=for-the-badge&logo=meta&logoColor=white)
-![Gemma](https://img.shields.io/badge/Gemma-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![gpt-oss](https://img.shields.io/badge/gpt--oss-412991?style=for-the-badge)
-![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
+![Hugging Face](https://img.shields.io/badge/Hugging%20Face-1d1d1f?style=for-the-badge&logo=huggingface&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-1d1d1f?style=for-the-badge&logo=deepseek&logoColor=white)
+![Qwen](https://img.shields.io/badge/Qwen-1d1d1f?style=for-the-badge&logo=qwen&logoColor=white)
+![Mistral](https://img.shields.io/badge/Mistral-1d1d1f?style=for-the-badge&logo=mistralai&logoColor=white)
+![Llama](https://img.shields.io/badge/Llama-1d1d1f?style=for-the-badge&logo=meta&logoColor=white)
+![Gemma](https://img.shields.io/badge/Gemma-1d1d1f?style=for-the-badge&logo=google&logoColor=white)
+![gpt-oss](https://img.shields.io/badge/gpt--oss-1d1d1f?style=for-the-badge)
+![Claude](https://img.shields.io/badge/Claude-1d1d1f?style=for-the-badge&logo=anthropic&logoColor=white)
 
 **Retrieval, memory and state** &nbsp;·&nbsp; layers 5, 9
 
-![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?style=for-the-badge&logo=qdrant&logoColor=white)
-![pgvector](https://img.shields.io/badge/pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
-![Valkey](https://img.shields.io/badge/Valkey-1a1a1a?style=for-the-badge)
-![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?style=for-the-badge&logoColor=black)
+![Qdrant](https://img.shields.io/badge/Qdrant-1d1d1f?style=for-the-badge&logo=qdrant&logoColor=white)
+![pgvector](https://img.shields.io/badge/pgvector-1d1d1f?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-1d1d1f?style=for-the-badge&logo=redis&logoColor=white)
+![Valkey](https://img.shields.io/badge/Valkey-1d1d1f?style=for-the-badge)
+![DuckDB](https://img.shields.io/badge/DuckDB-1d1d1f?style=for-the-badge)
 
 **Orchestration and tools** &nbsp;·&nbsp; layers 3, 7
 
-![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)
-![MCP](https://img.shields.io/badge/MCP-1a1a1a?style=for-the-badge&logo=modelcontextprotocol&logoColor=white)
-![CrewAI](https://img.shields.io/badge/CrewAI-FF5A50?style=for-the-badge)
-![Pydantic AI](https://img.shields.io/badge/Pydantic%20AI-E92063?style=for-the-badge)
+![LangGraph](https://img.shields.io/badge/LangGraph-1d1d1f?style=for-the-badge&logo=langchain&logoColor=white)
+![MCP](https://img.shields.io/badge/MCP-1d1d1f?style=for-the-badge&logo=modelcontextprotocol&logoColor=white)
+![CrewAI](https://img.shields.io/badge/CrewAI-1d1d1f?style=for-the-badge)
+![Pydantic AI](https://img.shields.io/badge/Pydantic%20AI-1d1d1f?style=for-the-badge)
 
 **Operations** &nbsp;·&nbsp; layers 11, 12
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
-![Ray](https://img.shields.io/badge/Ray-028CF0?style=for-the-badge&logo=ray&logoColor=white)
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
-![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-425CC7?style=for-the-badge&logo=opentelemetry&logoColor=white)
-
-**This repository is built with**
-
-![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white)
-![Mermaid](https://img.shields.io/badge/Mermaid-FF3670?style=flat-square&logo=mermaid&logoColor=white)
-![Python](https://img.shields.io/badge/Python%203.10+-3776AB?style=flat-square&logo=python&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node%2022+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-1d1d1f?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1d1d1f?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Ray](https://img.shields.io/badge/Ray-1d1d1f?style=for-the-badge&logo=ray&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-1d1d1f?style=for-the-badge&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-1d1d1f?style=for-the-badge&logo=grafana&logoColor=white)
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-1d1d1f?style=for-the-badge&logo=opentelemetry&logoColor=white)
 
 </div>
 
