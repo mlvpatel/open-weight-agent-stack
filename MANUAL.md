@@ -2120,7 +2120,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Codex plan availability | [OpenAI Codex pricing](https://developers.openai.com/codex/pricing) |
 | Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
 | GitHub Copilot model availability | [GitHub Docs](https://docs.github.com/en/copilot/reference/ai-models/supported-models) |
-| Devin, and Devin Desktop (formerly Windsurf) | [devin.ai](https://devin.ai/) |
+| Devin, and Devin Desktop (formerly Windsurf) | [docs.devin.ai](https://docs.devin.ai/) |
 | Jules | [jules.google](https://jules.google/) |
 | v0 | [v0.dev](https://v0.dev/) |
 
