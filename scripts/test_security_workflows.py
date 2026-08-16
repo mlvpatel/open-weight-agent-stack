@@ -144,6 +144,10 @@ def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -
     manual = read(MANUAL)
     if contains_markdown_host(manual, "docs.vllm.ai"):
         fail("vLLM evidence links must not use the hosted docs endpoint that rate-limits CI")
+    if contains_markdown_host(manual, "devin.ai"):
+        fail("Devin evidence links must not use the marketing homepage that rate-limits CI")
+    if "https://docs.devin.ai/" not in manual:
+        fail("manual is missing official Devin documentation: https://docs.devin.ai/")
     precise_quantization_claim = (
         "vLLM supports quantized inference with AWQ, GPTQ/GPTQModel, and FP8 W8A8"
     )
