@@ -1,4 +1,4 @@
-# Layer 12: Deployment
+# L12: Deployment
 
 > Wherever you can run it: a laptop, one GPU box, a cluster, or rented capacity. Ring: loop. Manual: [section 14](../../MANUAL.md#14-deployment-topology), [section 17](../../MANUAL.md#17-serving-budgets-and-rollback), [section 26](../../MANUAL.md#26-build-order-and-troubleshooting).
 

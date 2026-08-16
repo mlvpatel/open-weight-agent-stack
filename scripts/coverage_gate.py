@@ -22,16 +22,18 @@ from types import CodeType
 
 REPO = Path(__file__).resolve().parent.parent
 MINIMUM_PERCENT = 80.0
-TEST_SCRIPTS = (
-    "test_claim_contracts.py",
-    "test_memory_catalogue.py",
-    "test_contributor_attribution.py",
-    "test_render_security.py",
-    "test_site_links.py",
-    "test_watch_upstream.py",
-    "test_sbom.py",
-    "test_production_paths.py",
-)
+PER_FILE_PERCENT = 40.0
+
+
+def regression_scripts(repo: Path) -> tuple[str, ...]:
+    """Every scripts/test_*.py module except this harness's own test file."""
+    return tuple(sorted(
+        path.name for path in (repo / "scripts").glob("test_*.py")
+        if path.name != "test_coverage_gate.py"
+    ))
+
+
+TEST_SCRIPTS = regression_scripts(REPO)
 
 
 def production_modules(repo: Path) -> list[Path]:
@@ -57,12 +59,14 @@ def code_lines(code: CodeType) -> set[int]:
 
 
 def executable_lines(path: Path) -> set[int]:
-    return code_lines(compile(path.read_text(), str(path), "exec"))
+    return code_lines(compile(path.read_text(encoding="utf-8"), str(path), "exec"))
 
 
 def run_script(path: Path) -> int:
     """Run a standalone regression script in-process and return its exit code."""
     old_argv = sys.argv[:]
+    preserved = {name: module for name, module in sys.modules.items()
+                 if name in {"watch_upstream", "check_invariants", "build_site"}}
     try:
         sys.argv = [str(path)]
         runpy.run_path(str(path), run_name="__main__")
@@ -70,6 +74,11 @@ def run_script(path: Path) -> int:
         return int(exit_status.code or 0)
     finally:
         sys.argv = old_argv
+        for name, module in preserved.items():
+            sys.modules[name] = module
+        for name in list(sys.modules):
+            if name.startswith("watch_upstream") and name not in preserved:
+                sys.modules.pop(name, None)
     return 0
 
 
@@ -126,6 +135,14 @@ def main() -> int:
     print(f"Aggregate: {visited}/{total} ({percent:.1f}%), required >= {MINIMUM_PERCENT:.1f}%")
     if not meets_threshold(coverage, MINIMUM_PERCENT):
         print("coverage gate failed", file=sys.stderr)
+        return 1
+    weak = []
+    for path, (visited, total) in coverage.items():
+        percent = (visited * 100 / total) if total else 100.0
+        if total and percent < PER_FILE_PERCENT:
+            weak.append(f"{path.relative_to(REPO)} {percent:.1f}%")
+    if weak:
+        print("per-file coverage floor failed: " + "; ".join(weak), file=sys.stderr)
         return 1
     print("coverage gate passed")
     return 0

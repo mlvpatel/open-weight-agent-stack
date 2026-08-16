@@ -6,15 +6,15 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
-<title>{{PAGE_TITLE}}</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7AtnY+clMR/po0VjiQSTgKiiy+7whkDVFZzvlyUWIT8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Architecture, in C4</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
-<link rel="canonical" href="{{CANONICAL}}">
+<link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/architecture.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="{{PAGE_TITLE}}">
+<meta property="og:title" content="Architecture, in C4">
 <meta property="og:description" content="A performance-first build manual for agentic AI on open-weight models.">
-<meta property="og:url" content="{{CANONICAL}}">
-<meta property="og:image" content="{{SITE_URL}}preview.png">
+<meta property="og:url" content="https://mlvpatel.github.io/open-weight-agent-stack/architecture.html">
+<meta property="og:image" content="https://mlvpatel.github.io/open-weight-agent-stack/preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d1d1f'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%230071e3' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23f5f5f7' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230071e3'/%3E%3C/svg%3E">
 <style>
@@ -955,11 +955,11 @@
 <a class="skip" href="#main">Skip to content</a>
 <nav class="global" aria-label="Global">
   <div class="global-in">
-    <a class="wordmark" href="{{SITE_URL}}">Open-Weight Agent Stack</a>
+    <a class="wordmark" href="https://mlvpatel.github.io/open-weight-agent-stack/">Open-Weight Agent Stack</a>
     <ul class="global-links">
-      <li><a href="{{NAV_MANUAL_HREF}}"{{NAV_MANUAL_CUR}}>Manual</a></li>
-      <li><a href="{{NAV_ARCHITECTURE_HREF}}"{{NAV_ARCHITECTURE_CUR}}>Architecture</a></li>
-      <li><a href="{{NAV_MODELS_HREF}}"{{NAV_MODELS_CUR}}>Models</a></li>
+      <li><a href="index.html">Manual</a></li>
+      <li><a href="architecture.html" aria-current="page">Architecture</a></li>
+      <li><a href="models.html">Models</a></li>
       <li><a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a></li>
       <li><button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">Dark</button></li>
     </ul>
@@ -973,9 +973,9 @@
       retrieval, memory, security and operations. Latency and throughput are the ruling metrics,
       because an agent loop multiplies every millisecond it spends.</p>
     <dl class="stats">
-      <div class="stat"><dt>Sections</dt><dd>{{SECTIONS}}<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>{{DIAGRAMS}}<span>standard Mermaid</span></dd></div>
-      <div class="stat"><dt>Sources</dt><dd>{{UNIQUE_LINKS}}<span>primary, CI-checked</span></dd></div>
+      <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
+      <div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div>
+      <div class="stat"><dt>Sources</dt><dd>165<span>primary, CI-checked</span></dd></div>
     </dl>
     <p class="hero-cta">
       <a class="btn btn-primary" href="#main">Read the manual</a>
@@ -1037,10 +1037,197 @@
       <span class="visually-hidden">Search this page</span>
       <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
     </label>
-    <ul>{{TOC}}</ul>
+    <ul><li><a href="#level-1-system-context">Level 1: system context</a></li><li><a href="#level-2-containers">Level 2: containers</a></li><li><a href="#level-3-components">Level 3: components</a></li><li><a href="#level-4-code">Level 4: code</a></li></ul>
   </nav>
   <main id="main">
-{{BODY}}
+<p>This document explains the open-weight agent stack through the four C4 levels: context, containers, components, code. Each level answers one question and stops where the next decision lives. The method itself is covered in MANUAL.md, section 4. Named models, licences, and the memory catalogue follow section 27; last verified 16 August 2026.</p>
+<section id="level-1-system-context" class="reveal">
+<div class="sec-head"><h2>Level 1: system context</h2></div>
+<p>Who uses the system, and which external systems it touches. Everything inside the box is yours to build and operate; everything outside is integrated, never owned.</p>
+<figure class="plate" data-studio="dark" aria-label="Fig. 01. System context"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
+flowchart TB
+    U["User&lt;br/&gt;asks questions, delegates tasks"] --&gt; STACK
+    OP["Operator&lt;br/&gt;deploys, observes, rolls back"] --&gt; STACK
+    subgraph STACK["Open-weight agent stack · this system"]
+        CORE["Gateway · orchestrator · retrieval · model serving&lt;br/&gt;memory · guardrails · observability"]
+    end
+    STACK --&gt; IDP["Identity provider&lt;br/&gt;OIDC / SSO · issues scoped tokens"]
+    STACK --&gt; API["Frontier model APIs&lt;br/&gt;optional escalation tier"]
+    STACK --&gt; SOR["Systems of record&lt;br/&gt;ERP · CRM · production databases"]
+    STACK --&gt; EXT["External tools and the web&lt;br/&gt;reached through MCP servers"]</pre></div><figcaption><span class="fno">Fig. 01</span> System context</figcaption></figure>
+<p>Two boundaries matter at this level. Identity enters from outside: the stack consumes tokens, it never stores credentials (section 18). And systems of record stay outside: the agent reads through scoped connectors and writes through gated tools, which keeps what was never inside out of reach of injected instructions (section 11).</p>
+</section>
+<section id="level-2-containers" class="reveal">
+<div class="sec-head"><h2>Level 2: containers</h2></div>
+<p>The deployable units and what runs between them. This is the manual&#x27;s master architecture figure (section 5); the same diagram ships as <a href="https://github.com/mlvpatel/open-weight-agent-stack/blob/main/diagrams/src/master-architecture.mmd"><code>diagrams/src/master-architecture.mmd</code></a>.</p>
+<figure class="plate" data-studio="light" aria-label="Fig. 02. Containers"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
+flowchart TB
+    subgraph L1["1 · Clients"]
+        direction LR
+        C1["Web browser"]
+        C2["Mobile / PWA"]
+        C3["CLI and SDK"]
+        C4["Automation&lt;br/&gt;cron · webhooks · CI"]
+    end
+
+    subgraph L2["2 · Frontend and Edge"]
+        direction LR
+        F1["Next.js App Router&lt;br/&gt;streaming chat UI · SSE"]
+        F2["Streamlit / Gradio&lt;br/&gt;internal tools · demos"]
+    end
+
+    GW["Gateway&lt;br/&gt;authn · rate limit · quota"]
+    GI["10a · Input guard&lt;br/&gt;PII redaction · injection scan"]
+
+    subgraph L3["3 · Agent Orchestrator · LangGraph or CrewAI"]
+        direction TB
+        PLAN["Planner&lt;br/&gt;decompose · pick strategy"]
+        K4{"4 · Need external&lt;br/&gt;knowledge?"}
+        ROUTE{"Router&lt;br/&gt;tool · code · generate"}
+        STATE["Observe and update state&lt;br/&gt;checkpointed"]
+        CRITIC["Critic and reflection&lt;br/&gt;verify · repair · escalate"]
+    end
+
+    subgraph L5["5 · RAG Pipeline"]
+        direction TB
+        R1["Ingest and chunk&lt;br/&gt;Docling"]
+        R2["Embed&lt;br/&gt;BGE-M3"]
+        R3["Hybrid search&lt;br/&gt;dense plus BM25"]
+        R4["Rerank&lt;br/&gt;BGE-Reranker-v2-m3"]
+        R5["Assemble context&lt;br/&gt;dedupe · budget · cite"]
+    end
+
+    subgraph L7["7 · Tool Use via MCP"]
+        direction TB
+        T0["MCP client"]
+        T1["GitHub · Slack · web search"]
+        T2["Databases · filesystem"]
+    end
+
+    subgraph L8["8 · Code Agent"]
+        direction TB
+        A0["Cline · Kilo Code · OpenHands&lt;br/&gt;Claude Code · Goose · Cursor"]
+        A1["Sandbox&lt;br/&gt;container · no host mounts"]
+    end
+
+    subgraph L6["6 · LLM Layer"]
+        direction TB
+        M0["LLM gateway&lt;br/&gt;self-host serving or API endpoint"]
+        M1["Fast decode MoE · GLM-4.5-Air&lt;br/&gt;needs ~55 GB at 4-bit, not a 16 GB card"]
+        M1b["Small dense · Qwen 3.5 9B&lt;br/&gt;self-hosted on 16-24 GB · structured output"]
+        M2["General · Kimi K3&lt;br/&gt;API, too large to self-host"]
+        M3["Specialist · DeepSeek V4 Pro · GLM-5.2&lt;br/&gt;code and terminal"]
+    end
+
+    GO["10b · Output guard&lt;br/&gt;schema · toxicity · citations"]
+
+    subgraph L9["9 · Memory, Data and Cache"]
+        direction LR
+        D1["Working state&lt;br/&gt;LangGraph store"]
+        D2["Semantic cache&lt;br/&gt;Redis · keyed by query PLUS scope"]
+        D3["Long-term memory&lt;br/&gt;vectors plus SQL"]
+        D4B["Analytics&lt;br/&gt;DuckDB · Supabase"]
+    end
+
+    subgraph L11["11 · Observability and Evals"]
+        direction LR
+        O1["OpenTelemetry traces&lt;br/&gt;PII stripped at the sink"]
+        O2["Phoenix / Langfuse&lt;br/&gt;cost · latency · quality"]
+        EV["Offline evals&lt;br/&gt;Ragas · Promptfoo"]
+    end
+
+    C1 --&gt; F1
+    C2 --&gt; F1
+    C3 --&gt; GW
+    C4 --&gt; GW
+    F1 --&gt; GW
+    F2 --&gt; GW
+    GW --&gt; GI
+    GI --&gt; PLAN
+
+    PLAN --&gt; K4
+    K4 --&gt;|Yes| R1
+    K4 --&gt;|No| ROUTE
+    R1 --&gt; R2 --&gt; R3 --&gt; R4 --&gt; R5
+    R5 --&gt;|context| ROUTE
+
+    ROUTE --&gt;|tool call| T0
+    ROUTE --&gt;|code task| A0
+    ROUTE --&gt;|generate| M0
+
+    T0 --&gt; T1
+    T0 --&gt; T2
+    A0 --&gt; A1
+    M0 --&gt; M1
+    M0 --&gt; M1b
+    M0 --&gt; M2
+    M0 --&gt; M3
+
+    T0 --&gt; STATE
+    A1 --&gt; STATE
+    M0 --&gt;|completion| CRITIC
+    STATE --&gt;|next step| PLAN
+    CRITIC --&gt;|fails| PLAN
+    CRITIC --&gt;|passes| GO
+    GO --&gt; RESP["Response with citations&lt;br/&gt;streamed back to the client"]
+
+    STATE &lt;-.-&gt; D1
+    ROUTE &lt;-.-&gt;|check before spending tokens| D2
+    PLAN -.-&gt;|redacted traces| O1
+    RESP -.-&gt;|redacted traces and feedback| O1
+    O1 --&gt; O2
+    O2 -.-&gt;|new cases| EV
+    EV -.-&gt;|prompt, model and index changes| PLAN
+
+    classDef client fill:#e8f0fe,stroke:#0071e3,color:#1d1d1f
+    classDef fe fill:#ffeeda,stroke:#bf4800,color:#5c2e00
+    classDef orch fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef rag fill:#dff3e6,stroke:#248a3d,color:#0f3d23
+    classDef llm fill:#ffe4e2,stroke:#e30000,color:#8f0000
+    classDef tool fill:#e8f0fe,stroke:#0071e3,color:#003a70
+    classDef mem fill:#efe3f9,stroke:#8944ab,color:#3f2c52
+    classDef guard fill:#ffeeda,stroke:#d97706,color:#78350f
+    classDef obs fill:#fbfbfd,stroke:#6e6e73,color:#1d1d1f
+    classDef decision fill:#fff3c2,stroke:#997404,color:#5c2e00
+
+    class C1,C2,C3,C4 client
+    class F1,F2,GW,RESP fe
+    class PLAN,STATE,CRITIC orch
+    class K4,ROUTE decision
+    class R1,R2,R3,R4,R5 rag
+    class M0,M1,M2,M3 llm
+    class T0,T1,T2,A0,A1 tool
+    class D1,D2,D3,D4B mem
+    class GI,GO guard
+    class O1,O2,EV obs</pre></div><figcaption><span class="fno">Fig. 02</span> Containers</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th scope="col">Container</th><th scope="col">Job</th><th scope="col">Options, ranked in the manual</th></tr></thead><tbody><tr><th scope="row">Frontend and edge</th><td>Capture input, stream output</td><td>Next.js · SvelteKit · Streamlit · Gradio · Chainlit · Open WebUI</td></tr><tr><th scope="row">Gateway</th><td>Auth, rate limits, quotas, input guards</td><td>Your framework of choice; the contract matters, not the brand</td></tr><tr><th scope="row">Orchestrator</th><td>Plans, routes, loops, checkpoints</td><td>LangGraph · CrewAI · LlamaIndex Workflows · Pydantic AI · AutoGen</td></tr><tr><th scope="row">RAG pipeline</th><td>Ground answers in your corpus</td><td>Docling · BGE-M3 · Qdrant / pgvector · reranker</td></tr><tr><th scope="row">Model serving</th><td>Tokens per second</td><td>SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX</td></tr><tr><th scope="row">Tool layer</th><td>Reach external systems safely</td><td>MCP servers · OpenAPI tools · sandboxed execution</td></tr><tr><th scope="row">Memory and cache</th><td>State and speed</td><td>LangGraph store · Redis · Hermes Agent (bounded runtime-managed context and external providers) · Claude-Mem (hook-based developer-session capture) · MemPalace (local-first verbatim structured retrieval) · GBrain (structured/provenance-aware institutional memory) · MemSearch (Markdown source of truth plus hybrid/Milvus derived index) · Mem0 (managed or self-hosted extracted-memory lifecycle) · Postgres</td></tr><tr><th scope="row">Guardrails and evals</th><td>Quality and safety, inline and offline</td><td>Outlines · Guardrails AI · Llama Guard · Ragas · Promptfoo</td></tr><tr><th scope="row">Observability</th><td>Trace and measure everything</td><td>Langfuse · Phoenix · OpenTelemetry · Prometheus · Grafana</td></tr></tbody></table></div>
+</section>
+<section id="level-3-components" class="reveal">
+<div class="sec-head"><h2>Level 3: components</h2></div>
+<p>Inside the orchestrator, the container where agent behaviour lives. Derived from the control-loop and trust-boundary figures (section 7, section 11).</p>
+<figure class="plate" data-studio="dark" aria-label="Fig. 03. Components"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
+flowchart TB
+    IN["Sanitised request&lt;br/&gt;from the gateway"] --&gt; PL
+    subgraph ORCH["Orchestrator · components"]
+        PL["Planner&lt;br/&gt;decomposes the goal, picks a strategy"] --&gt; BE["Budget enforcer&lt;br/&gt;steps · tokens · time · rework cycles"]
+        BE --&gt; RG["Retrieval client&lt;br/&gt;scope-filtered queries only"]
+        BE --&gt; TD["Tool dispatcher&lt;br/&gt;schema-validated args, idempotency keys"]
+        RG --&gt; OA["Observation assembler&lt;br/&gt;labels every result untrusted"]
+        TD --&gt; OA
+        OA --&gt; CR["Critic&lt;br/&gt;verify, repair once, or escalate"]
+        CR --&gt;|pass| RB["Response builder&lt;br/&gt;output schema plus citations"]
+        CR --&gt;|rework| PL
+        OA --&gt; MG["Memory write-gate&lt;br/&gt;provenance check before anything persists"]
+        ST[("State store&lt;br/&gt;checkpointed steps, resumable")] --- PL
+    end
+    RB --&gt; OUT["Output guards, then streaming&lt;br/&gt;back to the client"]</pre></div><figcaption><span class="fno">Fig. 03</span> Components</figcaption></figure>
+<p>The two components teams most often skip are the budget enforcer and the memory write-gate. The first turns an infinite loop into a bounded one; the second is the control for memory poisoning (section 12, section 19).</p>
+</section>
+<section id="level-4-code" class="reveal">
+<div class="sec-head"><h2>Level 4: code</h2></div>
+<p>C4 leaves level 4 to the repository, and so does this repo. The mapping from container to reading material:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Container</th><th scope="col">Manual sections</th><th scope="col">Diagram source</th></tr></thead><tbody><tr><th scope="row">Whole system</th><td>5, 6</td><td><code>master-architecture.mmd</code> · <code>request-lifecycle.mmd</code></td></tr><tr><th scope="row">Orchestrator</th><td>7, 9, 10</td><td><code>agent-control-loop.mmd</code> · <code>model-routing.mmd</code> · <code>prompt-contract.mmd</code></td></tr><tr><th scope="row">RAG pipeline</th><td>8, 15</td><td><code>rag-pipeline.mmd</code> · <code>data-lifecycle.mmd</code></td></tr><tr><th scope="row">Model serving</th><td>2, 14, 20</td><td><code>hardware-paths.mmd</code> · <code>deployment-topology.mmd</code> · <code>latency-budget.mmd</code></td></tr><tr><th scope="row">Tools and trust</th><td>11</td><td><code>trust-boundaries.mmd</code></td></tr><tr><th scope="row">Memory</th><td>12, 16</td><td><code>memory-tiers.mmd</code></td></tr><tr><th scope="row">Guards and evals</th><td>13</td><td><code>guardrails-evals.mmd</code></td></tr><tr><th scope="row">Operations</th><td>17, 25, 26</td><td><code>serving-budgets.mmd</code></td></tr><tr><th scope="row">Identity and security</th><td>18, 19</td><td><code>identity-delegation.mmd</code> · <code>threat-write-paths.mmd</code></td></tr><tr><th scope="row">Technology choices</th><td>21, 23</td><td><code>technology-catalogue.mmd</code> · <code>platform-sdk.mmd</code></td></tr></tbody></table></div>
+</section>
   </main>
 </div>
 
@@ -1048,9 +1235,9 @@
   <div class="foot-in">
     Generated from MANUAL.md. Every diagram is standard Mermaid.
     <div class="foot-links">
-      <a href="{{NAV_MANUAL_HREF}}">Manual</a>
-      <a href="{{NAV_ARCHITECTURE_HREF}}">Architecture</a>
-      <a href="{{NAV_MODELS_HREF}}">Models</a>
+      <a href="index.html">Manual</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="models.html">Models</a>
       <a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a>
     </div>
   </div>

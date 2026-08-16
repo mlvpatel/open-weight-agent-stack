@@ -1,4 +1,4 @@
-# Layer 4: Knowledge decision
+# L4: Knowledge decision
 
 > Retrieve, or answer directly. The cheapest routing decision in the stack. Ring: context. Manual: [section 8](../../MANUAL.md#8-rag-pipeline-internals), [section 9](../../MANUAL.md#9-model-routing).
 

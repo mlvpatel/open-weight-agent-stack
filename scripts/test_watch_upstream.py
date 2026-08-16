@@ -66,7 +66,7 @@ def drive(sequence: list[dict], tmp: Path) -> list[tuple[int, dict, str]]:
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 code = w.main()
-            state = json.loads(w.STATE_PATH.read_text())
+            state = json.loads(w.STATE_PATH.read_text(encoding="utf-8"))
             results.append((code, state, out.getvalue()))
     finally:
         os.chdir(cwd)
@@ -99,7 +99,7 @@ def drive_dependencies(sequence: list[str | None], tmp: Path) -> list[tuple[int,
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 code = w.main()
-            results.append((code, json.loads(w.STATE_PATH.read_text()), out.getvalue()))
+            results.append((code, json.loads(w.STATE_PATH.read_text(encoding="utf-8")), out.getvalue()))
     finally:
         os.chdir(cwd)
         w.STATE_PATH = original_state_path
@@ -257,6 +257,20 @@ def test_transient_failure_without_baseline_and_recovery() -> None:
         check("recovery reports the persistent change", "confirmed change" in runs[-1][2])
 
 
+def test_heartbeat_and_parameter_enrichment() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        runs = drive([available("mit")], Path(d))
+        check("state records last_run", "last_run" in runs[0][1] and "T" in runs[0][1]["last_run"])
+    first = available("mit")
+    second = available("mit")
+    second["metadata"] = dict(second["metadata"], parameters=27_781_400_000)
+    with tempfile.TemporaryDirectory() as d:
+        runs = drive([first, second], Path(d))
+        check("new parameter key is enrichment, not drift", runs[-1][0] == 0)
+        check("enriched observation stores the new key",
+              runs[-1][1]["observed"]["test/model"].get("parameters") == 27_781_400_000)
+
+
 def main() -> int:
     print("watch_upstream freshness contract:")
     test_source_coverage_contract()
@@ -268,6 +282,7 @@ def main() -> int:
     test_definitive_removal_debounces()
     test_transient_failure_preserves_baseline()
     test_transient_failure_without_baseline_and_recovery()
+    test_heartbeat_and_parameter_enrichment()
     if FAILURES:
         print(f"\n{len(FAILURES)} test(s) failed", file=sys.stderr)
         return 1

@@ -1,10 +1,10 @@
 # Contributing
 
-This manual holds one line: every factual claim traces to a primary source.
+This manual holds one line: every factual claim in `MANUAL.md` traces to a primary source. Issues are open; use the Correction template.
 
 ## Corrections (most valuable)
 
-Open an issue with the correction template, or a PR that edits `MANUAL.md`. A correction needs:
+Open an issue with the [correction template](.github/ISSUE_TEMPLATE/correction.md), or a PR that edits `MANUAL.md`. A correction needs:
 
 1. The current text, quoted exactly.
 2. The corrected text.

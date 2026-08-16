@@ -15,12 +15,12 @@ RELEASE_DATE = "2026-08-11"
 
 class ReleaseMetadataTests(unittest.TestCase):
     def test_all_release_metadata_describes_the_same_local_candidate(self) -> None:
-        package = json.loads((REPO / "package.json").read_text())
-        lockfile = json.loads((REPO / "package-lock.json").read_text())
-        sbom = json.loads((REPO / "sbom.cdx.json").read_text())
-        citation = (REPO / "CITATION.cff").read_text()
-        changelog = (REPO / "CHANGELOG.md").read_text()
-        readme = (REPO / "README.md").read_text()
+        package = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
+        lockfile = json.loads((REPO / "package-lock.json").read_text(encoding="utf-8"))
+        sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))
+        citation = (REPO / "CITATION.cff").read_text(encoding="utf-8")
+        changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
 
         self.assertEqual(package["version"], VERSION)
         self.assertEqual(lockfile["version"], VERSION)

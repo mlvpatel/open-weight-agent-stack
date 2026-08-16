@@ -6,15 +6,15 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
-<title>{{PAGE_TITLE}}</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7AtnY+clMR/po0VjiQSTgKiiy+7whkDVFZzvlyUWIT8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Open-weight model families and their licences</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
-<link rel="canonical" href="{{CANONICAL}}">
+<link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/models.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="{{PAGE_TITLE}}">
+<meta property="og:title" content="Open-weight model families and their licences">
 <meta property="og:description" content="A performance-first build manual for agentic AI on open-weight models.">
-<meta property="og:url" content="{{CANONICAL}}">
-<meta property="og:image" content="{{SITE_URL}}preview.png">
+<meta property="og:url" content="https://mlvpatel.github.io/open-weight-agent-stack/models.html">
+<meta property="og:image" content="https://mlvpatel.github.io/open-weight-agent-stack/preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d1d1f'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%230071e3' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23f5f5f7' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230071e3'/%3E%3C/svg%3E">
 <style>
@@ -955,11 +955,11 @@
 <a class="skip" href="#main">Skip to content</a>
 <nav class="global" aria-label="Global">
   <div class="global-in">
-    <a class="wordmark" href="{{SITE_URL}}">Open-Weight Agent Stack</a>
+    <a class="wordmark" href="https://mlvpatel.github.io/open-weight-agent-stack/">Open-Weight Agent Stack</a>
     <ul class="global-links">
-      <li><a href="{{NAV_MANUAL_HREF}}"{{NAV_MANUAL_CUR}}>Manual</a></li>
-      <li><a href="{{NAV_ARCHITECTURE_HREF}}"{{NAV_ARCHITECTURE_CUR}}>Architecture</a></li>
-      <li><a href="{{NAV_MODELS_HREF}}"{{NAV_MODELS_CUR}}>Models</a></li>
+      <li><a href="index.html">Manual</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="models.html" aria-current="page">Models</a></li>
       <li><a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a></li>
       <li><button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">Dark</button></li>
     </ul>
@@ -973,9 +973,9 @@
       retrieval, memory, security and operations. Latency and throughput are the ruling metrics,
       because an agent loop multiplies every millisecond it spends.</p>
     <dl class="stats">
-      <div class="stat"><dt>Sections</dt><dd>{{SECTIONS}}<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>{{DIAGRAMS}}<span>standard Mermaid</span></dd></div>
-      <div class="stat"><dt>Sources</dt><dd>{{UNIQUE_LINKS}}<span>primary, CI-checked</span></dd></div>
+      <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
+      <div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div>
+      <div class="stat"><dt>Sources</dt><dd>165<span>primary, CI-checked</span></dd></div>
     </dl>
     <p class="hero-cta">
       <a class="btn btn-primary" href="#main">Read the manual</a>
@@ -1037,10 +1037,49 @@
       <span class="visually-hidden">Search this page</span>
       <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
     </label>
-    <ul>{{TOC}}</ul>
+    <ul><li><a href="#read-this-first">Read this first</a></li><li><a href="#linked-examples-with-the-same-stated-licence">Linked examples with the same stated licence</a></li><li><a href="#split-by-model">Split by model</a></li><li><a href="#using-this-page">Using this page</a></li></ul>
   </nav>
   <main id="main">
-{{BODY}}
+<p>The families this stack draws from. <strong>Licences are stated per model, never per family</strong>, because most families are not internally consistent: the same organisation ships Apache-2.0, custom, and non-commercial terms side by side. A family-level claim would be legal guidance by implication, and wrong.</p>
+<p>Every licence below is linked to a model card or vendor licence document where practical. The linked primary source wins over this page; check the exact checkpoint before you commit.</p>
+<p><strong>Last verified:</strong> 16 August 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of <code>other</code> means the card ships a named custom licence, not an OSI-approved SPDX id.</p>
+<section id="read-this-first" class="reveal">
+<div class="sec-head"><h2>Read this first</h2></div>
+<p>Three traps that have caught people, all verified against primary sources:</p>
+<ul><li><strong>A permissive family name does not mean a permissive model.</strong> MiniMax ships Apache-2.0, modified-MIT, and non-commercial models under one brand.</li><li><strong>A quantised republish does not reliably inherit the original licence.</strong> NVIDIA&#x27;s NVFP4 checkpoints carry a mix of Apache-2.0, MIT, and NVIDIA-specific terms. Two checkpoints of the <em>same</em> base model can differ.</li><li><strong>Announced is not published.</strong> A model with benchmark scores in the press may have no downloadable weights at all.</li></ul>
+</section>
+<section id="linked-examples-with-the-same-stated-licence" class="reveal">
+<div class="sec-head"><h2>Linked examples with the same stated licence</h2></div>
+<p>These are specific checkpoints, not a licence promise for every model published by the organisation.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model or family</th><th scope="col">Organisation</th><th scope="col">Licence</th><th scope="col">Link</th></tr></thead><tbody><tr><th scope="row">DeepSeek V4 Pro, V4 Flash</th><td>DeepSeek</td><td>MIT</td><td><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro">V4 Pro</a> · <a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash">V4 Flash</a></td></tr><tr><th scope="row">GLM-5.2, GLM-4.5-Air</th><td>Z.ai</td><td>MIT</td><td><a href="https://huggingface.co/zai-org/GLM-5.2">GLM-5.2</a> · <a href="https://huggingface.co/zai-org/GLM-4.5-Air">GLM-4.5-Air</a></td></tr><tr><th scope="row">gpt-oss-120b, gpt-oss-20b</th><td>OpenAI</td><td>Apache-2.0</td><td><a href="https://huggingface.co/openai/gpt-oss-120b">gpt-oss-120b</a> · <a href="https://huggingface.co/openai/gpt-oss-20b">gpt-oss-20b</a></td></tr><tr><th scope="row">OLMo 3</th><td>Allen Institute</td><td>Apache-2.0 (weights, data and code)</td><td><a href="https://huggingface.co/allenai/Olmo-3-1025-7B">OLMo 3 7B</a></td></tr><tr><th scope="row">Granite 4.1</th><td>IBM</td><td>Apache-2.0</td><td><a href="https://huggingface.co/ibm-granite/granite-4.1-30b">Granite 4.1 30B</a></td></tr><tr><th scope="row">Ling 3.0</th><td>Ant Group</td><td>MIT</td><td><a href="https://huggingface.co/inclusionAI/Ling-3.0-flash">Ling 3.0 Flash</a></td></tr><tr><th scope="row">Hunyuan Hy3</th><td>Tencent</td><td>Apache-2.0</td><td><a href="https://huggingface.co/tencent/Hy3">Hy3</a></td></tr><tr><th scope="row">Phi-4, Phi-4-mini</th><td>Microsoft</td><td>MIT</td><td><a href="https://huggingface.co/microsoft/phi-4">Phi-4</a> · <a href="https://huggingface.co/microsoft/Phi-4-mini-instruct">Phi-4-mini</a></td></tr><tr><th scope="row">KAT-Coder V2.5</th><td>Kwaipilot</td><td>Apache-2.0</td><td><a href="https://huggingface.co/Kwaipilot/KAT-Coder-V2.5-Dev">KAT-Coder V2.5 Dev</a></td></tr><tr><th scope="row">Kokoro-82M</th><td>hexgrad</td><td>Apache-2.0</td><td><a href="https://huggingface.co/hexgrad/Kokoro-82M">hexgrad</a></td></tr><tr><th scope="row">Laguna S 2.1</th><td>poolside</td><td>OpenMDW 1.1</td><td><a href="https://huggingface.co/poolside/Laguna-S-2.1">Laguna-S-2.1</a></td></tr><tr><th scope="row">LFM2.5</th><td>Liquid AI</td><td>LFM Open License v1.0 (card tag <code>other</code>, <code>license_name</code> lfm1.0)</td><td><a href="https://huggingface.co/LiquidAI/LFM2.5-2.6B">LFM2.5-2.6B</a></td></tr><tr><th scope="row">Kimi K3</th><td>Moonshot AI</td><td>Kimi K3 License (custom; card tag <code>other</code>, <code>license_name</code> kimi-k3)</td><td><a href="https://huggingface.co/moonshotai/Kimi-K3">Kimi-K3</a></td></tr></tbody></table></div>
+</section>
+<section id="split-by-model" class="reveal">
+<div class="sec-head"><h2>Split by model</h2></div>
+<p>These families ship different terms to different models. Use the specific row.</p>
+<h3 id="qwen">Qwen</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Qwen3.8-27B</th><td>Apache-2.0</td><td>Downloadable dense 27B with a vision encoder, published 14 August 2026. <a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a></td></tr><tr><th scope="row">Qwen3.6-27B, Qwen3.5-9B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3.6-27B">Qwen3.6-27B</a> · <a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a></td></tr><tr><th scope="row">Qwen3-Coder-Next</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Coder-Next">Model card</a></td></tr><tr><th scope="row">Qwen3-Embedding-8B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Embedding-8B">Model card</a></td></tr><tr><th scope="row">Qwen 2 and 2.5, most sizes</th><td>Apache-2.0</td><td>Includes <a href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct">Qwen2.5-7B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-14B-Instruct">14B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">32B</a> and <a href="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct">Coder-32B</a></td></tr><tr><th scope="row">Qwen 2.5-72B, 2.5-3B, Qwen 1.5</th><td>Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged <code>other</code>)</td><td>Size decides here, not generation; see each card&#x27;s licence tag</td></tr><tr><th scope="row">Qwen 3.8 Max</th><td><strong>No published weights</strong></td><td>Announced with benchmark figures; no downloadable checkpoint under the Qwen organisation. Treat as an API model, not an open-weight one. Third-party uploads claiming to be it are not authoritative</td></tr></tbody></table></div>
+<h3 id="gemma">Gemma</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Gemma 4 core series (E2B, E4B, 12B, 26B-A4B, 31B)</th><td>Apache-2.0</td><td>The generation that moved</td></tr><tr><th scope="row">Gemma 3, 3n, 2 and earlier</th><td>Gemma Terms of Use (custom, not OSI-approved)</td><td></td></tr><tr><th scope="row">translategemma</th><td>Gemma Terms of Use</td><td>Released 2026 and still <strong>not</strong> Apache-2.0</td></tr><tr><th scope="row">medgemma</th><td>Health AI Developer Foundations terms</td><td></td></tr><tr><th scope="row">gemma-scope</th><td>CC-BY-4.0</td><td></td></tr></tbody></table></div>
+<p>Scope any &quot;Gemma is Apache-2.0 now&quot; claim to the core numbered Gemma 4 series. The sibling variants did not move.</p>
+<h3 id="mistral">Mistral</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Mistral-Large-3-675B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/mistralai/Mistral-Large-3-675B-Instruct-2512">Model card</a></td></tr><tr><th scope="row">Mistral-Small-4-119B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/mistralai/Mistral-Small-4-119B-2603">Model card</a></td></tr><tr><th scope="row">Devstral-Small-2-24B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512">Model card</a></td></tr><tr><th scope="row">Mistral-Medium-3.5, Devstral-2-123B</th><td>Modified MIT with a monthly-revenue cap</td><td>A commercial-eligibility threshold, not a research restriction</td></tr><tr><th scope="row">2024-era Large, Small, Pixtral, Ministral</th><td>Mistral Research License</td><td>Genuinely research-only</td></tr><tr><th scope="row">Codestral-22B</th><td>Mistral Non-Production License</td><td></td></tr><tr><th scope="row">Voxtral TTS</th><td>CC-BY-NC-4.0</td><td>Non-commercial</td></tr></tbody></table></div>
+<h3 id="falcon">Falcon</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th></tr></thead><tbody><tr><th scope="row">Falcon3 series, Falcon-H1, Falcon-E</th><td>Falcon LLM License</td></tr><tr><th scope="row">falcon-mamba-7b</th><td>A separate Falcon Mamba licence document</td></tr><tr><th scope="row">Falcon-OCR</th><td>Apache-2.0</td></tr><tr><th scope="row">falcon-7b, falcon-40b</th><td>Apache-2.0</td></tr></tbody></table></div>
+<h3 id="minimax">MiniMax</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">MiniMax-M2.7</th><td><strong>Non-commercial.</strong> Commercial use requires prior written authorisation</td><td>The restriction lives in the repository licence file, not the card&#x27;s tag. Do not plan a product around this model without contacting them</td></tr><tr><th scope="row">MiniMax-M2.5, M2.1</th><td>MiniMax Model License (modified MIT)</td><td></td></tr><tr><th scope="row">MiniMax-M3</th><td>MiniMax Community License</td><td></td></tr><tr><th scope="row">MiniMax-M1</th><td>Apache-2.0</td><td></td></tr></tbody></table></div>
+<h3 id="llama">Llama</h3>
+<p>Licensed per generation, each with its own agreement: Llama 4 Community License, Llama 3.3, 3.2, 3.1, 3, and 2 each differ. <strong>None is OSI-approved.</strong> See <a href="https://huggingface.co/meta-llama">meta-llama</a> and the licence file shipped with the specific model.</p>
+<h3 id="bge-embeddings-and-rerankers">BGE embeddings and rerankers</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th></tr></thead><tbody><tr><th scope="row">bge-m3, bge-base, bge-large</th><td>MIT</td></tr><tr><th scope="row">bge-reranker-v2-m3, v2-gemma, v2-minicpm-layerwise</th><td>Apache-2.0</td></tr><tr><th scope="row">bge-reranker-v2.5-gemma2-lightweight</th><td>Gemma Terms of Use, not OSI-approved</td></tr></tbody></table></div>
+<p>The reranker this manual recommends (<code>bge-reranker-v2-m3</code>) is Apache-2.0, not MIT. One reranker in the family inherits Gemma&#x27;s custom terms.</p>
+<h3 id="nvidia-quantised-checkpoints">NVIDIA quantised checkpoints</h3>
+<p>NVFP4 republishes do <strong>not</strong> reliably inherit the base model&#x27;s licence. Across the NVFP4 collection the tags split roughly into Apache-2.0, MIT, and NVIDIA-specific terms, and two checkpoints of the same base model can carry different tags. Some are evaluation-only.</p>
+<p>Check the individual checkpoint every time: <a href="https://huggingface.co/nvidia">nvidia</a>.</p>
+</section>
+<section id="using-this-page" class="reveal">
+<div class="sec-head"><h2>Using this page</h2></div>
+<p>Which model for which task: MANUAL.md section 22. What your hardware can hold: section 2. Every specific claim&#x27;s source: section 27. What automated checks do and do not prove: <a href="https://github.com/mlvpatel/open-weight-agent-stack/blob/main/docs/VERIFICATION.md">VERIFICATION.md</a>.</p>
+</section>
   </main>
 </div>
 
@@ -1048,9 +1087,9 @@
   <div class="foot-in">
     Generated from MANUAL.md. Every diagram is standard Mermaid.
     <div class="foot-links">
-      <a href="{{NAV_MANUAL_HREF}}">Manual</a>
-      <a href="{{NAV_ARCHITECTURE_HREF}}">Architecture</a>
-      <a href="{{NAV_MODELS_HREF}}">Models</a>
+      <a href="index.html">Manual</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="models.html">Models</a>
       <a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a>
     </div>
   </div>

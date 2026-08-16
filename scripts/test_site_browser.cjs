@@ -206,6 +206,24 @@ async function run() {
     ];
     if (failures.length) throw new Error(failures.join("\n"));
     console.log(`browser normal-path passed: all ${EXPECTED_DIAGRAMS} Mermaid diagrams rendered with deploy-safe links and no failed requests`);
+
+    for (const companion of ["architecture.html", "models.html"]) {
+      await page.goto(`${baseUrl}${companion}`, { waitUntil: "networkidle0" });
+      const companionResult = await page.evaluate(() => ({
+        csp: Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]')),
+        title: document.title,
+        unsafeLinks: Array.from(document.querySelectorAll("a[href]"))
+          .map((anchor) => anchor.getAttribute("href"))
+          .filter((href) => href && (href.startsWith("docs/") || href.startsWith("/") || href.startsWith("../"))),
+      }));
+      const companionFailures = [
+        ...(companionResult.csp ? [] : [`${companion} is missing its meta CSP`]),
+        ...(companionResult.title ? [] : [`${companion} has an empty title`]),
+        ...(companionResult.unsafeLinks.length ? [`${companion} deploy-unsafe links: ${companionResult.unsafeLinks.join(", ")}`] : []),
+      ];
+      if (companionFailures.length) throw new Error(companionFailures.join("\n"));
+    }
+    console.log("browser companion-path passed: architecture.html and models.html are deploy-safe");
   } finally {
     if (browser) await browser.close();
     await closeServer(server);

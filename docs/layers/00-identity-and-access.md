@@ -1,4 +1,4 @@
-# Layer 0: Identity and access
+# L0: Identity and access
 
 > Who is acting, on whose behalf, with how much authority. Ring: harness. Manual: [section 18](../../MANUAL.md#18-identity-delegation-and-authority), [section 19](../../MANUAL.md#19-threat-model).
 

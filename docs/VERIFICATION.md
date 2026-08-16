@@ -10,7 +10,7 @@ Three levels appear throughout the manual, and the distinction is deliberate.
 |---|---|---|
 | A plain number or claim | Sourced or derivable. A link in [section 27](../MANUAL.md#27-sources-and-verification) supports it, or the arithmetic that produces it is shown | A 32B model needs 16 to 18 GB at 4-bit |
 | `reported` | Attributed to a named party who measured it. The manual repeats their figure and names them; it has not reproduced the measurement | SGLang reports up to 5 times higher throughput |
-| `indicative` | An engineering heuristic with no published source. Useful for planning, not a measurement, and your hardware may differ | Around 10M vectors is where pgvector stops being comfortable |
+| `indicative` | An engineering heuristic with no published source. Useful for planning, not a measurement, and your hardware may differ | pgvector is comfortable to around 10M vectors, then measure |
 
 A claim with no marker and no source is a defect. Report it.
 
@@ -44,6 +44,10 @@ Six validation jobs run on every push to `main`, on every pull request, and week
 - The GitHub repository description agrees with the repository. That description lives outside the repository, so no generator can fix it.
 - Each check reports how many items it inspected and fails when it inspected none.
 - A separate step breaks an anchor on purpose and fails if the checker still passes.
+- Last-verified dates must be parseable and younger than 45 days.
+- package.json must match the latest GitHub release tag when `gh` can see one.
+
+The claim-contract suite is a golden-string pin on wording that has drifted, not a proof that every sentence is sourced. It currently runs more than 30 pins across MANUAL.md, MODELS.md, README.md, CONTRIBUTING.md, and the layer guides. Model-card licence coverage for `automated_models` in `.github/freshness-sources.json` is mechanically complete.
 
 **`html`**
 - A deliberately malformed document is fed to the validator, and the job fails if the validator accepts it.
@@ -66,7 +70,7 @@ This is the part that matters, and the part most repositories leave unsaid.
 - **Whether an `indicative` heuristic holds on your hardware.** It is a starting point for capacity planning, not a guarantee.
 - **Whether prose in `docs/` agrees with prose in the manual.** CI now fails if a layer file is missing or the index table drifts. It still cannot prove that a layer guide's wording matches the manual. The architecture document's container diagram is compared to `diagrams/src`; its surrounding prose is not.
 - **Whether CodeQL is required in GitHub branch protection.** This repository can commit the workflow, but the hosted required-check list is a GitHub setting and must be enabled after the first `codeql` run exists.
-- **Whether branch-protection trade-offs are accepted.** As verified on 2026-08-11, the required contexts are `diagrams`, `generated`, `invariants`, `html`, and `links`; `browser` and CodeQL are pending owner action after push. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
+- **Whether branch-protection trade-offs are accepted.** As verified on 2026-08-11, the required contexts are `diagrams`, `generated`, `invariants`, `html`, and `links`; `browser` and CodeQL are pending owner action after push. `deploy.needs` already includes `browser`, so a red browser check on `main` skips Pages even when the required list is green. Add `browser` to the required contexts, or remove it from `deploy.needs`. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
 
 ## What this means for you as a reader
 

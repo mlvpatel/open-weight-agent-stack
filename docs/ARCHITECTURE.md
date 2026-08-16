@@ -1,6 +1,6 @@
 # Architecture, in C4
 
-This document explains the open-weight agent stack through the four C4 levels: context, containers, components, code. Each level answers one question and stops where the next decision lives. The method itself is covered in [MANUAL.md, section 4](../MANUAL.md#4-the-design-method-hld-lld-and-the-rules). Named models, licences, and the memory catalogue follow [section 27](../MANUAL.md#27-sources-and-verification); last verified 13 August 2026.
+This document explains the open-weight agent stack through the four C4 levels: context, containers, components, code. Each level answers one question and stops where the next decision lives. The method itself is covered in [MANUAL.md, section 4](../MANUAL.md#4-the-design-method-hld-lld-and-the-rules). Named models, licences, and the memory catalogue follow [section 27](../MANUAL.md#27-sources-and-verification); last verified 16 August 2026.
 
 ## Level 1: system context
 
@@ -78,7 +78,8 @@ flowchart TB
     subgraph L6["6 · LLM Layer"]
         direction TB
         M0["LLM gateway<br/>self-host serving or API endpoint"]
-        M1["Fast tier · GLM-4.5-Air · Qwen 3.5 9B<br/>self-hosted · structured output"]
+        M1["Fast decode MoE · GLM-4.5-Air<br/>needs ~55 GB at 4-bit, not a 16 GB card"]
+        M1b["Small dense · Qwen 3.5 9B<br/>self-hosted on 16-24 GB · structured output"]
         M2["General · Kimi K3<br/>API, too large to self-host"]
         M3["Specialist · DeepSeek V4 Pro · GLM-5.2<br/>code and terminal"]
     end
@@ -123,6 +124,7 @@ flowchart TB
     T0 --> T2
     A0 --> A1
     M0 --> M1
+    M0 --> M1b
     M0 --> M2
     M0 --> M3
 

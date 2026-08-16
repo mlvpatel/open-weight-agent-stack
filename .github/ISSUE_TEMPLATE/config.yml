@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security advisory
+    url: https://github.com/mlvpatel/open-weight-agent-stack/security/advisories/new
+    about: In-scope vulnerabilities go here, not in a public issue. See SECURITY.md.

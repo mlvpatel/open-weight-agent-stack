@@ -1,9 +1,11 @@
 flowchart TB
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
-        L1["Gateway and input guard<br/>5 to 20 ms"]
-        L2["Cache lookup<br/>2 to 10 ms · a hit ends the turn here"]
-        L3["Hybrid retrieval<br/>20 to 80 ms"]
+        L1["Gateway and regex input guard<br/>5 to 20 ms · Llama Guard is 50 to 200 ms"]
+        L2["Cache lookup<br/>2 to 10 ms after the query is embedded"]
+        L2b["Query rewrite<br/>100 to 500 ms · RAG path only"]
+        L2c["Multi-query fan-out<br/>3 to 5 searches · RAG path only"]
+        L3["Hybrid retrieval<br/>20 to 80 ms per query"]
         L4["Cross-encoder rerank<br/>30 to 150 ms · scales with candidate count"]
         L5["Prefill · time to first token<br/>150 to 900 ms · scales with context length"]
         L6["Decode<br/>output tokens ÷ throughput · the long pole"]
@@ -20,12 +22,12 @@ flowchart TB
         V4["RAISES THROUGHPUT · FP8 or AWQ<br/>frees memory for more KV cache and batch"]
     end
 
-    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+    L1 --> L2 --> L2b --> L2c --> L3 --> L4 --> L5 --> L6 --> L7
 
     classDef step fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef hot fill:#ffe4e2,stroke:#e30000,color:#8f0000
     classDef lever fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
-    class L1,L2,L3,L4,L7 step
+    class L1,L2,L2b,L2c,L3,L4,L7 step
     class L5,L6 hot
     class V1,V2,V3,V4,V5,V6 lever

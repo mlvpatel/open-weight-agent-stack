@@ -51,7 +51,7 @@ class Manual:
 
 def load(path: Path | None = None) -> Manual:
     path = path or MANUAL
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
 
     # Mask fenced code so its contents never register as headings or links.
     masked = re.sub(r"```.*?```", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S)

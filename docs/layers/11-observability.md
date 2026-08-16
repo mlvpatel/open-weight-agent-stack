@@ -1,4 +1,4 @@
-# Layer 11: Observability
+# L11: Observability
 
 > If you cannot see the turn, you cannot debug, bill, or improve it. Ring: eval. Manual: [section 17](../../MANUAL.md#17-serving-budgets-and-rollback), [section 20](../../MANUAL.md#20-latency-budget).
 

@@ -9,11 +9,13 @@ Model licences change. Parameter counts get corrected. A model announced with be
 **Exact Hugging Face checkpoints.** The auditable contract in
 [`.github/freshness-sources.json`](../.github/freshness-sources.json) lists the exact checkpoint
 links declared in MANUAL.md section 27.1 and `docs/MODELS.md`. The watcher reads the Hugging Face
-API for each **automated** entry and compares only availability, licence tag, licence name, and
-gated status. A new exact model-card link makes `python3 scripts/test_watch_upstream.py` fail
+API for each **automated** entry and compares availability, licence tag, licence name, gated
+status, and the Hub's reported parameter total when the card publishes one. Flagship coverage is
+the named section-27.1 set: a new flagship is watched once it is cited there and added to
+`automated_models`. A new exact model-card link makes `python3 scripts/test_watch_upstream.py` fail
 until it is added to `automated_models` or to `manual_only` with a narrow reason. Organisation
-pages, vendor licence files, parameter counts, benchmark numbers, prices, and non-Hugging-Face
-sources are not metadata-monitored; re-verify those facts against their linked primary source.
+pages, vendor licence files, benchmark numbers, prices, and non-Hugging-Face sources are not
+metadata-monitored; re-verify those facts against their linked primary source.
 The committed state retains prior verified metadata only for checkpoints already observed. Newly
 added checkpoints, including the corrected Devstral identifier, establish a baseline on their first
 successful API response rather than receiving invented values in the repository.
@@ -25,8 +27,12 @@ successful API response rather than receiving invented values in the repository.
 Upstream metadata flaps. A card gets edited and reverted within the hour. An API returns a partial record mid-deploy. A single observation is not evidence.
 
 A change needs a stable baseline and then must be observed on **two consecutive runs** before it is
-reported: three observations in the normal baseline/change/change sequence. The count lives in
-`.github/upstream-state.json`, pushed to a dedicated `freshness-state` branch after **every** run.
+reported: three observations in the normal baseline/change/change sequence. **Detection latency is
+therefore at least 21 days** on the weekly Tuesday schedule (baseline plus two confirming runs).
+A licence that flips the day after a run can sit unflagged for three weeks. The count lives in
+`.github/upstream-state.json`, pushed to a dedicated `freshness-state` branch after **every** run,
+including quiet weeks. The file carries a `last_run` timestamp so a stopped schedule is visible
+from any later `validate` run that can read the branch.
 That branch exists because the counter has to be written on runs where nothing was found, which is
 exactly when there is no pull request to carry it, and because `main` is protected.
 
@@ -70,7 +76,9 @@ is used only for `create-pull-request`.
 
 GitHub disables scheduled workflows in public repositories after **60 days without repository activity**. Any commit resets that clock, and the watcher's own pull requests count as activity, so an actively maintained repository is not at risk. A repository left completely untouched for two months is, and the failure is silent: the schedule simply stops.
 
-If this repository goes quiet for that long, re-enable the workflow from the Actions tab. There is no way to detect the condition from inside a workflow that is no longer running.
+If this repository goes quiet for that long, re-enable the workflow from the Actions tab. The dead
+schedule cannot report itself. The `validate` workflow, which still runs on every push, can read
+`last_run` from `freshness-state` and fail when the watcher is stale. That is the heartbeat.
 
 ## Running it by hand
 

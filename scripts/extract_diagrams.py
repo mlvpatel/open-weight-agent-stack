@@ -19,7 +19,7 @@ NAMES = ["concentric-rings", "hardware-paths", "master-architecture", "request-l
 
 def main() -> int:
     """Extract exactly the manual's diagram blocks in their documented order."""
-    markdown = (ROOT / "MANUAL.md").read_text()
+    markdown = (ROOT / "MANUAL.md").read_text(encoding="utf-8")
     blocks = re.findall(r"```mermaid\n(.*?)```", markdown, re.S)
     if len(blocks) != len(NAMES):
         print(f"expected {len(NAMES)} mermaid blocks, found {len(blocks)}: update NAMES")
@@ -30,7 +30,7 @@ def main() -> int:
     output = ROOT / "diagrams" / "src"
     output.mkdir(parents=True, exist_ok=True)
     for name, block in zip(NAMES, blocks):
-        (output / f"{name}.mmd").write_text(block)
+        (output / f"{name}.mmd").write_text(block, encoding="utf-8")
     print(f"wrote {len(blocks)} diagrams to {output}")
     return 0
 

@@ -112,14 +112,14 @@ jobs:
         run: python3 scripts/build_site.py
       - name: committed site matches regeneration
         run: |
-          if ! git diff --quiet -- site/index.html; then
-            echo "::error::site/index.html is stale. Run scripts/build_site.py and commit."
-            git diff --stat -- site/index.html
+          if ! git diff --quiet -- site/*.html; then
+            echo "::error::generated HTML is stale. Run scripts/build_site.py and commit."
+            git diff --stat -- site/*.html
             exit 1
           fi
           echo "derived site matches its source"
-      - name: generated document is valid HTML
-        run: npx --no-install html-validate site/index.html
+      - name: generated documents are valid HTML
+        run: npx --no-install html-validate site/index.html site/architecture.html site/models.html
 
   browser:
     runs-on: ubuntu-latest
