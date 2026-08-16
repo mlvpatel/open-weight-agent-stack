@@ -1,4 +1,4 @@
-# Layer 10: Guardrails and evals
+# L10: Guardrails and evals
 
 > Inline checks on every request; offline verdicts before every release. Ring: eval. Manual: [section 13](../../MANUAL.md#13-guardrails-evals-and-the-improvement-loop).
 

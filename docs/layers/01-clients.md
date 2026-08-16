@@ -1,4 +1,4 @@
-# Layer 1: Clients
+# L1: Clients
 
 > Every path a request takes into the stack. Ring: harness. Manual: [section 5](../../MANUAL.md#5-master-architecture), [section 6](../../MANUAL.md#6-request-lifecycle).
 

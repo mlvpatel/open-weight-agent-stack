@@ -1,4 +1,4 @@
-# Layer 7: Tools via MCP
+# L7: Tools via MCP
 
 > The agent's hands, behind contracts and sandboxes. Ring: harness. Manual: [section 11](../../MANUAL.md#11-trust-boundaries), [section 19](../../MANUAL.md#19-threat-model).
 

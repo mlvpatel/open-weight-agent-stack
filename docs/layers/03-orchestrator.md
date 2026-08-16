@@ -1,4 +1,4 @@
-# Layer 3: Orchestrator
+# L3: Orchestrator
 
 > Plans, routes, loops, checkpoints. The container where agent behaviour lives. Ring: loop. Manual: [section 7](../../MANUAL.md#7-agent-control-loop), [section 9](../../MANUAL.md#9-model-routing).
 

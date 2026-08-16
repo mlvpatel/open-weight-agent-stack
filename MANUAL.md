@@ -18,6 +18,8 @@ Never infer a licence from a family name: check the model card, and see
 
 ## 1. How to read this manual
 
+Ring: Eval. An inner-ring failure here is a section that never names what a Prompt-ring miss looks like.
+
 The manual is organised as five concentric rings, innermost first, a **prompt** sits inside a
 **context**, runs in a **harness**, is judged by **evals**, and is driven by a **loop**. Each ring
 wraps the one before it, and a failure in an inner ring cannot be repaired by an outer one:
@@ -82,6 +84,8 @@ Every diagram in this manual is standard Mermaid. Use GitHub's renderer or anoth
 
 ## 2. What can you actually run?
 
+Ring: Harness. An inner-ring failure here is a 16 GB card asked to host a 110B MoE.
+
 Everything after this section is the same architecture regardless of your hardware. What *changes* with hardware is which models you can serve locally, which runtime you use, and where the ceiling sits. Find your row, then read the rest normally.
 
 **A first sizing pass:** at 4-bit, weights are often about **parameters × 0.5-0.6 GB**, where the quant format decides the exact point in that band. The 7B, 32B, and 70B examples below are illustrative estimates, not capacity guarantees: a 7B can land near 4 GB, a 32B near 16-18 GB, and a 70B near 35-40 GB before runtime overhead. KV-cache memory is roughly `batch × context × layers × 2 × KV heads × head dimension × bytes per element`; it depends on architecture, KV-head count, precision, batch, and context length, so measure the exact serving configuration before buying hardware.
@@ -109,7 +113,7 @@ download the artefact that matches your stack instead of converting after the fa
 | **AMD on Windows** | **llama.cpp with Vulkan** | By VRAM | **ROCm on Windows covers only select new hardware** (Radeon AI PRO R9000, Ryzen AI Max PRO 400). Vulkan ships with every AMD driver, no CUDA emulation needed |
 | **Intel Arc / Core Ultra** | IPEX-LLM · OpenVINO · Vulkan | 7-14B at 4-bit | Improving quickly; verify your model is supported |
 | **Windows, any GPU** | LM Studio / Ollama native, or **WSL2** for the Linux stack | As per GPU row | WSL2 is how you get vLLM/SGLang on Windows |
-| **CPU only** | llama.cpp | 3-8B, indicative 3-7 tok/s | 7B Q4, batch 1, recent desktop CPU under llama.cpp. CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length |
+| **CPU only** | llama.cpp | 3-8B, `indicative` 3-7 tok/s | 7B Q4, batch 1, recent desktop CPU under llama.cpp. CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length |
 | **NVIDIA DGX Spark** | SGLang · vLLM · Ollama | 70B-class at 4-bit | GB10, 128 GB unified memory; the desktop supercomputer tier |
 | **NVIDIA Jetson (edge)** | llama.cpp · TensorRT-LLM | 3-13B on-device | Orin and Thor modules; agents at the edge, no rack required |
 | **Cloud accelerators** | Managed runtimes | By instance | TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5 |
@@ -150,7 +154,7 @@ flowchart TB
 
 **Mac versus NVIDIA, honestly.** Apple Silicon's unified memory means a 64 GB Mac can hold a 70B model that a 24 GB discrete GPU simply cannot, no offloading, no 2 tok/s crawl. NVIDIA wins decisively on *throughput*: continuous batching, tensor parallelism, and serving many users at once. Mac for development and single-user work; NVIDIA for anything serving a team.
 
-**On Apple Silicon, prefer MLX.** It was built for the unified-memory architecture and runs faster than llama.cpp, published comparisons range from ~20% to ~87%, on models under 14B. The advantage narrows on larger models, where memory bandwidth dominates, and at contexts beyond ~40K. Recent Ollama builds use MLX underneath on M-series, so you may already be getting it.
+**On Apple Silicon, prefer MLX.** It was built for the unified-memory architecture and runs faster than llama.cpp, published comparisons range from ~20% to ~87%, on models under 14B. The advantage narrows on larger models, where memory bandwidth dominates, and at contexts beyond ~40K. Recent Ollama builds use MLX underneath on M-series, so you may already be getting it. 70B-on-64GB only works if macOS will wire that much GPU memory: set `iogpu.wired_limit_mb` (reboot required) so the GPU can take most of unified memory rather than leaving it to the CPU. gpt-oss-120b fits one 80 GB card because its native MXFP4 packing is denser than a naive 4-bit cast.
 
 **Windows is not a second-class citizen, but it is a fork in the road.** Native LM Studio or Ollama is the easy path. WSL2 is how you run the full Linux serving stack (vLLM, SGLang) with CUDA passthrough. On AMD, Windows usually means Vulkan, native ROCm exists only for select new hardware (Radeon AI PRO R9000 and Ryzen AI Max PRO 400 series, per AMD's compatibility matrix).
 
@@ -158,25 +162,27 @@ flowchart TB
 
 ## 3. The thirteen-layer stack
 
+Ring: Harness. Layers are L0-L12 so they cannot be confused with sections 1-27.
+
 Thirteen layers, identity through deployment. Each layer lists several real options: pick by what
 you already run, not by what leads a benchmark this month. The ring column ties each layer back to
 section 1, and the numbered sections that follow open each layer up.
 
 | # | Layer | Job | Ring | Options |
 |---|---|---|---|---|
-| 0 | Identity and access | Who is acting, on whose behalf | Harness | OIDC/OAuth2 · Keycloak · Auth0 · SPIFFE · OPA/Cedar |
-| 1 | Clients | Entry points | Harness | Web · mobile/PWA · CLI · Slack/Teams · cron/webhooks · API |
-| 2 | Frontend and edge | Capture and stream | Harness | Next.js · SvelteKit · Streamlit · Gradio · Chainlit · Open WebUI |
-| 3 | Orchestrator | Plans and routes | Loop | LangGraph · CrewAI · LlamaIndex Workflows · Pydantic AI · AutoGen · plain tool loop |
-| 4 | Knowledge decision | Retrieve or answer directly | Context | Router model · classifier · heuristic rules · always-retrieve |
-| 5 | RAG pipeline | Grounding | Context | Docling · Unstructured · BGE-M3 · Qwen3-Embedding · Qdrant · pgvector · Chroma · reranker |
-| 6 | Model layer | Serving runtime and models | Prompt | SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX · LM Studio · any API |
-| 7 | Tools via MCP | External systems | Harness | MCP servers · OpenAPI specs · GitHub · Slack · Jira · databases · filesystem · web search |
-| 8 | Code agent | Writes and tests code | Harness | Cline · Kilo Code · OpenHands · Goose · Cursor · Claude Code · Zed |
-| 9 | Memory and cache | State and speed | Context | LangGraph store · Redis/Valkey · Hermes Agent · Claude-Mem · MemPalace · GBrain · MemSearch · Mem0 · Postgres/Supabase/SQLite · DuckDB |
-| 10 | Guardrails and evals | Quality and safety | Eval | Outlines · Guardrails AI · NeMo Guardrails · Llama Guard · Ragas · Promptfoo · DeepEval |
-| 11 | Observability | Trace and measure | Eval | Langfuse · Phoenix · OpenTelemetry · Grafana + Loki · Helicone |
-| 12 | Deployment | Wherever you can run it | Loop | Mac/MLX · single GPU · multi-GPU node · CPU only · WSL2 · Docker · Kubernetes · rented GPU · API only |
+| L0 | Identity and access | Who is acting, on whose behalf | Harness | OIDC/OAuth2 · Keycloak · Auth0 · SPIFFE · OPA/Cedar |
+| L1 | Clients | Entry points | Harness | Web · mobile/PWA · CLI · Slack/Teams · cron/webhooks · API |
+| L2 | Frontend and edge | Capture and stream | Harness | Next.js · SvelteKit · Streamlit · Gradio · Chainlit · Open WebUI |
+| L3 | Orchestrator | Plans and routes | Loop | LangGraph · CrewAI · LlamaIndex Workflows · Pydantic AI · AutoGen · plain tool loop |
+| L4 | Knowledge decision | Retrieve or answer directly | Context | Router model · classifier · heuristic rules · always-retrieve |
+| L5 | RAG pipeline | Grounding | Context | Docling · Unstructured · BGE-M3 · Qwen3-Embedding · Qdrant · pgvector · Chroma · reranker |
+| L6 | Model layer | Serving runtime and models | Prompt | SGLang · vLLM · TensorRT-LLM · Ollama · llama.cpp · MLX · LM Studio · any API |
+| L7 | Tools via MCP | External systems | Harness | MCP servers · OpenAPI specs · GitHub · Slack · Jira · databases · filesystem · web search |
+| L8 | Code agent | Writes and tests code | Harness | Cline · Kilo Code · OpenHands · Goose · Cursor · Claude Code · Zed |
+| L9 | Memory and cache | State and speed | Context | LangGraph store · Redis/Valkey · Hermes Agent · Claude-Mem · MemPalace · GBrain · MemSearch · Mem0 · Postgres/Supabase/SQLite · DuckDB |
+| L10 | Guardrails and evals | Quality and safety | Eval | Outlines · Guardrails AI · NeMo Guardrails · Llama Guard · Ragas · Promptfoo · DeepEval |
+| L11 | Observability | Trace and measure | Eval | Langfuse · Phoenix · OpenTelemetry · Grafana + Loki · Helicone |
+| L12 | Deployment | Wherever you can run it | Loop | Mac/MLX · single GPU · multi-GPU node · CPU only · WSL2 · Docker · Kubernetes · rented GPU · API only |
 
 Each layer has a deeper companion file in the GitHub repository, with decision guidance and a link
 for every tool named: [github.com/mlvpatel/open-weight-agent-stack](https://github.com/mlvpatel/open-weight-agent-stack/tree/main/docs/layers).
@@ -185,6 +191,8 @@ Suggestions and corrections are welcome there; the bar for a change is a primary
 ---
 
 ## 4. The design method: HLD, LLD and the rules
+
+Ring: Eval. An inner-ring failure here is a diagram nobody could disagree with.
 
 This manual doubles as a worked example of design discipline. **High-level design (HLD)** fixes
 components, responsibilities, data flows and trust boundaries, enough to review scope, cost and
@@ -202,7 +210,7 @@ the other on purpose:
 | State machine | LLD | Every state and transition, exits included | 7 |
 | Data and schema contracts | LLD | Field-level shapes both sides honour | 10, tool schemas in 11 |
 | Interface contracts | LLD | Token formats, claims, API dialects | 18, 22 |
-| Decision records | Either | Why this option, what was rejected | the catalogue notes, 21-24 |
+| Decision records | Either | Why this option, what was rejected | [ADR 001](docs/adr/001-self-host-the-mid-tier.md), catalogue notes in 21-24 |
 
 Use each where it earns its cost. HLD is what you review before committing a team, it catches a
 wrong boundary while the fix is still a redrawn box. LLD is what you implement and test against, it
@@ -252,6 +260,8 @@ less than the rule that diagrams live next to the code they describe.
 ---
 
 ## 5. Master architecture
+
+Ring: Harness. An inner-ring failure here is a missing trust boundary that no outer loop can patch.
 
 The request path top to bottom. Solid arrows carry the request; dotted arrows are state, telemetry
 and the feedback loop. Cross-cutting layers attach at a single point each so the spine stays legible
@@ -310,7 +320,8 @@ flowchart TB
     subgraph L6["6 · LLM Layer"]
         direction TB
         M0["LLM gateway<br/>self-host serving or API endpoint"]
-        M1["Fast tier · GLM-4.5-Air · Qwen 3.5 9B<br/>self-hosted · structured output"]
+        M1["Fast decode MoE · GLM-4.5-Air<br/>needs ~55 GB at 4-bit, not a 16 GB card"]
+        M1b["Small dense · Qwen 3.5 9B<br/>self-hosted on 16-24 GB · structured output"]
         M2["General · Kimi K3<br/>API, too large to self-host"]
         M3["Specialist · DeepSeek V4 Pro · GLM-5.2<br/>code and terminal"]
     end
@@ -355,6 +366,7 @@ flowchart TB
     T0 --> T2
     A0 --> A1
     M0 --> M1
+    M0 --> M1b
     M0 --> M2
     M0 --> M3
 
@@ -400,6 +412,8 @@ flowchart TB
 ---
 
 ## 6. Request lifecycle
+
+Ring: Loop. An inner-ring failure here is a cache key without entitlement scope.
 
 One user turn, end to end, including the cache short-circuit and the tool loop.
 
@@ -483,6 +497,8 @@ sequenceDiagram
 
 ## 7. Agent control loop
 
+Ring: Loop. An inner-ring failure here is an unbounded rework cycle.
+
 The state machine the orchestrator actually runs. Every terminal path is explicit, so the agent
 cannot spin forever.
 
@@ -547,15 +563,17 @@ stateDiagram-v2
 
 ## 8. RAG pipeline internals
 
+Ring: Context. An inner-ring failure here is retrieval without a fail-closed entitlement filter.
+
 Ingestion runs offline; query runs per request. Hybrid retrieval plus reranking is the upgrade that
 buys the most quality per unit of added machinery over naive top-k cosine search. That ranking is
-indicative: it is an engineering default, not a published bake-off across RAG variants.
+`indicative`: it is an engineering default, not a published bake-off across RAG variants.
 
 
 ### 8.1 RAG variants: adopt one when its failure mode appears
 
 The pipeline above is the default for a reason: on most corpora, hybrid retrieval plus reranking
-buys the best quality for the least machinery. That judgement is indicative. The named variants
+buys the best quality for the least machinery. That judgement is `indicative`. The named variants
 exist because specific failure modes defeat it. Start with the default; reach for a variant only
 when you can name the failure you are fixing.
 
@@ -575,6 +593,27 @@ Two controls matter more than ranking quality if you have more than one user. En
 inside the index query and fails closed, so a scope mismatch returns nothing rather than leaking, and
 redaction happens at ingestion so secrets never reach the index in the first place. Pin the whole
 retrieval surface together, a recall number only means something against a named configuration.
+
+Pre-filtering on HNSW (Qdrant payload filters, pgvector `WHERE` before `ORDER BY`) drops graph
+connectivity and can miss near-neighbours that would have ranked. Post-filtering a larger `top_k`
+and then applying the entitlement predicate preserves recall and can violate the published k.
+Pick one and measure. Fail closed either way: if the filter cannot be applied, return nothing.
+
+Chunk size 400 to 800 tokens and 3 to 5 paraphrases in the figure are `indicative` starting points.
+
+Qdrant payload filter, `indicative` shape:
+
+```json
+{"must": [{"key": "entitlement", "match": {"any": ["team-a", "public"]}}]}
+```
+
+pgvector with row-level security rather than a client-side `IN` list:
+
+```sql
+ALTER TABLE chunks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY chunks_by_scope ON chunks
+  USING (entitlement = ANY(current_setting('app.scopes')::text[]));
+```
 
 ```mermaid
 flowchart LR
@@ -642,6 +681,8 @@ flowchart LR
 
 ## 9. Model routing
 
+Ring: Loop. An inner-ring failure here is sending extraction to the frontier model.
+
 Sending every request to the largest model is a common cost and latency mistake. Route by
 task shape, not by preference. The verifier is a separate prompt from the one that produced the
 answer, a model grading its own output is not a gate, and rework is bounded at two cycles.
@@ -649,13 +690,13 @@ answer, a model grading its own output is not a gate, and rework is bounded at t
 ```mermaid
 flowchart TB
     S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
-    C1 -->|yes| SMALL["Fast tier<br/>GLM-4.5-Air · Qwen 3.5 9B<br/>constrained decoding to JSON"]
+    C1 -->|yes| SMALL["Small dense fast tier<br/>Qwen 3.5 9B · Phi-4-mini<br/>constrained decoding to JSON"]
     C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
     C2 -->|yes| LONG["Long context<br/>Kimi K3 · 1M<br/>still prune, prefill cost scales with input"]
     C2 -->|no| C3{"Multi step reasoning<br/>maths or planning?"}
     C3 -->|yes| REASON["Reasoning<br/>DeepSeek V4 Pro · Claude Opus 5<br/>highest latency tier"]
     C3 -->|no| C4{"Code generation<br/>or repair?"}
-    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro 79.4% SWE-bench<br/>at default effort<br/>GLM-5.2"]
+    C4 -->|yes| CODE["Code and terminal<br/>DeepSeek V4 Pro 79.4% SWE-bench<br/>at Think High, 80.6% at Think Max<br/>GLM-5.2"]
     C4 -->|no| GEN["General agentic<br/>Kimi K3 · Claude Sonnet 5"]
 
     SMALL --> V["Independent verifier<br/>separate prompt · never the producing model"]
@@ -686,6 +727,8 @@ flowchart TB
 ---
 
 ## 10. Prompt and turn contract
+
+Ring: Prompt. An inner-ring failure here is a turn with no schema and no refusal path.
 
 The innermost ring, and the easiest to overlook. Everything the outer layers
 coordinate reduces to a single well-specified turn. Order matters: hard constraints first, evidence
@@ -746,9 +789,33 @@ tier you select per complexity in section 9. ReAct is the section 7 loop itself.
 the section 7 critic. Structured outputs are the JSON schemas the harness validates at the boundary.
 A technique that exists only as prompt text drifts; one that has an owner and a test survives.
 
+JSON Schema for a tool argument, the contract the harness validates before execution:
+
+```json
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["path", "max_bytes"],
+  "properties": {
+    "path": { "type": "string", "minLength": 1 },
+    "max_bytes": { "type": "integer", "minimum": 1, "maximum": 65536 }
+  }
+}
+```
+
+LangGraph checkpointer, the M2 seam:
+
+```python
+from langgraph.checkpoint.postgres import PostgresSaver
+checkpointer = PostgresSaver.from_conn_string(os.environ["CHECKPOINT_DSN"])
+graph = builder.compile(checkpointer=checkpointer)
+```
+
 ---
 
 ## 11. Trust boundaries
+
+Ring: Harness. An inner-ring failure here is untrusted text reaching a write-capable tool.
 
 Four things enter the model's window and none of them are trustworthy. The failure most teams miss is
 the third: tool and MCP results are usually treated as safe because *we* called the tool, but a
@@ -837,12 +904,16 @@ handling to your threat model; they are not interchangeable with an API boundary
 
 ## 12. Memory and data tiers
 
+Ring: Context. An inner-ring failure here is memory treated as a second system of record.
+
 Four tiers with different lifetimes. Conflating them is what makes agents both forgetful and
 expensive at the same time.
 
 One boundary before the tiers: your transactional system of record, Postgres, MySQL, the ERP, 
 stays outside the agent entirely. The agent reaches it through tools and reads it into context; it
 never replaces it with memory, and memory never becomes a second copy of it.
+
+Summarise on turn end is not a policy. Compaction, in this order: drop the oldest tool payloads first (keep the tool name and a one-line result), then fold earlier assistant turns into a dated summary, keep the latest user turn and the current scratchpad verbatim. Never compact the citation ids still needed by the output guard. Bound the packed window to the serving `max-model-len`, not to a hope.
 
 ```mermaid
 flowchart LR
@@ -887,6 +958,13 @@ unless re-confirmed. Redact PII at write time rather than read time, so nothing 
 in a store that outlives the conversation. And because stored text re-enters future windows, every
 write gate here is also the control for memory poisoning (ASI06 in section 19).
 
+Compaction policy, `indicative`: drop first the oldest tool results that the later step did not cite;
+then raw retrieved chunks already summarised into M2; then the middle of the conversation, keeping
+the original user goal and the last two turns verbatim. Never drop the system contract, the active
+tool schemas, or a pinned long-term fact. Summarise on turn end into M2 with a bounded token budget
+(keep the summary under 10% of the context window). If tool output is still growing after two
+summaries, persist it to durable memory and replace the window copy with a pointer.
+
 ### 12.1 Deployment memory catalogue
 
 Choose the memory role before choosing a product. The following systems can be composed, but none
@@ -917,8 +995,14 @@ deletion path for each store instead of treating a lifecycle control as evidence
 
 ## 13. Guardrails, evals and the improvement loop
 
+Ring: Eval. An inner-ring failure here is shipping without a golden set.
+
 Guards run inline on every request. Evals run offline on a fixed dataset and gate deployment.
 Traces feed new cases back into the dataset, which is what closes the loop.
+
+`indicative` eval thresholds, so the gate has a number: a golden set of 50-100 cases, stratified by task shape (extract, RAG, tool, refusal); a faithfulness drop greater than 0.05 versus the last release blocks; judge agreement of Cohen's kappa at least 0.60 before the judge is allowed to gate. Smaller teams can skip judge calibration on day one; they cannot skip the golden set.
+
+A trace is one user turn. A span is one model call or one tool call. Attributes on the span: model id, prompt version, entitlement scope, cache hit, token counts. Sample 100% of failures and of turns that hit the step budget; sample the rest. PII is stripped at the sink, not left for the vendor's default retention.
 
 ### 13.1 The agent test pyramid
 
@@ -1016,6 +1100,8 @@ flowchart TB
 
 ## 14. Deployment topology
 
+Ring: Harness. An inner-ring failure here is KV cache that was never sized.
+
 Three shapes, chosen by how much concurrency you need. The sizing rule that decides all of them:
 **weights plus KV cache plus activation overhead**: and KV cache grows with batch size times context
 length, so it is usually what runs out first, not the weights.
@@ -1056,8 +1142,10 @@ flowchart TB
     class RULE,SPLIT note
 ```
 
+Worked KV example, `indicative`, assumptions stated: 32 layers, GQA with 8 KV heads, head_dim 128, FP16 KV (2 bytes). The formula in the figure becomes `batch × context × 32 × 2 × 8 × 128 × 2` bytes = `batch × context × 131072` bytes. At batch 16 and context 8192 that is 16 GB of KV alone. A 27B at 4-bit already took ~16 GB for weights, so "Batch 8 to 32, one team" on a 24 GB card is the ceiling, not a starting point. Hundreds of concurrent turns live on the multi-GPU row, after prefix caching has cut prefill.
+
 CPU-only chat is possible, but a GPU is usually the practical choice for responsive or concurrent use.
-CPU-only inference runs at, indicative, 3-7 tok/s for a 7B Q4 model on a recent desktop CPU under
+CPU-only inference runs at, `indicative`, 3-7 tok/s for a 7B Q4 model on a recent desktop CPU under
 llama.cpp at batch 1, which can make a 500-token answer take one to three minutes; it suits batch
 work and limited, low-concurrency chat. Measure your processor and context length.
 
@@ -1073,11 +1161,14 @@ because a model server saturates its batch long before its cores. Multi-node vLL
 workers over Ray, so a Ray cluster is often already in the picture at that scale. Kubernetes earns its complexity
 at multi-node scale; below that, docker compose on one machine deploys the whole stack and
 restarts it on boot. Spot GPUs cut batch and training cost sharply but need checkpoint-resume;
-keep interactive serving on reserved capacity.
+keep interactive serving on reserved capacity. Cross-region hops adding tens of milliseconds, and
+batch 8 to 32 on one GPU, are `indicative`.
 
 ---
 
 ## 15. Data lifecycle, deletion and re-indexing
+
+Ring: Context. An inner-ring failure here is a delete that never reached the vector index.
 
 Every store below the source of truth is a **derived copy**, and each one needs its own delete path.
 This is the gap that turns a right-to-erasure request into an incident: the document is removed from
@@ -1139,6 +1230,8 @@ with its ingestion time so retrieval can filter or prefer by recency.
 
 ## 16. Databases and state
 
+Ring: Context. An inner-ring failure here is a derived store that cannot be rebuilt.
+
 One system of record, many derived stores. Postgres is the default spine: relational state,
 pgvector for embeddings, row-level security for tenant isolation, and one backup path covering all
 of it. Everything else earns its place by a workload the spine handles badly, and every derived
@@ -1147,7 +1240,7 @@ store must stay rebuildable from the source of truth (section 15).
 | Class | Options | Reach for it when | Driver and compatibility notes |
 |---|---|---|---|
 | Relational, the system of record | Postgres · MySQL · SQLite | Sessions, users, jobs, billing: anything with invariants | SQLAlchemy or asyncpg in Python · Prisma or Drizzle in TypeScript · JDBC in Java |
-| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | Start with pgvector when keeping vectors beside relational data simplifies the system; measure latency, filtering, index build time, and operations against your workload before choosing a dedicated engine | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
+| Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | Start with pgvector when keeping vectors beside relational data simplifies the system. `indicative`: pgvector is comfortable to around 10M vectors on one well-indexed node; beyond that, measure latency, filtering, index build time, and operations before moving | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
 | Key-value and cache | Redis · Valkey | Semantic cache, embedding cache keyed by content hash, rate limits, queues, session scratch | redis-py and ioredis; Valkey is the open fork and protocol-compatible |
 | Document | MongoDB · Postgres JSONB | Payloads with no stable schema; MERN teams already fluent in it | JSONB covers most document needs without adding a second database |
 | Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query genuinely needs multi-hop traversal |
@@ -1165,6 +1258,8 @@ And test restores on a schedule (section 17); an unrestored backup is a hope, no
 
 ## 17. Serving, budgets and rollback
 
+Ring: Loop. An inner-ring failure here is a guard timeout that returns an unguarded answer.
+
 Three operational controls the architecture needs before it meets more than one user at a time.
 
 **Admission control**: one model server and many callers is a queue, whether or not you designed
@@ -1177,6 +1272,8 @@ it runs. Without it, one runaway agent loop consumes the capacity of everyone el
 **Rollback**: the eval gate decides what ships, but nothing in the earlier views decides what
 happens when a shipped change turns out badly in production. Prompt, model, index and policy version
 together, and they roll back together.
+
+Rule 3 is fail closed, and it applies to the guards themselves. If the guard model times out, the embedder is down, the reranker is down, or the vector store is down, the turn returns no answer. It does not return an unguarded or uncited answer. Section 17's 429 path is for the *generator*; the retrieval and guard dependencies fail closed.
 
 ```mermaid
 flowchart TB
@@ -1252,6 +1349,8 @@ control, never a stack trace; the trace carries the detail.
 ---
 
 ## 18. Identity, delegation and authority
+
+Ring: Harness. An inner-ring failure here is an agent borrowing a human's standing credentials.
 
 Identity is easy to skip and expensive to retrofit. The retrieval filter (8), the cache key
 (6, 12) and the tool allow-list (11) all enforce an entitlement scope; this layer is the decision
@@ -1333,6 +1432,8 @@ the person.
 ---
 
 ## 19. Threat model
+
+Ring: Harness. An inner-ring failure here is a write path with no gate.
 
 Security in an agent stack is not a single layer, it is a property every layer either has or lacks.
 This matrix maps the ten risks in the OWASP Top 10 for Agentic Applications to the concrete control
@@ -1418,9 +1519,13 @@ flowchart LR
 
 ## 20. Latency budget
 
-The performance view. Ranges below are indicative for a 7-32B model on one modern NVIDIA GPU at
-batch 1: order-of-magnitude planning figures, not a benchmark. Measure your own, but the *shape*
-holds: retrieval and guards are noise, and generation is everything.
+Ring: Loop. An inner-ring failure here is treating rewrite and fan-out as noise.
+
+The ranges below are `indicative` for a 7-32B model on one modern NVIDIA GPU at
+batch 1. There are two shapes, not one. On the **no-rewrite path**, retrieval and regex-style
+guards are noise and generation is everything. On the **RAG-heavy path** that section 8 draws,
+query rewrite and 3-to-5 paraphrase fan-out are extra model calls and extra searches, and they
+are not absorbed by "hybrid retrieval 20 to 80 ms".
 
 The number that matters for an agent is not the turn, it is the turn multiplied by the loop. A
 plan-act-observe cycle that runs eight model calls pays the prefill cost eight times, which is why
@@ -1430,9 +1535,11 @@ prefix reuse outranks almost every other optimisation here.
 flowchart TB
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
-        L1["Gateway and input guard<br/>5 to 20 ms"]
-        L2["Cache lookup<br/>2 to 10 ms · a hit ends the turn here"]
-        L3["Hybrid retrieval<br/>20 to 80 ms"]
+        L1["Gateway and regex input guard<br/>5 to 20 ms · Llama Guard is 50 to 200 ms"]
+        L2["Cache lookup<br/>2 to 10 ms after the query is embedded"]
+        L2b["Query rewrite<br/>100 to 500 ms · RAG path only"]
+        L2c["Multi-query fan-out<br/>3 to 5 searches · RAG path only"]
+        L3["Hybrid retrieval<br/>20 to 80 ms per query"]
         L4["Cross-encoder rerank<br/>30 to 150 ms · scales with candidate count"]
         L5["Prefill · time to first token<br/>150 to 900 ms · scales with context length"]
         L6["Decode<br/>output tokens ÷ throughput · the long pole"]
@@ -1449,16 +1556,24 @@ flowchart TB
         V4["RAISES THROUGHPUT · FP8 or AWQ<br/>frees memory for more KV cache and batch"]
     end
 
-    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+    L1 --> L2 --> L2b --> L2c --> L3 --> L4 --> L5 --> L6 --> L7
 
     classDef step fill:#e8f0fe,stroke:#0071e3,color:#003a70
     classDef hot fill:#ffe4e2,stroke:#e30000,color:#8f0000
     classDef lever fill:#dff3e6,stroke:#248a3d,color:#0f3d23
 
-    class L1,L2,L3,L4,L7 step
+    class L1,L2,L2b,L2c,L3,L4,L7 step
     class L5,L6 hot
     class V1,V2,V3,V4,V5,V6 lever
 ```
+
+### 20.1 Two latency budgets
+
+Use the no-rewrite chain when the question is already a search string. Use the RAG-heavy chain when section 8's rewrite and fan-out are on. Cache lookup of 2 to 10 ms assumes the query embedding is already in hand; embedding the query adds `indicative` 5-20 ms locally. Gateway 5-20 ms is a regex injection scan; Llama Guard as the input classifier is `indicative` 50-200 ms. Speculative decoding's 1.5 to 2.5x is `indicative`.
+
+### 20.2 Cost model, self-host vs API
+
+`indicative` planning numbers for 16 August 2026, not a quote. A rented 4090-class GPU is often $0.4-1.2/hour. At 40 tok/s decode and 500 output tokens per turn you get about 288 turns/hour, so $0.001-0.004 per turn in GPU rent before electricity and idle time. An API mid-tier priced per million tokens is cheaper at low volume and loses once a busy node is serving its own prompt cache. Break-even is utilisation: below a few hundred thousand tokens/day the API usually wins; above that, self-host the mid-tier and still call K3-class weights as an API. Put the spend ledger on the trace, not in a spreadsheet. Do not budget from a DeepSeek URL that no longer publishes a rate card.
 
 Two measurements to separate, because they respond to different fixes. **Time to first token** is
 prefill: compute-bound, driven by how much context you pushed in, fixed by pruning and prefix reuse.
@@ -1483,9 +1598,13 @@ batch sizes, and its gains shrink as batches grow, so measure before adopting it
 
 ## 21. Technology catalogue
 
+Ring: Harness. An inner-ring failure here is a star with no stated criteria.
+
 Every credible option per layer, so a swap is a known decision rather than a rewrite.
 
-A star marks the recommended starting default, chosen on the stated criteria. Everything else in the group is a drop-in swap.
+A star marks the recommended starting default, chosen on the criteria below. The others in the group are alternatives, not drop-in swaps: Chroma is not Milvus, NeMo Guardrails is not Outlines, CrewAI is not LangGraph.
+
+**Starting-default criteria, applied in this order:** runs on hardware this manual sizes; has a primary source in section 27; is the least machinery that covers the failure mode; can be replaced without rewriting the rings. A diagram nobody could disagree with is decoration; the stars are the disagreement.
 
 ```mermaid
 flowchart LR
@@ -1563,14 +1682,14 @@ flowchart LR
         EM4["Jina v5"]
     end
     subgraph CAT_MD["Models"]
-        MD1["★ Qwen 3.6 27B · Apache-2.0 · self-host"]
+        MD1["★ Qwen 3.8 27B · Apache-2.0 · self-host"]
         MD2["★ Kimi K3 · tool use · custom licence"]
         MD3["DeepSeek V4 Pro · coding · MIT"]
         MD4["GLM-5.2 · terminal and code · MIT"]
         MD5["Llama · community licence"]
-        MD6["GLM-4.5-Air · fast tier · MIT"]
+        MD6["GLM-4.5-Air · fast decode MoE · MIT"]
         MD7["DeepSeek V4 Flash · cheap · MIT"]
-        MD8["Qwen 3.6 27B · self-host · Apache-2.0"]
+        MD8["Qwen 3.6 27B · prior 27B · Apache-2.0"]
         MD9["GPT-OSS · OLMo 3 · Granite 4.1 · Ling 3.0<br/>Hunyuan · MiniMax M2.x · Falcon · LFM edge"]
         MD10["Coding: Qwen3-Coder-Next · KAT-Coder<br/>Devstral · Laguna"]
     end
@@ -1607,11 +1726,13 @@ flowchart LR
 
 ## 22. Task-to-model routing
 
+Ring: Prompt. An inner-ring failure here is routing by brand instead of hosting footprint.
+
 The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. Qwen 3.8 Max is announced at 2.4T but has no published weights, which is its own lesson: announced is not downloadable. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
 
-**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story, DeepSeek V4 Flash (284B total, 13B active), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), GLM-4.5-Air, Qwen 3.6 27B, where a single node is genuinely enough.
+**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story: DeepSeek V4 Flash (card: 284B total, 13B active; the Hub widget can read ~291B), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), Qwen 3.8 27B (downloadable Apache-2.0, published 14 August 2026), GLM-4.5-Air on a 48 GB+ card. Qwen 3.8 Max remains API-only. GLM-4.5-Air is a 110B-class MoE, `indicative` 55-60 GB at 4-bit, and does not belong on the NVIDIA 16-24 GB row.
 
-Read the positions below as indicative. Parameter counts and licences are sourced in section 27,
+Read the positions below as `indicative`. Parameter counts and licences are sourced in section 27,
 but where a model sits on either axis is an engineering judgement, not a measurement: capability
 tiers are not a single published number, and whether something "fits one node" depends on the node.
 What the figure is for is the scatter along the horizontal axis. MIT and Apache-2.0 models appear at
@@ -1634,7 +1755,8 @@ quadrantChart
     "V4 Flash 284B MIT": [0.38, 0.66]
     "gpt-oss-120b Apache": [0.26, 0.56]
     "GLM-4.5-Air MIT": [0.30, 0.34]
-    "Qwen 3.6 27B Apache": [0.20, 0.26]
+    "Qwen 3.8 27B Apache": [0.20, 0.30]
+    "Qwen 3.6 27B Apache": [0.18, 0.24]
     "Gemma 4 12B Apache": [0.13, 0.18]
     "Phi-4-mini 3.8B MIT": [0.07, 0.10]
 ```
@@ -1645,13 +1767,13 @@ exact checkpoint ID, never the family name (section 25).
 
 | Task | Open-weight | Frontier API | Notes |
 |---|---|---|---|
-| Extraction, classification, routing | GLM-4.5-Air · Qwen 3.5 9B · Phi-4-mini · Gemma 4 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier. |
-| General agentic + tool calling | Kimi K3 | Claude Sonnet 5 · Qwen 3.8 Max (API only) | K3 scores 57 on the Artificial Analysis Intelligence Index (60 in its max configuration); Kimi is explicitly tuned for tool loops. |
+| Extraction, classification, routing | Qwen 3.5 9B · Phi-4-mini · Gemma 4 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier on 16-24 GB. GLM-4.5-Air is a fast-decode 110B-class MoE; plan ~55-60 GB at 4-bit, not this row. |
+| General agentic + tool calling | Kimi K3 | Claude Sonnet 5 · Qwen 3.8 Max (API only) | Kimi reports 60 on the Artificial Analysis Intelligence Index in its max configuration. A 57 default-config figure is not visible on the cited page as of 16 August 2026; do not treat 57 as current. |
 | Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice actually shows up in output quality. |
-| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro reports 79.4% SWE-bench Verified at its default Think High effort, 80.6% at maximum effort. GLM-5.2 strong on terminal-style benchmarks. |
-| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active. Published rates are $0.14 in on a cache miss and $0.28 out per M tokens; the vendor has announced a significant increase. |
+| Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro's card reports 79.4% SWE-bench Verified at Think High and 80.6% at Think Max. It does not label a default effort. GLM-5.2 is strong on terminal-style benchmarks. |
+| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active on the card. Do not budget from a former pricing URL; re-check DeepSeek's current rate card. |
 | Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you actually send. |
-| Vision, documents, charts | Qwen 3.5 27B (vision is native to the 3.5 line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. |
+| Vision, documents, charts | Qwen 3.8 27B (vision encoder on the downloadable 3.8 27B line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. Qwen 3.6 27B remains a text-first 27B alternative. |
 
 
 ### 22.1 The API layer: every way to call a model
@@ -1707,6 +1829,8 @@ including several adapters on one base model, one deployment, many specialised b
 
 ## 23. Platform and SDK choice
 
+Ring: Harness. An inner-ring failure here is a proprietary harness starred in an open-weight manual.
+
 Two independent questions decide this, and conflating them is the usual mistake:
 
 1. **Who supplies the harness?** The agent loop, context management, tool dispatch.
@@ -1734,8 +1858,8 @@ flowchart TB
     classDef pick fill:#dff3e6,stroke:#248a3d,color:#0f3d23
     classDef alt fill:#e8f0fe,stroke:#0071e3,color:#003a70
     class Q1,Q2,Q3,Q4 q
-    class CASDK,CMA pick
-    class ADK,BR,OAI,OWN alt
+    class CASDK,CMA,ADK,BR,OAI alt
+    class OWN pick
 ```
 
 | Option | Harness | Deployment | Strongest at |
@@ -1746,6 +1870,8 @@ flowchart TB
 | **Google ADK** | ✅ | Vertex Agent Engine | GCP-native enterprise; multi-language; model-agnostic by design |
 | **Bedrock AgentCore** | ✅ | AWS | AWS-native IAM, billing, and data residency |
 | **Own loop** | ❌ you write it | ❌ you host | Full control; no framework to fight |
+
+The starred path in the figure is **your own loop**. This is an open-weight manual: Claude Agent SDK and Claude Managed Agents are excellent when you are already on Anthropic, and they are proprietary. Own loop, Google ADK, and the OpenAI Agents SDK stay model-swappable. CrewAI and AutoGen multi-agent topologies are out of scope here; this stack is a single bounded loop with tools.
 
 **Three things worth knowing before you commit.**
 
@@ -1795,8 +1921,13 @@ language can face any orchestrator language calling any serving stack. The one l
 is orchestrator state, framework checkpoints serialise in their own runtime, so choose the
 orchestrator's language deliberately and let everything else differ.
 
-Which pairing is most common, and which reaches production fastest, are indicative: no survey
+Which pairing is most common, and which reaches production fastest, are `indicative`: no survey
 measures either across this stack.
+
+Start TypeScript + Python if you already have a Next.js surface. Start all-Python if the first
+users are on Streamlit or a notebook. Do not pick CrewAI because a catalogue listed it; pick it
+when you need a role-cast crew and you accept that multi-agent handoff is out of scope for this
+manual.
 
 | Pair | Where it fits |
 |---|---|
@@ -1859,7 +1990,9 @@ highest row your team can actually operate.
 
 ## 24. Code agents: the full landscape
 
-Layer 8 is the agent that writes code. There are dozens of options, in five distinct shapes, and the right pick depends far more on **where you work** and **what you're allowed to run** than on any benchmark.
+Ring: Harness. An inner-ring failure here is a catalogue that defers every decision.
+
+L8 is the agent that writes code. There are dozens of options, in five distinct shapes, and the right pick depends far more on **where you work** and **what you're allowed to run** than on any benchmark.
 
 **Pick by workflow first, model second.** Most of these are model-agnostic, you point them at whatever you already have, local or API. That matters more than a leaderboard position: an agent that fits your editor and your budget gets used, and one that doesn't, doesn't.
 
@@ -1868,7 +2001,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
 | **Aider** | Apache-2.0, free | ✅ any | Git-native pair programming, every edit is a commit. Check its repository activity and releases at evaluation time; maintenance status is time-sensitive |
-| **Claude Code** | Subscription or API usage | Anthropic models | Terminal and IDE coding agent with subagent and tool workflows. Compare it on your own task and the specific benchmark you care about; rankings are benchmark- and date-dependent |
+| **Claude Code** | Subscription or API usage | Anthropic models | Start here if you already pay Anthropic and live in the terminal. Rankings are benchmark- and date-dependent; Aider or OpenCode if you need model-agnostic |
 | **OpenCode** | Open source, free | ✅ any | Vendor-neutral terminal agent |
 | **Gemini CLI** | Free tier available | Gemini | Generous free quota; good for exploration |
 | **Codex CLI** | Included with eligible ChatGPT plans; usage limits vary | OpenAI | If you're already on OpenAI; verify plan limits and credit options before rollout |
@@ -1879,7 +2012,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Model-agnostic | Best for |
 |---|---|---|---|
-| **Cline** ★ | Open source, free | ✅ any | Plan/Act approval with permissioned file, terminal, browser, and MCP access. Verify current capabilities and maintenance status from its repository |
+| **Cline** ★ | Open source, free | ✅ any | Starred VS Code default: free, model-agnostic, approval-gated. Glance at repository activity at evaluation time |
 | **Roo Code** | Open source | ✅ any | **Shut down May 2026**, repository archived. Its README points users to Cline; ZooCode is a community fork |
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
 | **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
@@ -1892,7 +2025,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Best for |
 |---|---|---|
-| **Cursor** ★ | $20/mo Pro as of 13 August 2026; [cursor.com/pricing](https://cursor.com/pricing) | Best end-to-end IDE flow if you'll pay for one |
+| **Cursor** ★ | $20/mo Pro as of 16 August 2026; [cursor.com/pricing](https://cursor.com/pricing) | Best end-to-end IDE flow if you'll pay for one |
 | **Windsurf** | Paid | **Rebranded to Devin Desktop** (Cognition); windsurf.com now redirects there. The JetBrains plugin remains separate |
 | **Zed** | Free tier, open source | Fast native editor; free and model-agnostic |
 | **Void** | Open source | Open-source Cursor alternative |
@@ -1904,7 +2037,7 @@ Layer 8 is the agent that writes code. There are dozens of options, in five dist
 
 | Tool | Licence / cost | Best for |
 |---|---|---|
-| **OpenHands** ★ | Open source | A self-hostable agent with Docker-based execution; assess its autonomy, permissions, and sandbox configuration against your task |
+| **OpenHands** ★ | Open source | Starred self-host default for unattended runs. It executes in Docker; the sandbox is the trust boundary |
 | **SWE-agent** | Open source | Research lineage; benchmark-oriented |
 | **Goose** | Open source (Linux Foundation) | Vendor-neutral governance; extensible |
 | **Devin · Jules · Replit Agent** | Paid SaaS | Hosted, no local setup |
@@ -1943,6 +2076,8 @@ what you graduate to.
 
 ## 25. Versioning and change control
 
+Ring: Eval. An inner-ring failure here is deploying latest.
+
 A release of an agent system pins five things, and rollback restores the tuple, not one element
 (section 17): code, prompts and tool contracts, model IDs, index build, and config.
 
@@ -1962,53 +2097,88 @@ its configuration and not just its diff.
 
 ## 26. Build order and troubleshooting
 
-The layers are not equally urgent. This order keeps the thing runnable at every step:
+Ring: Loop. An inner-ring failure here is identity added after the second user.
 
-1. **Layers 2, 3, 6**: UI, a single-node orchestrator graph, and Ollama. You now have a chat app.
+The layers are not equally urgent. Number them L0-L12 so they cannot be confused with sections 1-27. This order keeps the thing runnable at every step:
+
+1. **L2, L3, L6**: UI, a single-node orchestrator graph, and Ollama. You now have a chat app.
 2. **The prompt contract**: output schema, citation rule and abstention path, with decoding
    parameters pinned. It costs an hour and every later eval depends on it being stable.
-3. **Layer 11**: tracing before anything gets complicated. Debugging an agent without traces is guesswork.
-4. **Layer 5**: RAG, with hybrid search and a reranker from the start rather than as a later fix.
+3. **L11**: tracing before anything gets complicated. Debugging an agent without traces is guesswork.
+4. **L5**: RAG, with hybrid search and a reranker from the start rather than as a later fix.
    Entitlement filtering goes in on day one if more than one person will use it; retrofitting scope
    onto a live index is miserable.
-5. **Layer 9**: checkpointer and semantic cache, which is where latency and cost improve most.
-6. **Layer 7**: MCP tools, one server at a time, each behind schema validation, each result treated
+5. **L9**: checkpointer and semantic cache, which is where latency and cost improve most.
+6. **L7**: MCP tools, one server at a time, each behind schema validation, each result treated
    as untrusted on the way back in.
-7. **Layer 10**: guards inline, then a golden dataset before the first prompt change you cannot verify by eye.
-8. **Layer 8, then hardened serving**: the code agent, and section 17's admission control and
+7. **L10**: guards inline, then a golden dataset before the first prompt change you cannot verify by eye.
+8. **L8, then hardened serving**: the code agent, and section 17's admission control and
    rollback, last.
 9. **Prefix caching before any hardware upgrade.** Section 20. Agent turns repeat the same system
    prompt and tool schemas; reusing that cache is the cheapest large win available.
 10. **Identity before the second user.** Section 18. An agent borrowing a human's standing
    credentials is the single most common way these systems turn a prompt into a breach.
-11. **Deletion and budgets**: sections 11 and 12. Both are cheap to add on day one and expensive to
+11. **Deletion and budgets**: sections 15 and 17. Both are cheap to add on day one and expensive to
    retrofit: a per-user token budget before the first shared deployment, and a delete path before the
    first real user's data enters the index.
 
 Scale the review layers to the stakes. A single-team deployment does not need judge calibration or a
 stratified gold set on day one, and adding them early is its own kind of failure. What does not scale down is
-the trust boundary: the moment untrusted text reaches a tool that can write somewhere, sections 7 and
-9 stop being optional regardless of project size.
+the trust boundary: the moment untrusted text reaches a tool that can write somewhere, sections 11 and
+19 stop being optional regardless of project size.
 
 
 ### 26.1 When it breaks: the first-hour table
 
 | Symptom | Usual cause | Fix |
 |---|---|---|
-| Server OOMs at model load | Context length or quant too big for VRAM | Lower max-model-len, drop to 4-bit, or quantize the KV cache |
+| Server OOMs at model load | Context length or quant too big for VRAM | Lower `--max-model-len`, drop `--gpu-memory-utilization` to 0.90, enable `--kv-cache-dtype fp8`, or drop to 4-bit weights |
 | Output is garbage tokens | Wrong chat template | Set the model's template explicitly; never trust autodetect silently |
-| First token takes seconds | Cold weights, no prefix cache | Warm up at boot with a dummy request; enable prefix caching |
+| First token takes seconds | Cold weights, no prefix cache | Warm up at boot with a dummy request; `--enable-prefix-caching` |
 | Throughput collapses under load | No admission control, batch thrash | Queue at the gateway (section 17); cap concurrency at what the batch sustains |
 | Tool calls come back empty or malformed | Schema drift between contract and prompt | Validate against the JSON Schema; regenerate once with the error in context |
 | RAG cites the wrong passages | Chunking or embedder changed after indexing | Re-embed the corpus; embedder and index version together (section 25) |
 | Same input, different CI results | Sampling nondeterminism | Temperature 0 and pinned seeds; judged metrics take the median of three runs |
 | Agent loops without finishing | No step budget enforced | The section 7 budget kills it; alert when it fires |
 | 429 storms from a provider | Retries without backoff amplifying load | Backoff plus jitter, a circuit breaker, then the fallback chain (section 17) |
-| Blank page with JavaScript on | UI hides content before a scripted reveal | Content visible by default; motion is an enhancement (section 6) |
+
+A serving command that matches the OOM and prefix-cache rows, `indicative` for one 80 GB GPU:
+
+```bash
+vllm serve Qwen/Qwen3.8-27B \
+  --max-model-len 8192 \
+  --gpu-memory-utilization 0.90 \
+  --enable-prefix-caching \
+  --kv-cache-dtype fp8
+```
+
+Compose fragment for the same box, `indicative`:
+
+```yaml
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command: >
+      --model Qwen/Qwen3.8-27B
+      --max-model-len 8192
+      --gpu-memory-utilization 0.90
+      --enable-prefix-caching
+      --kv-cache-dtype fp8
+    ports: ["8000:8000"]
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["6333:6333"]
+```
 
 ---
 
 ## 27. Sources and verification
+
+Ring: Eval. An inner-ring failure here is a number with no dated source.
 
 This section records primary sources for the model, runtime, version-floor, and tool claims that are
 most likely to change. Link and generated-artifact checks run in CI; the freshness workflow monitors a
@@ -2016,7 +2186,7 @@ tracked set of volatile model and tool claims, rather than proving that every se
 remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
 before relying on them months from now.
 
-**Last verified:** 13 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
+**Last verified:** 16 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
 re-read that day. Parameter counts below are as those cards stated then. Vendor list prices move;
 where a former pricing URL no longer publishes a rate card, the row says so.
 
@@ -2026,11 +2196,12 @@ where a former pricing URL no longer publishes a rate card, the row says so.
 |---|---|---|
 | Kimi K3 | 2.8T total / 104B active MoE · 1M context · custom Kimi K3 License (card tag `other`, `license_name` kimi-k3) | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
 | Qwen 3.8 Max | Announced with 2.4T total / 95B active and ~1M context, but no downloadable weights are published under the Qwen organisation. Treat as an API model | [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
-| DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 79.4 at Think High, 80.6 at Think Max, per the card's own mode comparison | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
-| DeepSeek V4 Flash | 284B / 13B active · MIT · API list price is vendor-published and changes. The former docs URL `api-docs.deepseek.com/quick_start/pricing` now opens the first-API-call guide, not a rate card; re-check DeepSeek's current pricing page before budgeting | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [API docs](https://api-docs.deepseek.com/) |
+| DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 79.4 at Think High, 80.6 at Think Max, per the card's own mode comparison. The card does not designate a default effort | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
+| DeepSeek V4 Flash | Card states 284B / 13B active · MIT. The Hub parameter widget can read ~291B; this manual quotes the card and notes the gap. API list price is vendor-published and changes. The former docs URL `api-docs.deepseek.com/quick_start/pricing` now opens the first-API-call guide, not a rate card; re-check DeepSeek's current pricing page before budgeting | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [API docs](https://api-docs.deepseek.com/) |
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
-| GLM-4.5-Air | Fast tier · MIT | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
-| Qwen 3.6 27B / 3.5 9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| GLM-4.5-Air | Fast-decode MoE · MIT · Hub reports ~110.5B total; `indicative` 55-60 GB at 4-bit, not a 16-24 GB guest | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
+| Qwen 3.8 27B | Apache-2.0 · downloadable dense 27B with a vision encoder, published 14 August 2026. This is the self-host 3.8 line; 3.8 Max remains API-only | [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
+| Qwen 3.6 27B / 3.5 9B | Apache-2.0. 3.6 27B is the previous 27B text checkpoint, not a duplicate of 3.8 27B | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
 | Qwen 2 / 2.5 licence examples | Qwen2.5-7B, 14B, 32B, and Coder-32B cards are Apache-2.0; other named checkpoints must be checked individually | [7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) · [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) · [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) · [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
 | gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 · card states 117B total / 5.1B active for 120b | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
 | Gemma 4 | 12B instruction-tuned entry of the Apache-2.0 generation | [Model card](https://huggingface.co/google/gemma-4-12B-it) |
@@ -2126,7 +2297,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 
 Pricing figures quoted in section 24 are `indicative`: vendors change them without notice, and this
 manual does not re-check them on a schedule. Cursor Pro was $20/mo on [cursor.com/pricing](https://cursor.com/pricing)
-on 13 August 2026.
+on 16 August 2026.
 
 ### 27.6 Libraries by layer
 

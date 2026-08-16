@@ -24,7 +24,7 @@ REPO = Path(__file__).resolve().parent.parent
 
 def copy_build_fixture(directory: str) -> Path:
     repo = Path(directory)
-    (repo / "MANUAL.md").write_text((REPO / "MANUAL.md").read_text())
+    (repo / "MANUAL.md").write_text((REPO / "MANUAL.md").read_text(encoding="utf-8"), encoding="utf-8")
     shutil.copytree(REPO / "assets", repo / "assets")
     shutil.copytree(REPO / "docs", repo / "docs")
     shutil.copytree(REPO / "site", repo / "site")
@@ -70,32 +70,34 @@ class ProductionPathTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo = copy_build_fixture(directory)
             self.assertEqual(build_site.build(repo), 0)
-            self.assertIn("Content-Security-Policy", (repo / "site" / "index.html").read_text())
+            self.assertIn("Content-Security-Policy", (repo / "site" / "index.html").read_text(encoding="utf-8"))
         self.assertEqual((REPO / "site" / "index.html").read_bytes(), original_site)
 
     def test_csp_hash_accepts_mixed_case_inline_script_tags(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo = copy_build_fixture(directory)
             template_path = repo / "site" / "template.html"
-            template = template_path.read_text()
+            template = template_path.read_text(encoding="utf-8")
             opening, body_start, closing, end = inline_script_span(template)
             script_body = template[body_start:closing]
             template_path.write_text(
-                template[:opening] + "<ScRiPt>" + script_body + "</sCrIpT>" + template[end:]
+                template[:opening] + "<ScRiPt>" + script_body + "</sCrIpT>" + template[end:],
+                encoding="utf-8",
             )
 
             self.assertEqual(build_site.build(repo), 0)
             digest = base64.b64encode(hashlib.sha256(script_body.encode()).digest()).decode()
-            self.assertIn(f"'sha256-{digest}'", (repo / "site" / "index.html").read_text())
+            self.assertIn(f"'sha256-{digest}'", (repo / "site" / "index.html").read_text(encoding="utf-8"))
 
     def test_csp_hash_rejects_multiple_inline_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo = copy_build_fixture(directory)
             template_path = repo / "site" / "template.html"
             template_path.write_text(
-                template_path.read_text().replace(
+                template_path.read_text(encoding="utf-8").replace(
                     "</body>", "<script>window.unexpected = true;</script>\n</body>", 1
-                )
+                ),
+                encoding="utf-8",
             )
             self.assertEqual(build_site.build(repo), 1)
 
@@ -103,9 +105,9 @@ class ProductionPathTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo = copy_build_fixture(directory)
             template_path = repo / "site" / "template.html"
-            template = template_path.read_text()
+            template = template_path.read_text(encoding="utf-8")
             opening, _, _, end = inline_script_span(template)
-            template_path.write_text(template[:opening] + template[end:])
+            template_path.write_text(template[:opening] + template[end:], encoding="utf-8")
             self.assertEqual(build_site.build(repo), 1)
 
         original_env = os.environ.get("SKIP_REPO_DESCRIPTION")
@@ -126,7 +128,8 @@ class ProductionPathTests(unittest.TestCase):
         original_root = extract_diagrams.ROOT
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "MANUAL.md").write_text((REPO / "MANUAL.md").read_text())
+            (root / "MANUAL.md").write_text(
+                (REPO / "MANUAL.md").read_text(encoding="utf-8"), encoding="utf-8")
             extract_diagrams.ROOT = root
             try:
                 self.assertEqual(extract_diagrams.main(), 0)
@@ -138,7 +141,7 @@ class ProductionPathTests(unittest.TestCase):
                 self.assertEqual(len(parsed), len(extract_diagrams.NAMES))
                 for index, name in enumerate(extract_diagrams.NAMES):
                     self.assertEqual(
-                        (root / "diagrams" / "src" / f"{name}.mmd").read_text().strip(),
+                        (root / "diagrams" / "src" / f"{name}.mmd").read_text(encoding="utf-8").strip(),
                         parsed[index].strip(),
                         f"{name}.mmd does not match the manual's diagram at position {index}: "
                         "extract_diagrams.NAMES is misaligned with MANUAL.md",

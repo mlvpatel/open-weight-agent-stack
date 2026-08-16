@@ -56,17 +56,17 @@ class SbomTests(unittest.TestCase):
         self.assertEqual(errors, [], "\n".join(errors))
 
     def test_all_lockfile_packages_have_components_and_direct_dev_dependencies_are_present(self) -> None:
-        document = json.loads(SBOM.read_text())
+        document = json.loads(SBOM.read_text(encoding="utf-8"))
         component_refs = {component["bom-ref"] for component in document["components"]}
         lock_refs = sbom.lockfile_component_refs(REPO)
-        package = json.loads((REPO / "package.json").read_text())
+        package = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
 
         self.assertEqual(component_refs, lock_refs)
         for name, version in package["devDependencies"].items():
             self.assertIn(f"{name}@{version}", component_refs)
 
     def test_dependency_graph_has_only_resolvable_component_references(self) -> None:
-        document = json.loads(SBOM.read_text())
+        document = json.loads(SBOM.read_text(encoding="utf-8"))
         refs = {component["bom-ref"] for component in document["components"]}
         root = document["metadata"]["component"]["bom-ref"]
         graph = {entry["ref"]: entry.get("dependsOn", []) for entry in document["dependencies"]}
@@ -76,7 +76,7 @@ class SbomTests(unittest.TestCase):
                             for dependencies in graph.values() for dependency in dependencies))
 
     def test_resolvable_peer_dependencies_are_graph_edges(self) -> None:
-        graph = {entry["ref"]: entry.get("dependsOn", []) for entry in json.loads(SBOM.read_text())["dependencies"]}
+        graph = {entry["ref"]: entry.get("dependsOn", []) for entry in json.loads(SBOM.read_text(encoding="utf-8"))["dependencies"]}
 
         self.assertIn("puppeteer@25.5.0", graph["@mermaid-js/mermaid-cli@11.16.0"])
 
@@ -133,9 +133,9 @@ class SbomTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             invalid = Path(directory) / "invalid.cdx.json"
-            document = json.loads(SBOM.read_text())
+            document = json.loads(SBOM.read_text(encoding="utf-8"))
             document["components"][0].pop("name")
-            invalid.write_text(json.dumps(document))
+            invalid.write_text(json.dumps(document), encoding="utf-8")
             result = subprocess.run(
                 ["node", "scripts/validate_sbom_schema.cjs", "--sbom", str(invalid)],
                 cwd=REPO,
@@ -147,7 +147,7 @@ class SbomTests(unittest.TestCase):
         self.assertIn("CycloneDX schema validation failed", result.stderr)
 
     def test_tampered_or_stale_sbom_fails_validation(self) -> None:
-        document = json.loads(SBOM.read_text())
+        document = json.loads(SBOM.read_text(encoding="utf-8"))
         document["components"].pop()
         document["serialNumber"] = "urn:uuid:tampered"
         errors = sbom.validation_errors(REPO, json.dumps(document).encode())
@@ -156,7 +156,7 @@ class SbomTests(unittest.TestCase):
         self.assertTrue(any("volatile" in error or "lockfile" in error for error in errors))
 
     def test_unresolved_dependency_graph_reference_fails_validation(self) -> None:
-        document = json.loads(SBOM.read_text())
+        document = json.loads(SBOM.read_text(encoding="utf-8"))
         document["dependencies"][0]["dependsOn"].append("missing-package@0.0.0")
 
         errors = sbom.validation_errors(REPO, json.dumps(document).encode())

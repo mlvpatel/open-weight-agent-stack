@@ -1,4 +1,4 @@
-# Layer 2: Frontend and edge
+# L2: Frontend and edge
 
 > Capture the prompt, stream the answer, never blank the page. Ring: harness. Manual: [section 6](../../MANUAL.md#6-request-lifecycle).
 

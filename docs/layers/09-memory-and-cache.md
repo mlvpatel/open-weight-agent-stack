@@ -1,4 +1,4 @@
-# Layer 9: Memory and cache
+# L9: Memory and cache
 
 > State that outlives a turn, and speed that skips one. Ring: context. Manual: [section 12](../../MANUAL.md#12-memory-and-data-tiers), [section 16](../../MANUAL.md#16-databases-and-state).
 

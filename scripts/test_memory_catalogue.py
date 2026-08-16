@@ -17,7 +17,7 @@ FILES = {
     "architecture": REPO / "docs" / "ARCHITECTURE.md",
     "diagram": REPO / "diagrams" / "src" / "technology-catalogue.mmd",
 }
-TEXT = {name: " ".join(path.read_text().split()) for name, path in FILES.items()}
+TEXT = {name: " ".join(path.read_text(encoding="utf-8").split()) for name, path in FILES.items()}
 FAILURES: list[str] = []
 
 SYSTEMS = {

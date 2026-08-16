@@ -1,4 +1,4 @@
-# Layer 5: RAG pipeline
+# L5: RAG pipeline
 
 > Ground answers in your corpus, with provenance. Ring: context. Manual: [section 8](../../MANUAL.md#8-rag-pipeline-internals), [section 15](../../MANUAL.md#15-data-lifecycle-deletion-and-re-indexing).
 
@@ -10,7 +10,7 @@ Parse documents into structure-aware chunks, embed them, retrieve by hybrid sear
 
 - Parsing: Docling for PDFs and office formats with layout; Unstructured for breadth of formats.
 - Embeddings: BGE-M3 covers dense plus sparse in one multilingual model; Qwen3-Embedding when quality on the MTEB leaderboard justifies a larger model.
-- Vector store: start with pgvector when keeping vectors beside relational data is useful; move only when measured latency, filtering, index build time, or operations justify another engine. Measure against your workload before choosing a dedicated engine. Qdrant suits filtered search at scale; Milvus suits very large corpora; LanceDB is embedded; Chroma is for prototypes.
+- Vector store: start with pgvector when keeping vectors beside relational data is useful. `indicative`: comfortable to around 10M vectors on one well-indexed node; move only when measured latency, filtering, index build time, or operations justify another engine.
 - Reranker: evaluate a cross-encoder such as BGE-Reranker when retrieval misses matter; it often improves ranking quality, but the gain depends on the corpus, candidates, and latency budget.
 - End-to-end platform instead of parts: RAGFlow.
 - Variant patterns (GraphRAG, Self-RAG, RAPTOR, ColPali and the rest): adopt one when its failure mode appears, per [section 8.1](../../MANUAL.md#81-rag-variants-adopt-one-when-its-failure-mode-appears).

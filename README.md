@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 164 primary sources, with the five concentric rings from prompt to loop" width="880">
+<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 165 primary sources, with the five concentric rings from prompt to loop" width="880">
 
 **Performance-first build manual**
 
@@ -8,12 +8,14 @@
 
 The complete blueprint for agentic AI on open-weight models: hardware and serving, retrieval, memory, security and operations. Latency and throughput are the ruling metrics, because an agent loop multiplies every millisecond it spends.
 
-**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **164** primary sources
+CI fact-checks the prose and opens a pull request when upstream model cards drift. That machinery is the differentiator; the manual is what it protects.
+
+**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **165** primary sources
 
 [![Read the manual](https://img.shields.io/badge/Read_the_manual-0071e3?style=for-the-badge)](https://mlvpatel.github.io/open-weight-agent-stack/)
 [![View on GitHub](https://img.shields.io/badge/View_on_GitHub-1d1d1f?style=for-the-badge)](https://github.com/mlvpatel/open-weight-agent-stack)
 
-[Manual](MANUAL.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Models](docs/MODELS.md) &nbsp;·&nbsp; [What CI proves](docs/VERIFICATION.md)
+[Manual](MANUAL.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Models](docs/MODELS.md) &nbsp;·&nbsp; [What CI proves](docs/VERIFICATION.md) &nbsp;·&nbsp; [Decision record](docs/adr/001-self-host-the-mid-tier.md)
 
 [![validate](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/validate.yml)
 [![freshness](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml/badge.svg)](https://github.com/mlvpatel/open-weight-agent-stack/actions/workflows/freshness.yml)
@@ -41,7 +43,7 @@ Every category below leads with more than one option, and at least one you can r
 
 <div align="center">
 
-**Serving and runtimes** &nbsp;·&nbsp; layer 6
+**Serving and runtimes** &nbsp;·&nbsp; L6
 
 ![vLLM](https://img.shields.io/badge/vLLM-1d1d1f?style=for-the-badge&logo=vllm&logoColor=white)
 ![SGLang](https://img.shields.io/badge/SGLang-1d1d1f?style=for-the-badge)
@@ -61,7 +63,7 @@ Every category below leads with more than one option, and at least one you can r
 ![gpt-oss](https://img.shields.io/badge/gpt--oss-1d1d1f?style=for-the-badge)
 ![Claude](https://img.shields.io/badge/Claude-1d1d1f?style=for-the-badge&logo=anthropic&logoColor=white)
 
-**Retrieval, memory and state** &nbsp;·&nbsp; layers 5, 9
+**Retrieval, memory and state** &nbsp;·&nbsp; L5, L9
 
 ![Qdrant](https://img.shields.io/badge/Qdrant-1d1d1f?style=for-the-badge&logo=qdrant&logoColor=white)
 ![pgvector](https://img.shields.io/badge/pgvector-1d1d1f?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -69,14 +71,14 @@ Every category below leads with more than one option, and at least one you can r
 ![Valkey](https://img.shields.io/badge/Valkey-1d1d1f?style=for-the-badge)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1d1d1f?style=for-the-badge)
 
-**Orchestration and tools** &nbsp;·&nbsp; layers 3, 7
+**Orchestration and tools** &nbsp;·&nbsp; L3, L7
 
 ![LangGraph](https://img.shields.io/badge/LangGraph-1d1d1f?style=for-the-badge&logo=langchain&logoColor=white)
 ![MCP](https://img.shields.io/badge/MCP-1d1d1f?style=for-the-badge&logo=modelcontextprotocol&logoColor=white)
 ![CrewAI](https://img.shields.io/badge/CrewAI-1d1d1f?style=for-the-badge)
 ![Pydantic AI](https://img.shields.io/badge/Pydantic%20AI-1d1d1f?style=for-the-badge)
 
-**Operations** &nbsp;·&nbsp; layers 11, 12
+**Operations** &nbsp;·&nbsp; L11, L12
 
 ![Docker](https://img.shields.io/badge/Docker-1d1d1f?style=for-the-badge&logo=docker&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1d1d1f?style=for-the-badge&logo=kubernetes&logoColor=white)
@@ -137,7 +139,7 @@ Two shortcuts worth knowing. If you only read one page, read [section 2](MANUAL.
 | Which licence a model actually carries | [docs/MODELS.md](docs/MODELS.md) |
 | Security, mapped to OWASP's ten agentic risks | [Section 19](MANUAL.md#19-threat-model) |
 | Databases, queues, and state | [Section 16](MANUAL.md#16-databases-and-state) |
-| Deployment memory systems and their safety boundary | [Section 12.1](MANUAL.md#121-deployment-memory-catalogue) · [Layer 9](docs/layers/09-memory-and-cache.md) |
+| Deployment memory systems and their safety boundary | [Section 12.1](MANUAL.md#121-deployment-memory-catalogue) · [L9](docs/layers/09-memory-and-cache.md) |
 | How to test an agent system | [Section 13.1](MANUAL.md#131-the-agent-test-pyramid) |
 | What to version, and what rollback restores | [Section 25](MANUAL.md#25-versioning-and-change-control) |
 | Why it broke, first hour | [Section 26.1](MANUAL.md#261-when-it-breaks-the-first-hour-table) |
@@ -148,10 +150,10 @@ Each has decision guidance, wiring notes, and a link for every tool named: **[do
 
 | | | | |
 |---|---|---|---|
-| [0 · Identity](docs/layers/00-identity-and-access.md) | [1 · Clients](docs/layers/01-clients.md) | [2 · Frontend](docs/layers/02-frontend-and-edge.md) | [3 · Orchestrator](docs/layers/03-orchestrator.md) |
-| [4 · Knowledge decision](docs/layers/04-knowledge-decision.md) | [5 · RAG pipeline](docs/layers/05-rag-pipeline.md) | [6 · Model layer](docs/layers/06-model-layer.md) | [7 · Tools via MCP](docs/layers/07-tools-via-mcp.md) |
-| [8 · Code agent](docs/layers/08-code-agent.md) | [9 · Memory and cache](docs/layers/09-memory-and-cache.md) | [10 · Guardrails and evals](docs/layers/10-guardrails-and-evals.md) | [11 · Observability](docs/layers/11-observability.md) |
-| [12 · Deployment](docs/layers/12-deployment.md) | | | |
+| [L0 · Identity](docs/layers/00-identity-and-access.md) | [L1 · Clients](docs/layers/01-clients.md) | [L2 · Frontend](docs/layers/02-frontend-and-edge.md) | [L3 · Orchestrator](docs/layers/03-orchestrator.md) |
+| [L4 · Knowledge decision](docs/layers/04-knowledge-decision.md) | [L5 · RAG pipeline](docs/layers/05-rag-pipeline.md) | [L6 · Model layer](docs/layers/06-model-layer.md) | [L7 · Tools via MCP](docs/layers/07-tools-via-mcp.md) |
+| [L8 · Code agent](docs/layers/08-code-agent.md) | [L9 · Memory and cache](docs/layers/09-memory-and-cache.md) | [L10 · Guardrails and evals](docs/layers/10-guardrails-and-evals.md) | [L11 · Observability](docs/layers/11-observability.md) |
+| [L12 · Deployment](docs/layers/12-deployment.md) | | | |
 
 ## Repository map
 
@@ -211,7 +213,7 @@ npm run browser:check                 # generated site smoke test in Chromium
 
 ## How this repository stays honest
 
-- **One rule.** Every factual claim carries its basis: derivable arithmetic, an attributed primary source, or an explicit `indicative` marker for field heuristics nobody publishes.
+- **Tracked claims carry their basis.** Volatile model and tool facts in `MANUAL.md` are pinned to a primary source, dated arithmetic, or an explicit `indicative` marker. That is a golden-string regression pin on wording that has drifted before, not a proof that every sentence in the repository is sourced. [docs/VERIFICATION.md](docs/VERIFICATION.md) states the coverage number.
 - **Derived files cannot drift.** `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails when the committed copy differs. The same check covers the extracted diagram sources and the container diagram embedded in the architecture document.
 - **Gates are tested for teeth.** Every check reports how many items it inspected and fails when it inspected none. CI additionally breaks an anchor on purpose and feeds the HTML validator a malformed document, failing if either still passes. A gate that only ever passes proves nothing.
 - **Builds are reproducible.** Dependencies pinned by lockfile, Actions pinned by commit SHA, and diagram rendering byte-identical across runs.

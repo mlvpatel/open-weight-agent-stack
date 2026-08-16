@@ -2,7 +2,15 @@
 
 ## 1.1.1 - 2026-08-11 (local release candidate)
 
-**Deployment memory catalogue.** The manual and Layer 9 now distinguish six deployment-memory
+**Accuracy, depth, and site companions.** Architecture and Models are now generated
+Pages, not GitHub 404s. DeepSeek pricing, GLM-4.5-Air vs 9B hosting, SWE-bench
+modes, Qwen 3.8 27B, and the latency budget's rewrite path were corrected. The
+manual now carries a dated cost model, a worked KV example, a vLLM command and
+compose fragment, fail-closed ANN filters, eval thresholds, and a compaction
+policy. Search, dark mode, evidence-marker lint, and a last-verified staleness
+gate are in the published tree.
+
+**Deployment memory catalogue.** The manual and L9 now distinguish six deployment-memory
 roles and document their source links, write gates, authority inheritance, egress review, and
 end-to-end erasure boundaries.
 
@@ -21,7 +29,7 @@ offline suite has a measured Python coverage gate and protects factual claims,
 freshness, generated links, workflow security, and release metadata.
 
 **Browser and workflow hardening.** A sandboxed Chromium gate opens the site
-under its GitHub Pages repository path, requires all 18 Mermaid diagrams, and
+under its GitHub Pages repository path, requires all 20 Mermaid diagrams, and
 turns a Mermaid failure into visible safe fallback text. CodeQL is configured
 locally for Python and JavaScript/TypeScript; hosted scanning becomes active
 only after this candidate is pushed and the workflow runs on GitHub.

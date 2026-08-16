@@ -1,4 +1,4 @@
-# Layer 6: Model layer
+# L6: Model layer
 
 > The serving runtime and the models it runs. Ring: prompt. Manual: [section 2](../../MANUAL.md#2-what-can-you-actually-run), [section 20](../../MANUAL.md#20-latency-budget), [section 22](../../MANUAL.md#22-task-to-model-routing).
 

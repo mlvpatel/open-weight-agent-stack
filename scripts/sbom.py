@@ -41,7 +41,7 @@ def component_ref(name: str, package: dict[str, Any]) -> str:
 
 
 def load_lockfile(repo: Path) -> dict[str, Any]:
-    data = json.loads((repo / LOCKFILE).read_text())
+    data = json.loads((repo / LOCKFILE).read_text(encoding="utf-8"))
     if data.get("lockfileVersion") != 3 or not isinstance(data.get("packages"), dict):
         raise ValueError("package-lock.json must use lockfileVersion 3 with a packages map")
     return data
@@ -117,7 +117,7 @@ def dependency_graph(repo: Path) -> list[dict[str, Any]]:
     """Build a resolvable CycloneDX dependency graph from lockfile locations."""
     lock = load_lockfile(repo)
     packages: dict[str, Any] = lock["packages"]
-    root_package = json.loads((repo / "package.json").read_text())
+    root_package = json.loads((repo / "package.json").read_text(encoding="utf-8"))
     return dependency_graph_from_packages(packages, root_package)
 
 
@@ -197,7 +197,7 @@ def component_from_lock(name: str, package: dict[str, Any]) -> dict[str, Any]:
 
 
 def root_component(repo: Path) -> dict[str, Any]:
-    package = json.loads((repo / "package.json").read_text())
+    package = json.loads((repo / "package.json").read_text(encoding="utf-8"))
     required = ("name", "version")
     if any(key not in package for key in required):
         raise ValueError("package.json must declare name and version")
@@ -295,7 +295,7 @@ def validation_errors(repo: Path, candidate: bytes) -> list[str]:
             "SBOM lockfile/component agreement failed: "
             f"expected {len(expected_refs)} unique lockfile components, found {len(refs)}"
         )
-    package = json.loads((repo / "package.json").read_text())
+    package = json.loads((repo / "package.json").read_text(encoding="utf-8"))
     for name, version in package.get("devDependencies", {}).items():
         if f"{name}@{version}" not in refs:
             errors.append(f"SBOM omits direct devDependency {name}@{version}")

@@ -113,7 +113,7 @@ def _table(rows: list[str]) -> str:
     return "".join(out)
 
 
-def render(md: str, mermaid_init: str) -> tuple[str, int]:
+def render(md: str, mermaid_init: str, figure_titles: tuple[str, ...] = FIGURE_TITLES) -> tuple[str, int]:
     """Return (html, figure_count). Mermaid fences become numbered figures."""
     lines = md.split("\n")
     out: list[str] = []
@@ -144,7 +144,7 @@ def render(md: str, mermaid_init: str) -> tuple[str, int]:
             body = "\n".join(buf)
             if lang == "mermaid":
                 fig += 1
-                title = FIGURE_TITLES[fig - 1] if fig <= len(FIGURE_TITLES) else ""
+                title = figure_titles[fig - 1] if fig <= len(figure_titles) else ""
                 number = f"Fig. {fig:02d}"
                 label = f"{number}. {title}" if title else number
                 studio = "dark" if fig % 2 else "light"

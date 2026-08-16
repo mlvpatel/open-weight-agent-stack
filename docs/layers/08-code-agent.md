@@ -1,4 +1,4 @@
-# Layer 8: Code agent
+# L8: Code agent
 
 > Software that writes and tests software, under the same governance as everything else. Ring: harness. Manual: [section 24](../../MANUAL.md#24-code-agents-the-full-landscape).
 

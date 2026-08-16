@@ -41,7 +41,7 @@ MODEL_URL = re.compile(
 
 def load_model_coverage(path: Path = SOURCES_PATH) -> dict[str, Any]:
     """Read the auditable source-to-model coverage contract."""
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def declared_model_cards(coverage: dict[str, Any] | None = None) -> set[str]:
@@ -49,7 +49,7 @@ def declared_model_cards(coverage: dict[str, Any] | None = None) -> set[str]:
     coverage = coverage or load_model_coverage()
     declared: set[str] = set()
     for name, source in coverage["source_sets"].items():
-        text = (REPO / source["path"]).read_text()
+        text = (REPO / source["path"]).read_text(encoding="utf-8")
         start, end = source.get("start_heading"), source.get("end_heading")
         if start:
             if start not in text:
@@ -146,13 +146,17 @@ def project_model(repo_id: str) -> dict[str, Any]:
             "license": data.get("license") or card.get("license"),
             "license_name": card.get("license_name"),
             "gated": bool(data.get("gated")),
+            "parameters": (
+                data.get("safetensors", {}).get("total")
+                if isinstance(data.get("safetensors"), dict) else None
+            ),
         },
     }
 
 
 def project_dependencies() -> dict:
     """The build's own pinned versions, from package.json."""
-    pkg = json.loads((REPO / "package.json").read_text())
+    pkg = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
     return {name: ver for name, ver in sorted(pkg.get("devDependencies", {}).items())}
 
 
@@ -168,7 +172,7 @@ def load_state() -> dict[str, Any]:
     """Accept legacy state and always return the stable v2 shape."""
     if not STATE_PATH.exists():
         return {"schema_version": 2, "observed": {}, "pending": {}}
-    state = json.loads(STATE_PATH.read_text())
+    state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
     observed, pending = state.get("observed", {}), state.get("pending", {})
     return {
         "schema_version": 2,
@@ -182,6 +186,8 @@ def diff(label: str, old: dict | None, new: dict | None) -> list[str]:
         return []
     out = []
     for key in sorted(set(old) | set(new)):
+        if key not in old:
+            continue
         a, b = old.get(key), new.get(key)
         if a != b:
             out.append(f"{label}: {key} changed from {a!r} to {b!r}")
@@ -307,10 +313,16 @@ def main() -> int:
     # Retired IDs (including the old Devstral card) cannot retain counters.
     observed_now, pending = normalise_state(observed_now, pending, tuple(WATCHED_MODELS))
 
+    from datetime import datetime, timezone
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(
-        {"schema_version": 2, "observed": observed_now, "pending": pending},
-        indent=2, sort_keys=True) + "\n")
+        {
+            "schema_version": 2,
+            "last_run": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "observed": observed_now,
+            "pending": pending,
+        },
+        indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     reachable = sum(1 for repo_id in WATCHED_MODELS
                     if isinstance(observed_now.get(repo_id), dict)
@@ -331,7 +343,8 @@ def main() -> int:
         "two consecutive differing observations. Temporary API failures are excluded.\n\n"
         f"{report}\n\n"
         "Each entry links the primary source. Verify against it before merging: "
-        "a licence change is legal guidance by implication.\n"
+        "a licence change is legal guidance by implication.\n",
+        encoding="utf-8",
     )
     return 2   # 2 means drift found, distinct from 1 for failure
 

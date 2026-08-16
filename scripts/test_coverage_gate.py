@@ -27,7 +27,7 @@ def rostered_regression_modules() -> set[str]:
     harness runs the modules whose execution it measures.  Neither list alone is
     the roster, so membership means appearing in at least one.
     """
-    npm_test_command = json.loads((REPO / "package.json").read_text())["scripts"]["test"]
+    npm_test_command = json.loads((REPO / "package.json").read_text(encoding="utf-8"))["scripts"]["test"]
     rostered = {name for name in regression_modules_on_disk() if name in npm_test_command}
     rostered.update(coverage_gate.TEST_SCRIPTS)
     return rostered

@@ -4,7 +4,7 @@ The families this stack draws from. **Licences are stated per model, never per f
 
 Every licence below is linked to a model card or vendor licence document where practical. The linked primary source wins over this page; check the exact checkpoint before you commit.
 
-**Last verified:** 13 August 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of `other` means the card ships a named custom licence, not an OSI-approved SPDX id.
+**Last verified:** 16 August 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of `other` means the card ships a named custom licence, not an OSI-approved SPDX id.
 
 ## Read this first
 
@@ -42,6 +42,7 @@ These families ship different terms to different models. Use the specific row.
 
 | Model | Licence | Note |
 |---|---|---|
+| Qwen3.8-27B | Apache-2.0 | Downloadable dense 27B with a vision encoder, published 14 August 2026. [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
 | Qwen3.6-27B, Qwen3.5-9B | Apache-2.0 | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
 | Qwen3-Coder-Next | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | Qwen3-Embedding-8B | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |

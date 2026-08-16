@@ -76,13 +76,9 @@ jobs:
           git config user.email "freshness-watcher@users.noreply.github.com"
           git checkout -B "$STATE_BRANCH"
           git add -f .github/upstream-state.json
-          if git diff --cached --quiet; then
-            echo "state unchanged"
-          else
-            git commit -m "chore: record upstream observations"
-            git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:$STATE_BRANCH"
-            echo "state persisted to $STATE_BRANCH"
-          fi
+          git commit --allow-empty -m "chore: record upstream observations"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:$STATE_BRANCH"
+          echo "state persisted to $STATE_BRANCH"
 
       - name: mint an app token
         id: token

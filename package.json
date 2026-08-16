@@ -15,7 +15,7 @@
     "browser:check:normal": "node scripts/test_site_browser.cjs",
     "browser:check:failure": "node scripts/test_site_browser.cjs --simulate-mermaid-failure",
     "browser:check": "npm run browser:check:normal && npm run browser:check:failure",
-    "validate:html": "html-validate site/index.html"
+    "validate:html": "html-validate site/index.html site/architecture.html site/models.html"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "11.16.0",
