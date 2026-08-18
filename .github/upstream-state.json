@@ -1,50 +1,107 @@
 {
-  "schema_version": 2,
+  "last_run": "2026-08-18T05:45:19Z",
   "observed": {
     "BAAI/bge-m3": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": null
     },
     "Kwaipilot/KAT-Coder-V2.5-Dev": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 34660610688
+    },
+    "Lightricks/LTX-Video": {
+      "available": true,
+      "gated": false,
+      "license": "other",
+      "license_name": null,
+      "parameters": 1923385472
     },
     "LiquidAI/LFM2.5-2.6B": {
       "available": true,
       "gated": false,
       "license": "other",
-      "license_name": "lfm1.0"
+      "license_name": "lfm1.0",
+      "parameters": 2697198592
     },
     "MiniMaxAI/MiniMax-M2.7": {
       "available": true,
       "gated": false,
       "license": "other",
-      "license_name": "other"
+      "license_name": "other",
+      "parameters": 228689764864
+    },
+    "Qwen/Qwen2.5-14B-Instruct": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 14770033664
+    },
+    "Qwen/Qwen2.5-32B-Instruct": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 32763876352
+    },
+    "Qwen/Qwen2.5-7B-Instruct": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 7615616512
+    },
+    "Qwen/Qwen2.5-Coder-32B-Instruct": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 32763876352
     },
     "Qwen/Qwen3-Coder-Next": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 79674391296
+    },
+    "Qwen/Qwen3-Embedding-8B": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 7567295488
     },
     "Qwen/Qwen3.5-9B": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 9653104368
     },
     "Qwen/Qwen3.6-27B": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 27781427952
+    },
+    "Qwen/Qwen3.8-27B": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 27781427952
     },
     "__deps__": {
       "@mermaid-js/mermaid-cli": "11.16.0",
+      "ajv": "8.20.0",
       "html-validate": "11.6.2",
       "puppeteer": "25.5.0"
     },
@@ -52,92 +109,139 @@
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 7298011136
     },
     "deepseek-ai/DeepSeek-V4-Flash": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 290944616402
     },
     "deepseek-ai/DeepSeek-V4-Pro": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 1598839674782
     },
     "google/gemma-4-12B-it": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 11959730224
     },
     "hexgrad/Kokoro-82M": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": null
     },
     "ibm-granite/granite-4.1-30b": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 28865728512
     },
     "inclusionAI/Ling-3.0-flash": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 127486405600
+    },
+    "microsoft/Phi-4-mini-instruct": {
+      "available": true,
+      "gated": false,
+      "license": "mit",
+      "license_name": null,
+      "parameters": 3836021760
     },
     "microsoft/phi-4": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 14659507200
+    },
+    "mistralai/Devstral-Small-2-24B-Instruct-2512": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 24011361840
+    },
+    "mistralai/Mistral-Large-3-675B-Instruct-2512": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": null
+    },
+    "mistralai/Mistral-Small-4-119B-2603": {
+      "available": true,
+      "gated": false,
+      "license": "apache-2.0",
+      "license_name": null,
+      "parameters": 119401317952
     },
     "moonshotai/Kimi-K3": {
       "available": true,
       "gated": false,
       "license": "other",
-      "license_name": "kimi-k3"
+      "license_name": "kimi-k3",
+      "parameters": 2779931837184
     },
     "openai/gpt-oss-120b": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 116829156672
     },
     "openai/gpt-oss-20b": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 21511953984
     },
     "poolside/Laguna-S-2.1": {
       "available": true,
       "gated": false,
       "license": "openmdw-1.1",
-      "license_name": null
+      "license_name": null,
+      "parameters": 117561977600
     },
     "tencent/Hy3": {
       "available": true,
       "gated": false,
       "license": "apache-2.0",
-      "license_name": null
+      "license_name": null,
+      "parameters": 298786155776
     },
     "zai-org/GLM-4.5-Air": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 110468824832
     },
     "zai-org/GLM-5.2": {
       "available": true,
       "gated": false,
       "license": "mit",
-      "license_name": null
+      "license_name": null,
+      "parameters": 753329940480
     }
   },
-  "pending": {}
+  "pending": {
+    "dep:html-validate:11.8.0": 1,
+    "dep:puppeteer:25.8.0": 1
+  },
+  "schema_version": 2
 }
