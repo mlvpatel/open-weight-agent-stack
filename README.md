@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 165 primary sources, with the five concentric rings from prompt to loop" width="880">
+<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 166 primary sources, with the five concentric rings from prompt to loop" width="880">
 
 **Performance-first build manual**
 
@@ -10,7 +10,7 @@ The complete blueprint for agentic AI on open-weight models: hardware and servin
 
 CI fact-checks the prose and opens a pull request when upstream model cards drift. That machinery is the differentiator; the manual is what it protects.
 
-**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **165** primary sources
+**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **166** primary sources
 
 [![Read the manual](https://img.shields.io/badge/Read_the_manual-0071e3?style=for-the-badge)](https://mlvpatel.github.io/open-weight-agent-stack/)
 [![View on GitHub](https://img.shields.io/badge/View_on_GitHub-1d1d1f?style=for-the-badge)](https://github.com/mlvpatel/open-weight-agent-stack)
