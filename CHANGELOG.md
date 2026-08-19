@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.1 - 2026-08-11 (local release candidate)
+## 1.1.1 - 2026-08-16
 
 **Accuracy, depth, and site companions.** Architecture and Models are now generated
 Pages, not GitHub 404s. DeepSeek pricing, GLM-4.5-Air vs 9B hosting, SWE-bench
