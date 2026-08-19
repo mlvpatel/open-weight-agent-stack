@@ -18,7 +18,8 @@ Not every question deserves a retrieval round-trip. A working stack decides per 
 | Approach | Cost per decision | Link |
 |---|---|---|
 | Heuristic rules | Free | Pattern list in your gateway code |
-| Fast-tier classifier | A few tokens | [GLM-4.5-Air](https://huggingface.co/zai-org/GLM-4.5-Air) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| Fast-tier classifier · small dense | A few tokens | [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) · self-hosts on 16-24 GB |
+| Fast-tier classifier · MoE | A few tokens | [GLM-4.5-Air](https://huggingface.co/zai-org/GLM-4.5-Air) · 110B-class MoE, `indicative` 55-60 GB at 4-bit, not the 16-24 GB tier |
 | Semantic router | One embedding | [github.com/aurelio-labs/semantic-router](https://github.com/aurelio-labs/semantic-router) |
 | Always-retrieve | One retrieval round-trip per turn | [Section 8](../../MANUAL.md#8-rag-pipeline-internals) |
 

@@ -9,7 +9,7 @@ The orchestrator turns a goal into bounded work: decompose, act, observe, verify
 ## How to choose
 
 - Graph-of-steps control with checkpointing: LangGraph, the current default for production loops.
-- Role-based multi-agent teams: CrewAI reads naturally when work maps to roles.
+- Role-based multi-agent teams: CrewAI reads naturally when work maps to roles, but pick it deliberately, not because a catalogue listed it; multi-agent topologies are out of scope for this stack's single bounded loop ([section 23](../../MANUAL.md#23-platform-and-sdk-choice)).
 - Document-heavy agents: LlamaIndex Workflows sit closest to retrieval.
 - Type-safe, minimal, Pythonic: Pydantic AI validates every boundary.
 - Microsoft ecosystem: Microsoft Agent Framework (successor to AutoGen and Semantic Kernel).
@@ -28,6 +28,8 @@ The orchestrator turns a goal into bounded work: decompose, act, observe, verify
 | AWS Strands | Model-driven agents on AWS | [github.com/strands-agents/sdk-python](https://github.com/strands-agents/sdk-python) |
 | smolagents | Minimal code-first agents | [github.com/huggingface/smolagents](https://github.com/huggingface/smolagents) |
 | Temporal | Durable execution under any framework | [github.com/temporalio/temporal](https://github.com/temporalio/temporal) |
+
+CrewAI and AutoGen multi-agent topologies are out of scope for this stack: it is a single bounded loop with tools. Pick CrewAI when you need a role-cast crew and accept that trade-off, not because this table listed it ([section 23](../../MANUAL.md#23-platform-and-sdk-choice)).
 
 ## Wiring it in
 
