@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline consistency checks for the local release candidate metadata."""
+"""Offline consistency checks for the release metadata."""
 from __future__ import annotations
 
 import json
@@ -10,11 +10,11 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 VERSION = "1.1.1"
-RELEASE_DATE = "2026-08-11"
+RELEASE_DATE = "2026-08-16"
 
 
 class ReleaseMetadataTests(unittest.TestCase):
-    def test_all_release_metadata_describes_the_same_local_candidate(self) -> None:
+    def test_all_release_metadata_describes_the_same_release(self) -> None:
         package = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
         lockfile = json.loads((REPO / "package-lock.json").read_text(encoding="utf-8"))
         sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))
@@ -30,8 +30,8 @@ class ReleaseMetadataTests(unittest.TestCase):
         self.assertEqual(re.findall(r"^\s*version: \"([^\"]+)\"$", citation, re.M), [VERSION, VERSION])
         self.assertIn(f"date-released: \"{RELEASE_DATE}\"", citation)
         self.assertIsNotNone(re.search(rf"^## {re.escape(VERSION)}\b", changelog, re.M))
-        self.assertRegex(readme, rf"{re.escape(VERSION)}\s+(?:local )?release candidate", re.I)
-        self.assertNotIn("GitHub release 1.1.1", readme)
+        self.assertRegex(readme, rf"What shipped in {re.escape(VERSION)}", re.I)
+        self.assertNotIn("release candidate", readme.lower())
 
 
 if __name__ == "__main__":

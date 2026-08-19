@@ -316,6 +316,63 @@ def check_architecture_diagram() -> None:
     SUMMARY.append(f"architecture: {len(blocks)} diagrams, container view matches its source")
 
 
+FRESHNESS_HEARTBEAT_MAX_AGE_DAYS = 14
+
+
+def check_freshness_heartbeat() -> None:
+    """The watcher writes ``last_run`` to the freshness-state branch every run.
+
+    A schedule GitHub has silently disabled cannot report itself, so this
+    check reads the heartbeat from the state branch and fails when the newest
+    observation is older than one missed weekly run. Offline machines skip
+    with a visible summary line; CI fails, because there the fetch must work.
+    """
+    in_ci = bool(os.environ.get("GITHUB_ACTIONS"))
+    try:
+        fetched = subprocess.run(
+            ["git", "fetch", "--depth", "1", "origin", "freshness-state"],
+            capture_output=True, text=True, timeout=60, cwd=REPO,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        fetched = None
+    if fetched is None or fetched.returncode != 0:
+        if in_ci:
+            fail("heartbeat: could not fetch the freshness-state branch from origin")
+        else:
+            SUMMARY.append("heartbeat: skipped (freshness-state branch not fetchable here)")
+        return
+    shown = subprocess.run(
+        ["git", "show", "FETCH_HEAD:.github/upstream-state.json"],
+        capture_output=True, text=True, timeout=30, cwd=REPO,
+    )
+    if shown.returncode != 0:
+        fail("heartbeat: freshness-state branch has no .github/upstream-state.json")
+        return
+    try:
+        state = json.loads(shown.stdout)
+    except json.JSONDecodeError:
+        fail("heartbeat: upstream-state.json on freshness-state is not valid JSON")
+        return
+    last_run = state.get("last_run")
+    if not isinstance(last_run, str):
+        fail("heartbeat: upstream-state.json carries no last_run timestamp")
+        return
+    hit = re.match(r"(\d{4})-(\d{2})-(\d{2})T", last_run)
+    if hit is None:
+        fail(f"heartbeat: last_run {last_run!r} is not an ISO timestamp")
+        return
+    ran = date(int(hit.group(1)), int(hit.group(2)), int(hit.group(3)))
+    age = (date.today() - ran).days
+    if age > FRESHNESS_HEARTBEAT_MAX_AGE_DAYS:
+        fail(f"heartbeat: the watcher last ran {age} days ago (limit "
+             f"{FRESHNESS_HEARTBEAT_MAX_AGE_DAYS}); its schedule may have been disabled")
+        return
+    if age < 0:
+        fail(f"heartbeat: last_run {last_run!r} is dated in the future")
+        return
+    SUMMARY.append(f"heartbeat: watcher ran {age} days ago (limit {FRESHNESS_HEARTBEAT_MAX_AGE_DAYS})")
+
+
 def check_repo_description(m) -> None:
     """The description lives outside the repository, so no generator can fix it."""
     if os.environ.get("SKIP_REPO_DESCRIPTION"):
@@ -358,6 +415,7 @@ def main() -> int:
     check_architecture_diagram()
     check_published_trees()
     check_evidence_markers()
+    check_freshness_heartbeat()
     check_repo_description(m)
     check_release_version()
 

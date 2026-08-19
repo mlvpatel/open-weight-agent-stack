@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/models.html">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Open-weight model families and their licences">
-<meta property="og:description" content="A performance-first build manual for agentic AI on open-weight models.">
+<meta property="og:description" content="A build manual for agentic AI on open-weight models whose CI fact-checks the prose and opens a pull request when model cards drift.">
 <meta property="og:url" content="https://mlvpatel.github.io/open-weight-agent-stack/models.html">
 <meta property="og:image" content="https://mlvpatel.github.io/open-weight-agent-stack/preview.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -967,15 +967,13 @@
 </nav>
 <header class="hero">
   <div class="hero-in">
-    <span class="eyebrow">Performance-first build manual</span>
     <h1>The Open-Weight<br>Agent Stack</h1>
-    <p class="standfirst">The complete blueprint for agentic AI on open-weight models: hardware and serving,
-      retrieval, memory, security and operations. Latency and throughput are the ruling metrics,
-      because an agent loop multiplies every millisecond it spends.</p>
+    <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens
+      a pull request when upstream model cards drift. That machinery is the differentiator;
+      the manual is what it protects.</p>
     <dl class="stats">
       <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
       <div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div>
-      <div class="stat"><dt>Sources</dt><dd>165<span>primary, CI-checked</span></dd></div>
     </dl>
     <p class="hero-cta">
       <a class="btn btn-primary" href="#main">Read the manual</a>
@@ -1057,7 +1055,7 @@
 <div class="sec-head"><h2>Split by model</h2></div>
 <p>These families ship different terms to different models. Use the specific row.</p>
 <h3 id="qwen">Qwen</h3>
-<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Qwen3.8-27B</th><td>Apache-2.0</td><td>Downloadable dense 27B with a vision encoder, published 14 August 2026. <a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a></td></tr><tr><th scope="row">Qwen3.6-27B, Qwen3.5-9B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3.6-27B">Qwen3.6-27B</a> · <a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a></td></tr><tr><th scope="row">Qwen3-Coder-Next</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Coder-Next">Model card</a></td></tr><tr><th scope="row">Qwen3-Embedding-8B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Embedding-8B">Model card</a></td></tr><tr><th scope="row">Qwen 2 and 2.5, most sizes</th><td>Apache-2.0</td><td>Includes <a href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct">Qwen2.5-7B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-14B-Instruct">14B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">32B</a> and <a href="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct">Coder-32B</a></td></tr><tr><th scope="row">Qwen 2.5-72B, 2.5-3B, Qwen 1.5</th><td>Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged <code>other</code>)</td><td>Size decides here, not generation; see each card&#x27;s licence tag</td></tr><tr><th scope="row">Qwen 3.8 Max</th><td><strong>No published weights</strong></td><td>Announced with benchmark figures; no downloadable checkpoint under the Qwen organisation. Treat as an API model, not an open-weight one. Third-party uploads claiming to be it are not authoritative</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Qwen3.8-27B</th><td>Apache-2.0</td><td>Downloadable dense 27B with a vision encoder, published 14 August 2026. <a href="https://huggingface.co/Qwen/Qwen3.8-27B">Qwen3.8-27B</a></td></tr><tr><th scope="row">Qwen3.6-27B, Qwen3.5-9B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3.6-27B">Qwen3.6-27B</a> · <a href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5-9B</a></td></tr><tr><th scope="row">Qwen3-Coder-Next</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Coder-Next">Model card</a></td></tr><tr><th scope="row">Qwen3-Embedding-8B</th><td>Apache-2.0</td><td><a href="https://huggingface.co/Qwen/Qwen3-Embedding-8B">Model card</a></td></tr><tr><th scope="row">Qwen 2 and 2.5, most sizes</th><td>Apache-2.0</td><td>Includes <a href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct">Qwen2.5-7B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-14B-Instruct">14B</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">32B</a> and <a href="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct">Coder-32B</a></td></tr><tr><th scope="row">Qwen 2.5-72B, 2.5-3B, Qwen 1.5</th><td>Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged <code>other</code>)</td><td>Size decides here, not generation; see each card&#x27;s licence tag</td></tr><tr><th scope="row">Qwen 3.8 Max</th><td>Custom <code>qwen3.8-max</code> (tagged <code>other</code>)</td><td>The base checkpoint <a href="https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B">Qwen3.8-2.4T-A95B</a> publishes first-party weights, 2.4T total / 95B active, text generation only, verified 19 August 2026. The Max API product adds vision input and built-in tools; at this scale the weights are consumed through an API in practice</td></tr></tbody></table></div>
 <h3 id="gemma">Gemma</h3>
 <div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Licence</th><th scope="col">Note</th></tr></thead><tbody><tr><th scope="row">Gemma 4 core series (E2B, E4B, 12B, 26B-A4B, 31B)</th><td>Apache-2.0</td><td>The generation that moved</td></tr><tr><th scope="row">Gemma 3, 3n, 2 and earlier</th><td>Gemma Terms of Use (custom, not OSI-approved)</td><td></td></tr><tr><th scope="row">translategemma</th><td>Gemma Terms of Use</td><td>Released 2026 and still <strong>not</strong> Apache-2.0</td></tr><tr><th scope="row">medgemma</th><td>Health AI Developer Foundations terms</td><td></td></tr><tr><th scope="row">gemma-scope</th><td>CC-BY-4.0</td><td></td></tr></tbody></table></div>
 <p>Scope any &quot;Gemma is Apache-2.0 now&quot; claim to the core numbered Gemma 4 series. The sibling variants did not move.</p>

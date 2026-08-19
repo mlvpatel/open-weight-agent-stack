@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 165 primary sources, with the five concentric rings from prompt to loop" width="880">
+<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 166 primary sources, with the five concentric rings from prompt to loop" width="880">
 
 **Performance-first build manual**
 
@@ -10,7 +10,7 @@ The complete blueprint for agentic AI on open-weight models: hardware and servin
 
 CI fact-checks the prose and opens a pull request when upstream model cards drift. That machinery is the differentiator; the manual is what it protects.
 
-**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **165** primary sources
+**27** sections &nbsp;·&nbsp; **20** diagrams &nbsp;·&nbsp; **166** primary sources
 
 [![Read the manual](https://img.shields.io/badge/Read_the_manual-0071e3?style=for-the-badge)](https://mlvpatel.github.io/open-weight-agent-stack/)
 [![View on GitHub](https://img.shields.io/badge/View_on_GitHub-1d1d1f?style=for-the-badge)](https://github.com/mlvpatel/open-weight-agent-stack)
@@ -172,23 +172,22 @@ scripts/             Extract diagrams, generate the site, check invariants, watc
 .github/workflows/   Six validation jobs, a CodeQL workflow, plus the weekly freshness watcher.
 ```
 
-## What is in the 1.1.1 local release candidate
+## What shipped in 1.1.1
 
-The generated Pages site now converts repository-local documentation links to
+The generated Pages site converts repository-local documentation links to
 stable GitHub URLs, so they do not 404 when served below
 `/open-weight-agent-stack/`. A sandboxed Chromium gate serves that exact path,
 requires all 20 Mermaid diagrams to be visible, and makes a Mermaid failure
 visible instead of swallowing it.
 
-The candidate also has a deterministic, schema-validated SBOM; measured Python
-coverage for the offline regression suite; tighter factual wording; and a
-freshness watcher tied to the models the manual actually names. CodeQL is
-configured locally and will become hosted scanning only after the owner pushes
-this candidate and GitHub completes its first run.
+The release also carries a deterministic, schema-validated SBOM; measured
+Python coverage for the offline regression suite; tighter factual wording; a
+freshness watcher tied to the models the manual actually names; and hosted
+CodeQL scanning on every push and on a weekly schedule.
 
-See [CHANGELOG.md](CHANGELOG.md) for the complete 1.1.1 notes. This is a local
-release candidate: no 1.1.1 tag or GitHub release is claimed until an owner
-creates it after the remote checks pass.
+See [CHANGELOG.md](CHANGELOG.md) for the complete notes, and the
+[releases page](https://github.com/mlvpatel/open-weight-agent-stack/releases)
+for the tagged versions.
 
 ## Quickstart
 
@@ -217,7 +216,7 @@ npm run browser:check                 # generated site smoke test in Chromium
 - **Derived files cannot drift.** `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails when the committed copy differs. The same check covers the extracted diagram sources and the container diagram embedded in the architecture document.
 - **Gates are tested for teeth.** Every check reports how many items it inspected and fails when it inspected none. CI additionally breaks an anchor on purpose and feeds the HTML validator a malformed document, failing if either still passes. A gate that only ever passes proves nothing.
 - **Builds are reproducible.** Dependencies pinned by lockfile, Actions pinned by commit SHA, and diagram rendering byte-identical across runs.
-- **Model facts are re-checked after publication.** A weekly watcher compares licence and availability for the models the manual names against their sources, and reports drift only once it has been confirmed across runs ([how it works](docs/FRESHNESS.md)).
+- **Model facts are re-checked after publication.** A weekly watcher compares licence, parameter count, availability, and flagship status for the models the manual names against their sources, and reports drift only once it has been confirmed across runs ([how it works](docs/FRESHNESS.md)).
 - **What CI cannot do is written down.** It cannot judge whether a source supports the claim it is cited for. [docs/VERIFICATION.md](docs/VERIFICATION.md) is explicit about that, and about the fact that this page has been wrong before.
 
 ## Contributing

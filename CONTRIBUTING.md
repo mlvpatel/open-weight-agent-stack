@@ -1,6 +1,6 @@
 # Contributing
 
-This manual holds one line: every factual claim in `MANUAL.md` traces to a primary source. Issues are open; use the Correction template.
+Contributions should carry a primary source for any factual claim in `MANUAL.md`. The claim-contract suite (`scripts/test_claim_contracts.py`) pins a tracked set of those claims as a regression check, not a proof that every sentence is sourced. Issues are open; use the Correction template.
 
 ## Corrections (most valuable)
 

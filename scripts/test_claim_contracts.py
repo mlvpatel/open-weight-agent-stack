@@ -86,14 +86,20 @@ def main() -> int:
          and excludes("manual", "Every volatile claim in this manual traces")
          and excludes("manual", "links every volatile claim to its primary source")
          and excludes("readme", "Every factual claim carries its basis")
-         and includes("contributing", "every factual claim in `MANUAL.md` traces to a primary source")),
+         and includes("contributing", "pins a tracked set of those claims as a regression check")
+         and excludes("contributing", "every factual claim in `MANUAL.md` traces to a primary source")),
         ("licence tags carry a last-verified date", includes("manual", "16 August 2026")
          and includes("models", "16 August 2026")
          and "Last verified" in TEXT["manual"]
          and "Last verified" in TEXT["models"]),
-        ("DeepSeek V4 Flash no longer cites a dead pricing URL as a rate card", includes("manual", "now opens the first-API-call guide")
+        ("DeepSeek V4 Flash pricing claim matches the live rate card", excludes("manual", "now opens the first-API-call guide")
+         and excludes("manual", "no longer publishes a rate card")
+         and excludes("manual", "former pricing URL")
+         and excludes("manual", "former docs URL")
          and excludes("manual", "$0.14 in / $0.28 out per M tokens, increase announced")
-         and excludes("manual", "$0.14 in on a cache miss")),
+         and excludes("manual", "$0.14 in on a cache miss")
+         and includes("manual", "$0.22-0.44 per 1M tokens for cache-miss input and $0.66-1.32 per 1M tokens for output")
+         and includes("manual", "as of 19 August 2026")),
         ("Continue is read-only in the manual and the layer guide", includes("manual", "Read-only since 2026")
          and includes("code_agents", "Read-only since 2026")),
         ("layer red-team gate is policy-scoped", includes("guardrails", "when your release policy requires it")
@@ -107,6 +113,11 @@ def main() -> int:
         ("GLM-4.5-Air is not a 16 GB fast tier", includes("manual", "does not belong on the NVIDIA 16-24 GB row")),
         ("Qwen 3.8 27B is downloadable", includes("manual", "Qwen 3.8 27B (downloadable Apache-2.0")
          and includes("models", "Qwen3.8-27B")),
+        ("Qwen 3.8 Max weights claim matches the Hub", includes("manual", "Qwen3.8-2.4T-A95B")
+         and includes("models", "Qwen3.8-2.4T-A95B")
+         and excludes("manual", "no published weights")
+         and excludes("manual", "no downloadable weights")
+         and excludes("models", "No published weights")),
         ("model layer file is under contract", includes("model_layer", "MODELS.md")),
         ("gpt-oss pin is load-bearing", "117B total / 5.1B active for 120b" in TEXT["manual"]
          and "117B total / 5.1B active for 120b" not in TEXT["manual"].replace(

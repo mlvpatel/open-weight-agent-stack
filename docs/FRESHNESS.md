@@ -77,8 +77,10 @@ is used only for `create-pull-request`.
 GitHub disables scheduled workflows in public repositories after **60 days without repository activity**. Any commit resets that clock, and the watcher's own pull requests count as activity, so an actively maintained repository is not at risk. A repository left completely untouched for two months is, and the failure is silent: the schedule simply stops.
 
 If this repository goes quiet for that long, re-enable the workflow from the Actions tab. The dead
-schedule cannot report itself. The `validate` workflow, which still runs on every push, can read
-`last_run` from `freshness-state` and fail when the watcher is stale. That is the heartbeat.
+schedule cannot report itself, so the heartbeat lives in a workflow that does still run: every
+watcher run commits a `last_run` timestamp to the `freshness-state` branch, and
+`scripts/check_invariants.py` reads that timestamp on every push and fails the `invariants` check
+when it is more than 14 days old, one missed weekly run.
 
 ## Running it by hand
 

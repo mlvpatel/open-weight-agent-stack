@@ -47,6 +47,17 @@ FIGURE_TITLES = (
 # embedded engines. A relative path or fragment has no scheme at all.
 _SAFE_SCHEME = re.compile(r"^(?:https?:|mailto:|#|/|\.{0,2}/|[\w.-]+\.md|[\w.-]+/)", re.I)
 
+# A fence opener is 3+ backticks or 3+ tildes at the start of the line, mirroring
+# build_site.py's _FENCE_OPEN. The captured marker records both the character
+# used (backtick vs tilde) and how many were written, so a fence can only be
+# closed by a line that opens with 3+ of that same character -- a tilde fence
+# never closes on a backtick line and vice versa. For backtick fences this is
+# exactly the old `line.startswith("```")` check: any run of 3+ backticks at
+# the start of a line opens or closes one, regardless of the exact count on
+# either side, so existing backtick-fenced content in MANUAL.md renders
+# byte-for-byte the same as before.
+_FENCE_OPEN = re.compile(r"^(?P<mark>`{3,}|~{3,})")
+
 
 def _href(raw: str) -> str | None:
     """Return an attribute-safe href, or None if the URL is not safe to emit.
@@ -134,11 +145,15 @@ def render(md: str, mermaid_init: str, figure_titles: tuple[str, ...] = FIGURE_T
             i += 1
             continue
 
-        if line.startswith("```"):
-            lang = line[3:].strip()
+        fence_open = _FENCE_OPEN.match(line)
+        if fence_open:
+            marker = fence_open.group("mark")
+            fence_char = marker[0]
+            lang = line[len(marker):].strip()
             j = i + 1
             buf = []
-            while j < len(lines) and not lines[j].startswith("```"):
+            close_at = re.compile(r"^" + re.escape(fence_char) + r"{3,}")
+            while j < len(lines) and not close_at.match(lines[j]):
                 buf.append(lines[j])
                 j += 1
             body = "\n".join(buf)
