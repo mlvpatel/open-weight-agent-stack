@@ -48,7 +48,7 @@ These families ship different terms to different models. Use the specific row.
 | Qwen3-Embedding-8B | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |
 | Qwen 2 and 2.5, most sizes | Apache-2.0 | Includes [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct), [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct), [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) and [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
 | Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged `other`) | Size decides here, not generation; see each card's licence tag |
-| Qwen 3.8 Max | **No published weights** | Announced with benchmark figures; no downloadable checkpoint under the Qwen organisation. Treat as an API model, not an open-weight one. Third-party uploads claiming to be it are not authoritative |
+| Qwen 3.8 Max | Custom `qwen3.8-max` (tagged `other`) | The base checkpoint [Qwen3.8-2.4T-A95B](https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B) publishes first-party weights, 2.4T total / 95B active, text generation only, verified 19 August 2026. The Max API product adds vision input and built-in tools; at this scale the weights are consumed through an API in practice |
 
 ### Gemma
 

@@ -1573,7 +1573,11 @@ Use the no-rewrite chain when the question is already a search string. Use the R
 
 ### 20.2 Cost model, self-host vs API
 
-`indicative` planning numbers for 16 August 2026, not a quote. A rented 4090-class GPU is often $0.4-1.2/hour. At 40 tok/s decode and 500 output tokens per turn you get about 288 turns/hour, so $0.001-0.004 per turn in GPU rent before electricity and idle time. An API mid-tier priced per million tokens is cheaper at low volume and loses once a busy node is serving its own prompt cache. Break-even is utilisation: below a few hundred thousand tokens/day the API usually wins; above that, self-host the mid-tier and still call K3-class weights as an API. Put the spend ledger on the trace, not in a spreadsheet. Do not budget from a DeepSeek URL that no longer publishes a rate card.
+`indicative` planning numbers for 16 August 2026, not a quote. A rented 4090-class GPU is often $0.4-1.2/hour. At 40 tok/s decode and 500 output tokens per turn you get about 288 turns/hour, so $0.001-0.004 per turn in GPU rent before electricity and idle time.
+
+Worked batch-32 example, `indicative`, assumptions stated: continuous batching keeps per-token latency close to the batch-1 figure because decode is memory-bandwidth-bound, not compute-bound, so the GPU still takes about 12.5 seconds (500 tokens ÷ 40 tok/s) to finish a turn but now finishes 32 of them in that window, for 32 × 288 = 9,216 turns/hour. Divide the same $0.4-1.2/hour rent across that many turns: $0.4 ÷ 9,216 to $1.2 ÷ 9,216 is $0.00004-0.00013 per turn, more than an order of magnitude below the batch-1 figure and the reason continuous batching, not a faster card, is the lever that moves this number.
+
+An API mid-tier priced per million tokens is cheaper at low volume and loses once a busy node is running batched near its KV ceiling. DeepSeek V4 Flash's output price, `indicative` for 19 August 2026 and not a quote, was $0.66-1.32 per million tokens off-peak to peak on `api-docs.deepseek.com/quick_start/pricing`; at 500 output tokens a turn, counting output tokens only, that is $0.00033-0.00066 on the API, below the $0.001-0.004 batch-1 self-host figure but above the $0.00004-0.00013 batch-32 figure. Break-even is utilisation, and the numbers above give the threshold: the rent is $9.6-28.8/day whether the card works or idles, so against the $0.66-1.32 output price the GPU pays for itself somewhere between 7M and 44M output tokens a day, `indicative` and output-only. Below that daily volume the API wins on cost alone; above it, or once input tokens and prompt-cache reuse enter the ledger, self-host the mid-tier and still call K3-class weights as an API. Put the spend ledger on the trace, not in a spreadsheet. DeepSeek's list prices are vendor-controlled and change; `api-docs.deepseek.com/quick_start/pricing` carried a current rate card as of 19 August 2026, so check it directly before budgeting.
 
 Two measurements to separate, because they respond to different fixes. **Time to first token** is
 prefill: compute-bound, driven by how much context you pushed in, fixed by pruning and prefix reuse.
@@ -1715,6 +1719,21 @@ flowchart LR
         FE5["Chainlit"]
     end
 
+    FE1 --> OR1
+    OR1 --> TL1
+    OR1 --> CA3
+    OR1 --> SV1
+    OR1 --> ME1
+    OR1 --> ME2
+    PA1 --> EM1
+    EM1 --> VS1
+    VS1 --> RR1
+    RR1 --> OR1
+    MD1 --> SV1
+    SV1 --> DP1
+    GR1 --> EV1
+    OB1 --> EV1
+
     classDef pick fill:#dff3e6,stroke:#248a3d,color:#0f3d23
     classDef alt fill:#fbfbfd,stroke:#a1a1a6,color:#1d1d1f
 
@@ -1728,9 +1747,9 @@ flowchart LR
 
 Ring: Prompt. An inner-ring failure here is routing by brand instead of hosting footprint.
 
-The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. Qwen 3.8 Max is announced at 2.4T but has no published weights, which is its own lesson: announced is not downloadable. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
+The open-weight frontier moved to **trillion-scale MoE**, and that changes the architecture more than any benchmark does. Kimi K3 is 2.8T total parameters, DeepSeek V4 Pro 1.6T, GLM-5.2 753B. Qwen 3.8 Max's 2.4T base checkpoint, Qwen3.8-2.4T-A95B, publishes first-party weights under a custom qwen3.8-max licence as of 19 August 2026, so even the frontier tier is downloadable on paper. At 4-bit, K3 alone needs well over a terabyte of memory to hold.
 
-**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story: DeepSeek V4 Flash (card: 284B total, 13B active; the Hub widget can read ~291B), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), Qwen 3.8 27B (downloadable Apache-2.0, published 14 August 2026), GLM-4.5-Air on a 48 GB+ card. Qwen 3.8 Max remains API-only. GLM-4.5-Air is a 110B-class MoE, `indicative` 55-60 GB at 4-bit, and does not belong on the NVIDIA 16-24 GB row.
+**So "open-weight" no longer implies "self-hostable".** The line that matters is size, not licence: the frontier open models are consumed through an API exactly like the closed ones. Self-hosting is now the *mid-tier* story: DeepSeek V4 Flash (card: 284B total, 13B active; the Hub widget can read ~291B), gpt-oss-120b (117B total, 5.1B active, Apache-2.0), Qwen 3.8 27B (downloadable Apache-2.0, published 14 August 2026), GLM-4.5-Air on a 48 GB+ card. Qwen 3.8 Max remains an API product layered on the 2.4T checkpoint; the checkpoint's text-only weights are downloadable but far past self-host scale. GLM-4.5-Air is a 110B-class MoE, `indicative` 55-60 GB at 4-bit, and does not belong on the NVIDIA 16-24 GB row.
 
 Read the positions below as `indicative`. Parameter counts and licences are sourced in section 27,
 but where a model sits on either axis is an engineering judgement, not a measurement: capability
@@ -1749,7 +1768,7 @@ quadrantChart
     quadrant-3 "Self-hostable"
     quadrant-4 "API only"
     "K3 2.8T custom": [0.78, 0.80]
-    "Qwen 3.8 Max none": [0.86, 0.66]
+    "Qwen 3.8 2.4T custom": [0.86, 0.66]
     "V4 Pro 1.6T MIT": [0.66, 0.73]
     "GLM-5.2 753B MIT": [0.60, 0.60]
     "V4 Flash 284B MIT": [0.38, 0.66]
@@ -1771,9 +1790,9 @@ exact checkpoint ID, never the family name (section 25).
 | General agentic + tool calling | Kimi K3 | Claude Sonnet 5 · Qwen 3.8 Max (API only) | Kimi reports 60 on the Artificial Analysis Intelligence Index in its max configuration. A 57 default-config figure is not visible on the cited page as of 16 August 2026; do not treat 57 as current. |
 | Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice actually shows up in output quality. |
 | Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro's card reports 79.4% SWE-bench Verified at Think High and 80.6% at Think Max. It does not label a default effort. GLM-5.2 is strong on terminal-style benchmarks. |
-| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active on the card. Do not budget from a former pricing URL; re-check DeepSeek's current rate card. |
+| High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active on the card. DeepSeek's rate card moves; check `api-docs.deepseek.com/quick_start/pricing` for current pricing before budgeting. |
 | Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you actually send. |
-| Vision, documents, charts | Qwen 3.8 27B (vision encoder on the downloadable 3.8 27B line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. Qwen 3.6 27B remains a text-first 27B alternative. |
+| Vision, documents, charts | Qwen 3.8 27B (vision encoder on the downloadable 3.8 27B line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. Qwen 3.6 27B is the earlier checkpoint in the same line and is also vision-capable, not a text-only substitute. |
 
 
 ### 22.1 The API layer: every way to call a model
@@ -2188,20 +2207,20 @@ before relying on them months from now.
 
 **Last verified:** 16 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
 re-read that day. Parameter counts below are as those cards stated then. Vendor list prices move;
-where a former pricing URL no longer publishes a rate card, the row says so.
+the DeepSeek V4 Flash row cites the vendor's rate card by URL and verification date.
 
 ### 27.1 Models and licences
 
 | Model | Verified fact | Primary source |
 |---|---|---|
 | Kimi K3 | 2.8T total / 104B active MoE · 1M context · custom Kimi K3 License (card tag `other`, `license_name` kimi-k3) | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
-| Qwen 3.8 Max | Announced with 2.4T total / 95B active and ~1M context, but no downloadable weights are published under the Qwen organisation. Treat as an API model | [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
+| Qwen 3.8 Max | The base checkpoint Qwen3.8-2.4T-A95B (2.4T total / 95B active, text generation, Hub tag `other` with `license_name` qwen3.8-max) publishes first-party weights, verified 19 August 2026. The Max API product adds vision input, built-in tools and a 1M default window on top of it | [Qwen3.8-2.4T-A95B](https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B) · [Qwen blog](https://qwen.ai/blog?id=qwen3.8) |
 | DeepSeek V4 Pro | 1.6T / 49B active · MIT · SWE-bench Verified 79.4 at Think High, 80.6 at Think Max, per the card's own mode comparison. The card does not designate a default effort | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
-| DeepSeek V4 Flash | Card states 284B / 13B active · MIT. The Hub parameter widget can read ~291B; this manual quotes the card and notes the gap. API list price is vendor-published and changes. The former docs URL `api-docs.deepseek.com/quick_start/pricing` now opens the first-API-call guide, not a rate card; re-check DeepSeek's current pricing page before budgeting | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [API docs](https://api-docs.deepseek.com/) |
+| DeepSeek V4 Flash | Card states 284B / 13B active · MIT. The Hub parameter widget can read ~291B; this manual quotes the card and notes the gap. API list price is vendor-published and changes: `api-docs.deepseek.com/quick_start/pricing` listed $0.22-0.44 per 1M tokens for cache-miss input and $0.66-1.32 per 1M tokens for output (off-peak to peak) as of 19 August 2026; check the live page before budgeting | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) |
 | GLM-5.2 | 753B · MIT · 1M context | [Model card](https://huggingface.co/zai-org/GLM-5.2) |
 | GLM-4.5-Air | Fast-decode MoE · MIT · Hub reports ~110.5B total; `indicative` 55-60 GB at 4-bit, not a 16-24 GB guest | [Model card](https://huggingface.co/zai-org/GLM-4.5-Air) |
-| Qwen 3.8 27B | Apache-2.0 · downloadable dense 27B with a vision encoder, published 14 August 2026. This is the self-host 3.8 line; 3.8 Max remains API-only | [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
-| Qwen 3.6 27B / 3.5 9B | Apache-2.0. 3.6 27B is the previous 27B text checkpoint, not a duplicate of 3.8 27B | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| Qwen 3.8 27B | Apache-2.0 · downloadable dense 27B with a vision encoder, published 14 August 2026. This is the self-host 3.8 line; the Max API product runs on the separate 2.4T checkpoint | [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
+| Qwen 3.6 27B / 3.5 9B | Apache-2.0. 3.6 27B is the earlier checkpoint in the same 27B line as 3.8 27B, not a duplicate; the Hub lists both with the same qwen3_5 architecture, the same ~27.8B parameter count, and an `image-text-to-text` task tag, so 3.6 27B is vision-capable too, not a text-only alternative | [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) · [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
 | Qwen 2 / 2.5 licence examples | Qwen2.5-7B, 14B, 32B, and Coder-32B cards are Apache-2.0; other named checkpoints must be checked individually | [7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) · [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) · [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) · [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
 | gpt-oss-120b / 20b | OpenAI's open-weight MoE pair · Apache-2.0 · card states 117B total / 5.1B active for 120b | [Model card](https://huggingface.co/openai/gpt-oss-120b) |
 | Gemma 4 | 12B instruction-tuned entry of the Apache-2.0 generation | [Model card](https://huggingface.co/google/gemma-4-12B-it) |
@@ -2257,7 +2276,7 @@ where a former pricing URL no longer publishes a rate card, the row says so.
 | SWE-bench leaderboards | [swebench.com](https://www.swebench.com/) |
 | MTEB embedding leaderboard | [Hugging Face](https://huggingface.co/spaces/mteb/leaderboard) |
 | LiveCodeBench | [livecodebench.github.io](https://livecodebench.github.io/) |
-| Artificial Analysis Intelligence Index, Kimi K3: 57, max config 60 | [artificialanalysis.ai](https://artificialanalysis.ai/models/kimi-k3) |
+| Artificial Analysis Intelligence Index, Kimi K3 (max configuration): 60, verified 19 August 2026 | [artificialanalysis.ai](https://artificialanalysis.ai/models/kimi-k3) |
 
 ### 27.4 Runtimes and version floors
 
