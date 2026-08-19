@@ -113,7 +113,7 @@ async function inspectNormalSite(page) {
       images,
       unsafeLinks,
       csp: Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]')),
-      content: document.body.innerText.includes("Performance-first build manual"),
+      content: document.body.innerText.includes("CI fact-checked build manual"),
       fallbackCount: document.querySelectorAll(".mermaid-fallback").length,
       sections: Array.from(document.querySelectorAll("main > section")).map((section) => {
         const style = getComputedStyle(section);
