@@ -1,0 +1,13 @@
+{
+  "name": "Open-Weight Agent Stack",
+  "install": "npm ci --no-audit --no-fund",
+  "terminals": [
+    {
+      "name": "site-preview",
+      "command": "python3 -m http.server 8000 --directory site"
+    }
+  ],
+  "ports": [
+    8000
+  ]
+}
