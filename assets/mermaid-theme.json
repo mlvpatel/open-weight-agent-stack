@@ -58,5 +58,6 @@
   "deterministicIds": true,
   "deterministicIDSeed": "owas",
   "look": "classic",
+  "layout": "dagre",
   "handDrawnSeed": 1
 }
