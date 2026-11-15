@@ -2205,9 +2205,9 @@ tracked set of volatile model and tool claims, rather than proving that every se
 remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
 before relying on them months from now.
 
-**Last verified:** 16 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
-re-read that day. Parameter counts below are as those cards stated then. Vendor list prices move;
-the DeepSeek V4 Flash row cites the vendor's rate card by URL and verification date.
+**Last verified:** 15 November 2026. Hugging Face licence tags for the named 27.1 checkpoints were
+re-read that day. Parameter counts below are as those cards stated on 16 August 2026. Vendor list
+prices move; the DeepSeek V4 Flash row cites the vendor's rate card by URL and verification date.
 
 ### 27.1 Models and licences
 
@@ -2304,7 +2304,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Goose | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | [cursor.com](https://cursor.com/) |
 | Zed | [github.com/zed-industries/zed](https://github.com/zed-industries/zed) |
-| Tabnine | [tabnine.com](https://www.tabnine.com/) |
+| Tabnine | [Tabnine deployment options](https://docs.tabnine.com/main/welcome/readme/architecture/deployment-options) |
 | Qodo | [qodo.ai](https://www.qodo.ai/) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
 | Codex plan availability | [OpenAI Codex pricing](https://developers.openai.com/codex/pricing) |
