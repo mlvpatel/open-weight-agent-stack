@@ -31,7 +31,7 @@ PUBLISHED_MARKDOWN_PAGES = {
 ARCHITECTURE_FIGURES = ("System context", "Containers", "Components")
 # The template owns the one inline script. Rendered markdown cannot add another,
 # because every path through lib/render.py escapes "<".
-_INLINE_SCRIPT = re.compile(r"<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
+_INLINE_SCRIPT = re.compile(r"<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\b[^>]*>", re.S | re.I)
 
 
 def _rewrite_prose_links(prose: str, repo: Path, source: Path | None = None) -> str:
