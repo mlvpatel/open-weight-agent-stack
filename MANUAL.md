@@ -2036,7 +2036,7 @@ L8 is the agent that writes code. There are dozens of options, in five distinct 
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
 | **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
 | **GitHub Copilot** | Plans and pricing vary | Multiple models, plan and surface dependent | Deep GitHub integration; choose from the models available to your plan and client |
-| **Tabnine** | Enterprise only; no new self-serve sign-ups | ✅ any, self-host | The air-gapped and on-prem option, for enterprise customers |
+| **Tabnine** | Enterprise only; no new self-serve sign-ups | ✅ any, self-host | **Acquired by Tricentis** in July 2026; tabnine.com now redirects there. Still the air-gapped and on-prem option for enterprise deployments |
 | **Qodo** | Free tier | ✅ any | Test generation and PR review agents |
 | **Amazon Q Developer** | Free tier + paid | AWS | AWS-native shops |
 
@@ -2304,7 +2304,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Goose | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | [cursor.com](https://cursor.com/) |
 | Zed | [github.com/zed-industries/zed](https://github.com/zed-industries/zed) |
-| Tabnine | [Tabnine deployment options](https://docs.tabnine.com/main/welcome/readme/architecture/deployment-options) · [VS Code listing](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) |
+| Tabnine (acquired by Tricentis, July 2026) | [Tabnine deployment options](https://docs.tabnine.com/main/welcome/readme/architecture/deployment-options) · [Tricentis announcement](https://www.tricentis.com/news/tricentis-acquires-tabnine) · [VS Code listing](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) |
 | Qodo | [qodo.ai](https://www.qodo.ai/) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
 | Codex plan availability | [OpenAI Codex pricing](https://developers.openai.com/codex/pricing) |
