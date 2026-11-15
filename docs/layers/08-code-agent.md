@@ -19,7 +19,7 @@ The code agent is a tool-using client of the rest of the stack: it edits files, 
 | Cursor | AI-first IDE | [cursor.com](https://cursor.com/) |
 | Zed | Fast editor with agent panel | [zed.dev](https://zed.dev/) |
 | Claude Code | Terminal and IDE agent | [claude.com/claude-code](https://claude.com/claude-code) |
-| Tabnine | Self-hosted, air-gapped completion | [tabnine.com](https://www.tabnine.com/) |
+| Tabnine | Self-hosted, air-gapped completion; enterprise only, acquired by Tricentis in July 2026 | [Tabnine deployment options](https://docs.tabnine.com/main/welcome/readme/architecture/deployment-options) |
 | Qodo | Test generation, PR review | [qodo.ai](https://www.qodo.ai/) |
 
 ## Wiring it in
