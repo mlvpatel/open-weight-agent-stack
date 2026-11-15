@@ -17,7 +17,6 @@ class ReleaseMetadataTests(unittest.TestCase):
     def test_all_release_metadata_describes_the_same_release(self) -> None:
         package = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
         lockfile = json.loads((REPO / "package-lock.json").read_text(encoding="utf-8"))
-        sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))
         citation = (REPO / "CITATION.cff").read_text(encoding="utf-8")
         changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
         readme = (REPO / "README.md").read_text(encoding="utf-8")
@@ -25,8 +24,6 @@ class ReleaseMetadataTests(unittest.TestCase):
         self.assertEqual(package["version"], VERSION)
         self.assertEqual(lockfile["version"], VERSION)
         self.assertEqual(lockfile["packages"][""]["version"], VERSION)
-        self.assertEqual(sbom["metadata"]["component"]["version"], VERSION)
-        self.assertEqual(sbom["metadata"]["component"]["bom-ref"], f"open-weight-agent-stack@{VERSION}")
         self.assertEqual(re.findall(r"^\s*version: \"([^\"]+)\"$", citation, re.M), [VERSION, VERSION])
         self.assertIn(f"date-released: \"{RELEASE_DATE}\"", citation)
         self.assertIsNotNone(re.search(rf"^## {re.escape(VERSION)}\b", changelog, re.M))

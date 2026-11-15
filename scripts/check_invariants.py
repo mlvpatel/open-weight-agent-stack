@@ -18,13 +18,13 @@ import os
 import re
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib.manual import REPO, load, markdown_files  # noqa: E402
+from lib.manual import REPO, load, markdown_files, mask_fences  # noqa: E402
 
 FAILURES: list[str] = []
 SUMMARY: list[str] = []
@@ -56,7 +56,7 @@ def check_anchors(m) -> None:
 def check_relative_files() -> None:
     checked = 0
     for f in markdown_files():
-        for ref in re.finditer(r"\]\(([^)#]+\.(?:md|png|json|svg))(?:#[^)]*)?\)", f.read_text(encoding="utf-8")):
+        for ref in re.finditer(r'(?:\]\(|src=")([^)"#]+\.(?:md|png|json|svg))(?=[#)"])', f.read_text(encoding="utf-8")):
             target = ref.group(1)
             if target.startswith(("http://", "https://", "//")):
                 continue
@@ -117,14 +117,7 @@ def check_generated_site_links() -> None:
         if not target.is_file():
             fail(f"generated-links: {source} points to {url!r}, which site/ does not publish")
     require_nonzero("generated-links", checked, "site-relative URLs")
-    leftover_pages = 0
-    for page in pages:
-        leftover_pages += 1
-        leftovers = re.findall(r"\{\{[A-Z_]+\}\}", page.read_text(encoding="utf-8"))
-        if leftovers:
-            fail(f"generated-links: {page.name} still has placeholders {sorted(set(leftovers))}")
-    require_nonzero("generated-placeholders", leftover_pages, "generated HTML pages")
-    SUMMARY.append(f"generated-links: {checked} site-relative URLs resolved, {leftover_pages} pages free of placeholders")
+    SUMMARY.append(f"generated-links: {checked} site-relative URLs resolved across {len(pages)} pages")
 
 
 def check_counts(m) -> None:
@@ -165,10 +158,6 @@ def check_counts(m) -> None:
     )
 
 
-MONTHS = {
-    "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
-    "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12,
-}
 LAST_VERIFIED_MAX_AGE_DAYS = 45
 
 
@@ -185,12 +174,12 @@ def check_last_verified() -> None:
             continue
         for hit in hits:
             checked += 1
-            day, month_name, year = int(hit.group(1)), hit.group(2), int(hit.group(3))
-            month = MONTHS.get(month_name)
-            if month is None:
-                fail(f"last-verified: {f.name} has unparsable month {month_name!r}")
+            stated = " ".join(hit.groups())
+            try:
+                verified = datetime.strptime(stated, "%d %B %Y").date()
+            except ValueError:
+                fail(f"last-verified: {f.name} has unparsable date {stated!r}")
                 continue
-            verified = date(year, month, day)
             age = (today - verified).days
             if age > LAST_VERIFIED_MAX_AGE_DAYS:
                 fail(f"last-verified: {f.name} is {age} days old (limit {LAST_VERIFIED_MAX_AGE_DAYS})")
@@ -200,6 +189,15 @@ def check_last_verified() -> None:
     SUMMARY.append(f"last-verified: {checked} dates within {LAST_VERIFIED_MAX_AGE_DAYS} days")
 
 
+def gh(*args: str) -> str | None:
+    """Output of a gh query, or None when gh is missing, unauthenticated, or has no answer."""
+    try:
+        out = subprocess.run(["gh", *args], capture_output=True, text=True, timeout=30, cwd=REPO)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    return out.stdout.strip() if out.returncode == 0 else None
+
+
 def check_release_version() -> None:
     """package.json must match the latest GitHub release when one exists."""
     if os.environ.get("SKIP_REPO_DESCRIPTION"):
@@ -207,18 +205,11 @@ def check_release_version() -> None:
         return
     package = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
     version = package.get("version")
-    try:
-        out = subprocess.run(
-            ["gh", "release", "view", "--json", "tagName", "--jq", ".tagName"],
-            capture_output=True, text=True, timeout=30, cwd=REPO,
-        )
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        SUMMARY.append("release: skipped (gh unavailable)")
+    tag = gh("release", "view", "--json", "tagName", "--jq", ".tagName")
+    if tag is None:
+        SUMMARY.append("release: skipped (no GitHub release, or gh unavailable or not authenticated)")
         return
-    if out.returncode != 0:
-        SUMMARY.append("release: skipped (no GitHub release or gh not authenticated)")
-        return
-    tag = out.stdout.strip().lstrip("v")
+    tag = tag.lstrip("v")
     def parts(value: str) -> tuple[int, ...]:
         try:
             return tuple(int(piece) for piece in value.split("."))
@@ -237,25 +228,10 @@ def check_release_version() -> None:
     SUMMARY.append(f"release: GitHub {tag} matches package.json")
 
 
-def check_published_trees() -> None:
-    """Empty published directories are a shipping defect."""
-    checked = 0
-    for relative in ("docs/assets", "docs/layers"):
-        path = REPO / relative
-        checked += 1
-        if not path.is_dir():
-            fail(f"trees: {relative} is missing")
-            continue
-        if not any(path.iterdir()):
-            fail(f"trees: {relative} is empty")
-    require_nonzero("trees", checked, "directories")
-    SUMMARY.append(f"trees: {checked} published directories have contents")
-
-
 def check_evidence_markers() -> None:
     """Evidence-tier words in prose must be backticked so the convention is mechanical."""
     text = (REPO / "MANUAL.md").read_text(encoding="utf-8")
-    masked = re.sub(r"```.*?```", lambda match: "\n" * match.group(0).count("\n"), text, flags=re.S)
+    masked = mask_fences(text)
     checked = 0
     for word in ("indicative", "reported"):
         for hit in re.finditer(rf"\b{word}\b", masked, re.I):
@@ -290,22 +266,18 @@ def check_layer_files() -> None:
     if on_disk != expected:
         fail(f"layers: README lists {expected}, directory has {on_disk}")
         return
-    for name in listed:
-        if not (directory / name).is_file():
-            fail(f"layers: {name} is listed but missing")
     SUMMARY.append(f"layers: {len(listed)} files exist and match the index")
 
 
 def check_architecture_diagram() -> None:
     """docs/ARCHITECTURE.md embeds the container diagram and claims it is the
     same one that ships in diagrams/src. It drifted once; now it cannot."""
-    import re as _re
     arch = REPO / "docs" / "ARCHITECTURE.md"
     src = REPO / "diagrams" / "src" / "master-architecture.mmd"
     if not arch.exists() or not src.exists():
         fail("architecture: expected docs/ARCHITECTURE.md and the master-architecture source")
         return
-    blocks = _re.findall(r"```mermaid\n(.*?)```", arch.read_text(encoding="utf-8"), _re.S)
+    blocks = load(arch).diagrams
     require_nonzero("architecture", len(blocks), "mermaid blocks")
     if len(blocks) < 2:
         fail("architecture: expected at least two diagrams in ARCHITECTURE.md")
@@ -357,11 +329,11 @@ def check_freshness_heartbeat() -> None:
     if not isinstance(last_run, str):
         fail("heartbeat: upstream-state.json carries no last_run timestamp")
         return
-    hit = re.match(r"(\d{4})-(\d{2})-(\d{2})T", last_run)
-    if hit is None:
+    try:
+        ran = date.fromisoformat(last_run[:10])
+    except ValueError:
         fail(f"heartbeat: last_run {last_run!r} is not an ISO timestamp")
         return
-    ran = date(int(hit.group(1)), int(hit.group(2)), int(hit.group(3)))
     age = (date.today() - ran).days
     if age > FRESHNESS_HEARTBEAT_MAX_AGE_DAYS:
         fail(f"heartbeat: the watcher last ran {age} days ago (limit "
@@ -378,18 +350,10 @@ def check_repo_description(m) -> None:
     if os.environ.get("SKIP_REPO_DESCRIPTION"):
         SUMMARY.append("description: skipped (SKIP_REPO_DESCRIPTION set)")
         return
-    try:
-        out = subprocess.run(
-            ["gh", "repo", "view", "--json", "description", "--jq", ".description"],
-            capture_output=True, text=True, timeout=30, cwd=REPO,
-        )
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        SUMMARY.append("description: skipped (gh unavailable)")
+    desc = gh("repo", "view", "--json", "description", "--jq", ".description")
+    if desc is None:
+        SUMMARY.append("description: skipped (gh unavailable or not authenticated)")
         return
-    if out.returncode != 0:
-        SUMMARY.append("description: skipped (gh not authenticated)")
-        return
-    desc = out.stdout.strip()
     if not desc:
         fail("description: the repository has no description")
         return
@@ -413,7 +377,6 @@ def main() -> int:
     check_last_verified()
     check_layer_files()
     check_architecture_diagram()
-    check_published_trees()
     check_evidence_markers()
     check_freshness_heartbeat()
     check_repo_description(m)

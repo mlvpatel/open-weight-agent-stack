@@ -13,14 +13,14 @@ API for each **automated** entry and compares availability, licence tag, licence
 status, and the Hub's reported parameter total when the card publishes one. Flagship coverage is
 the named section-27.1 set: a new flagship is watched once it is cited there and added to
 `automated_models`. A new exact model-card link makes `python3 scripts/test_watch_upstream.py` fail
-until it is added to `automated_models` or to `manual_only` with a narrow reason. Organisation
+until it is added to `automated_models`. Organisation
 pages, vendor licence files, benchmark numbers, prices, and non-Hugging-Face sources are not
 metadata-monitored; re-verify those facts against their linked primary source.
 The committed state retains prior verified metadata only for checkpoints already observed. Newly
 added checkpoints, including the corrected Devstral identifier, establish a baseline on their first
 successful API response rather than receiving invented values in the repository.
 
-**Build dependencies.** The pinned versions in `package.json` against what npm currently publishes. This is the same machine pointed at a different source, not a second bot.
+**Not build dependencies.** The npm toolchain pinned in `package.json` is watched by Dependabot ([`.github/dependabot.yml`](../.github/dependabot.yml)), which opens its own pull requests.
 
 ## Why it does not act on what it sees once
 

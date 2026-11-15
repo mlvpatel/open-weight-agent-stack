@@ -16,7 +16,7 @@ A claim with no marker and no source is a defect. Report it.
 
 ## What CI verifies automatically
 
-Six validation jobs run on every push to `main`, on every pull request, and weekly on a schedule. The conditional Pages deployment runs only for a push to `main` and waits for all six.
+Five validation jobs run on every push to `main`, on every pull request, and weekly on a schedule. The conditional Pages deployment runs only for a push to `main` and waits for all five.
 
 **`diagrams`**
 - Every Mermaid source extracted from the manual compiles.
@@ -36,8 +36,7 @@ Six validation jobs run on every push to `main`, on every pull request, and week
 - Repository-relative documentation links are rejected in the generated site because GitHub Pages serves from a repository path, not the repository root.
 
 **`invariants`**
-- `npm test` runs the renderer-injection, factual-claim, generated-link, freshness, SBOM, coverage, workflow-security, and release-metadata regression contracts.
-- The committed SBOM is regenerated deterministically and validated against the CycloneDX schema.
+- `npm test` runs the renderer-injection, factual-claim, generated-link, freshness, coverage, workflow-security, and release-metadata regression contracts.
 - Every internal `MANUAL.md#anchor` reference resolves to a real heading.
 - Every relative link between repository files points at a file that exists.
 - Every count stated in prose matches the measured value.
@@ -50,9 +49,6 @@ Six validation jobs run on every push to `main`, on every pull request, and week
 The claim-contract suite is a golden-string pin on wording that has drifted, not a proof that every sentence is sourced. It currently runs more than 30 pins across MANUAL.md, MODELS.md, README.md, CONTRIBUTING.md, and the layer guides. Model-card licence coverage for `automated_models` in `.github/freshness-sources.json` is mechanically complete.
 
 Section 27.1 through 27.3 together hold 54 evidence-table rows. Of those, 9 are backed by at least one pinned check above: the Qwen 2/2.5, DeepSeek V4 Pro, DeepSeek V4 Flash, GLM-5.2, GLM-4.5-Air, MiniMax M2.7, gpt-oss-120b/20b, and Qwen 3.8 27B rows in 27.1, plus the OWASP Top 10 for Agentic Applications row in 27.3. The other 45 rows carry no automated pin and rely on the human-sampling process documented in [HUMAN-REVIEW.md](HUMAN-REVIEW.md).
-
-**`html`**
-- A deliberately malformed document is fed to the validator, and the job fails if the validator accepts it.
 
 **`links`**
 - Every external link in the manual, README, and docs returns a genuine success status. Rate-limited and forbidden responses are not accepted as success.

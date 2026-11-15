@@ -45,7 +45,7 @@ So you know what has been done and can look for gaps in it rather than reporting
 - **Secret scanning with push protection**, so a credential cannot be pushed to this repository.
 - **Dependabot alerts and security updates** for npm dependencies and GitHub Actions.
 - **All Actions pinned to commit SHAs**, not movable tags, so an upstream tag repoint cannot silently change what runs.
-- **Dependencies pinned by lockfile** with a committed CycloneDX SBOM.
+- **Dependencies pinned by lockfile**, with a CycloneDX SBOM that `.github/workflows/release.yml` generates from that lockfile and attaches to each release when it is published.
 - **A read-only default workflow token**, with write permissions granted per job only where needed.
 - **Branch protection on `main`** was verified on 2026-08-11 to require `diagrams`, `generated`, `invariants`, `html`, and `links`; force pushes and branch deletion are disabled. `browser` and CodeQL cannot become required locally: the owner must add them after their first hosted runs exist.
 - **Current single-maintainer trade-offs.** Required signatures, administrator enforcement, linear history, and conversation resolution are currently off. CODEOWNERS records the owner locally, but GitHub only enforces its review requirement after branch protection enables code-owner review. Enabling those settings reduces bypass paths but can create a maintainer lockout; this is an owner decision, not a completed control.
@@ -56,7 +56,7 @@ So you know what has been done and can look for gaps in it rather than reporting
 
 ## Diagram rendering runs sandboxed
 
-Diagram rendering drives a headless Chromium over content taken from `MANUAL.md`, and pull requests from forks can change that content. The Chromium sandbox is therefore **enabled**: `scripts/puppeteer.json` passes no disabling flags, and CI permits unprivileged user namespaces so the sandbox can initialise on the runner.
+Diagram rendering drives a headless Chromium over content taken from `MANUAL.md`, and pull requests from forks can change that content. The Chromium sandbox is therefore **enabled**: `scripts/render_diagrams.sh` launches it with mermaid-cli's default Puppeteer options, which pass no disabling flags, and CI permits unprivileged user namespaces so the sandbox can initialise on the runner.
 
 An earlier version disabled the sandbox and justified it by claiming the renderer only ever saw repository-controlled sources. That justification was false, because the workflow also runs on pull requests. Enabling the sandbox was the correct fix rather than rewording the rationale.
 
@@ -67,7 +67,6 @@ When mermaid publishes a security fix, the published site needs the new bundle, 
 ```bash
 npm install                                              # or merge the Dependabot pull request
 cp node_modules/mermaid/dist/mermaid.min.js site/mermaid.min.js
-npm run sbom
 ```
 
 Skipping the copy turns the build red rather than silently shipping the old bundle.

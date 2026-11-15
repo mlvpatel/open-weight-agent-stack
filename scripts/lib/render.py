@@ -14,32 +14,33 @@ from __future__ import annotations
 import html
 import re
 
-from .manual import slug
+from .manual import slug, split_fences
 
-# Human titles for published figures. Order matches extract_diagrams.NAMES
-# and the mermaid fences in MANUAL.md. Captions are chrome, not new claims.
-FIGURE_TITLES = (
-    "Concentric rings",
-    "Hardware paths",
-    "Master architecture",
-    "Request lifecycle",
-    "Agent control loop",
-    "RAG pipeline",
-    "Model routing",
-    "Prompt contract",
-    "Trust boundaries",
-    "Memory tiers",
-    "Guardrails and evals",
-    "Deployment topology",
-    "Data lifecycle",
-    "Serving budgets",
-    "Identity delegation",
-    "Threat write-paths",
-    "Latency budget",
-    "Technology catalogue",
-    "Task-to-model quadrant",
-    "Platform SDK",
+# Published figures, in the order of the mermaid fences in MANUAL.md: the
+# diagrams/src file name, then the caption. Captions are chrome, not new claims.
+FIGURES = (
+    ("concentric-rings", "Concentric rings"),
+    ("hardware-paths", "Hardware paths"),
+    ("master-architecture", "Master architecture"),
+    ("request-lifecycle", "Request lifecycle"),
+    ("agent-control-loop", "Agent control loop"),
+    ("rag-pipeline", "RAG pipeline"),
+    ("model-routing", "Model routing"),
+    ("prompt-contract", "Prompt contract"),
+    ("trust-boundaries", "Trust boundaries"),
+    ("memory-tiers", "Memory tiers"),
+    ("guardrails-evals", "Guardrails and evals"),
+    ("deployment-topology", "Deployment topology"),
+    ("data-lifecycle", "Data lifecycle"),
+    ("serving-budgets", "Serving budgets"),
+    ("identity-delegation", "Identity delegation"),
+    ("threat-write-paths", "Threat write-paths"),
+    ("latency-budget", "Latency budget"),
+    ("technology-catalogue", "Technology catalogue"),
+    ("task-to-model-quadrant", "Task-to-model quadrant"),
+    ("platform-sdk", "Platform SDK"),
 )
+FIGURE_TITLES = tuple(title for _slug, title in FIGURES)
 
 
 # Only these may appear in an href. Anything else becomes inert text.
@@ -47,16 +48,6 @@ FIGURE_TITLES = (
 # embedded engines. A relative path or fragment has no scheme at all.
 _SAFE_SCHEME = re.compile(r"^(?:https?:|mailto:|#|/|\.{0,2}/|[\w.-]+\.md|[\w.-]+/)", re.I)
 
-# A fence opener is 3+ backticks or 3+ tildes at the start of the line, mirroring
-# build_site.py's _FENCE_OPEN. The captured marker records both the character
-# used (backtick vs tilde) and how many were written, so a fence can only be
-# closed by a line that opens with 3+ of that same character -- a tilde fence
-# never closes on a backtick line and vice versa. For backtick fences this is
-# exactly the old `line.startswith("```")` check: any run of 3+ backticks at
-# the start of a line opens or closes one, regardless of the exact count on
-# either side, so existing backtick-fenced content in MANUAL.md renders
-# byte-for-byte the same as before.
-_FENCE_OPEN = re.compile(r"^(?P<mark>`{3,}|~{3,})")
 
 
 def _href(raw: str) -> str | None:
@@ -126,9 +117,7 @@ def _table(rows: list[str]) -> str:
 
 def render(md: str, mermaid_init: str, figure_titles: tuple[str, ...] = FIGURE_TITLES) -> tuple[str, int]:
     """Return (html, figure_count). Mermaid fences become numbered figures."""
-    lines = md.split("\n")
     out: list[str] = []
-    i = 0
     fig = 0
     in_section = False
 
@@ -138,25 +127,9 @@ def render(md: str, mermaid_init: str, figure_titles: tuple[str, ...] = FIGURE_T
             out.append("</section>")
             in_section = False
 
-    while i < len(lines):
-        line = lines[i]
-
-        if not line.strip():
-            i += 1
-            continue
-
-        fence_open = _FENCE_OPEN.match(line)
-        if fence_open:
-            marker = fence_open.group("mark")
-            fence_char = marker[0]
-            lang = line[len(marker):].strip()
-            j = i + 1
-            buf = []
-            close_at = re.compile(r"^" + re.escape(fence_char) + r"{3,}")
-            while j < len(lines) and not close_at.match(lines[j]):
-                buf.append(lines[j])
-                j += 1
-            body = "\n".join(buf)
+    for fence, chunk in split_fences(md):
+        if fence:
+            lang, body = fence.group(2).strip(), fence.group(3).removesuffix("\n")
             if lang == "mermaid":
                 fig += 1
                 title = figure_titles[fig - 1] if fig <= len(figure_titles) else ""
@@ -175,77 +148,85 @@ def render(md: str, mermaid_init: str, figure_titles: tuple[str, ...] = FIGURE_T
                 )
             else:
                 out.append(f"<pre><code>{html.escape(body)}</code></pre>")
-            i = j + 1
             continue
 
-        m = re.match(r"^(#{1,4})\s+(.+)$", line)
-        if m:
-            level, text = len(m.group(1)), m.group(2).strip()
-            if level == 1:
-                out.append(f"<h1>{_inline(text)}</h1>")
-            elif level == 2:
-                close_section()
-                out.append(f'<section id="{slug(text)}" class="reveal">')
-                in_section = True
-                out.append(f'<div class="sec-head"><h2>{_inline(text)}</h2></div>')
-            else:
-                out.append(f'<h{level} id="{slug(text)}">{_inline(text)}</h{level}>')
-            i += 1
-            continue
+        lines = chunk.split("\n")
+        i = 0
+        while i < len(lines):
+            line = lines[i]
 
-        if line.startswith("|") and i + 1 < len(lines) and re.match(r"^\|[\s:|-]+\|$", lines[i + 1].strip()):
-            j = i
-            rows = []
-            while j < len(lines) and lines[j].strip().startswith("|"):
-                rows.append(lines[j])
-                j += 1
-            out.append(_table(rows))
-            i = j
-            continue
+            if not line.strip():
+                i += 1
+                continue
 
-        if re.match(r"^---+$", line.strip()):
-            out.append("<hr>")
-            i += 1
-            continue
-
-        if re.match(r"^\s*[-*]\s+", line) or re.match(r"^\s*\d+\.\s+", line):
-            ordered = bool(re.match(r"^\s*\d+\.\s+", line))
-            tag = "ol" if ordered else "ul"
-            items = []
-            j = i
-            pat = r"^\s*\d+\.\s+(.*)$" if ordered else r"^\s*[-*]\s+(.*)$"
-            while j < len(lines):
-                mm = re.match(pat, lines[j])
-                if mm:
-                    items.append(mm.group(1))
-                elif lines[j].startswith("  ") and items:
-                    items[-1] += " " + lines[j].strip()
+            m = re.match(r"^(#{1,4})\s+(.+)$", line)
+            if m:
+                level, text = len(m.group(1)), m.group(2).strip()
+                if level == 1:
+                    out.append(f"<h1>{_inline(text)}</h1>")
+                elif level == 2:
+                    close_section()
+                    out.append(f'<section id="{slug(text)}" class="reveal">')
+                    in_section = True
+                    out.append(f'<div class="sec-head"><h2>{_inline(text)}</h2></div>')
                 else:
-                    break
-                j += 1
-            out.append(f"<{tag}>" + "".join(f"<li>{_inline(x)}</li>" for x in items) + f"</{tag}>")
-            i = j
-            continue
+                    out.append(f'<h{level} id="{slug(text)}">{_inline(text)}</h{level}>')
+                i += 1
+                continue
 
-        if line.startswith(">"):
-            buf = []
-            j = i
-            while j < len(lines) and lines[j].startswith(">"):
-                buf.append(lines[j].lstrip("> ").rstrip())
-                j += 1
-            out.append(f"<blockquote><p>{_inline(' '.join(buf))}</p></blockquote>")
-            i = j
-            continue
+            if line.startswith("|") and i + 1 < len(lines) and re.match(r"^\|[\s:|-]+\|$", lines[i + 1].strip()):
+                j = i
+                rows = []
+                while j < len(lines) and lines[j].strip().startswith("|"):
+                    rows.append(lines[j])
+                    j += 1
+                out.append(_table(rows))
+                i = j
+                continue
 
-        buf = [line]
-        j = i + 1
-        while j < len(lines) and lines[j].strip() and not re.match(
-            r"^(#{1,4}\s|\||```|>|\s*[-*]\s|\s*\d+\.\s|---+$)", lines[j]
-        ):
-            buf.append(lines[j])
-            j += 1
-        out.append(f"<p>{_inline(' '.join(x.strip() for x in buf))}</p>")
-        i = j
+            if re.match(r"^---+$", line.strip()):
+                out.append("<hr>")
+                i += 1
+                continue
+
+            if re.match(r"^\s*[-*]\s+", line) or re.match(r"^\s*\d+\.\s+", line):
+                ordered = bool(re.match(r"^\s*\d+\.\s+", line))
+                tag = "ol" if ordered else "ul"
+                items = []
+                j = i
+                pat = r"^\s*\d+\.\s+(.*)$" if ordered else r"^\s*[-*]\s+(.*)$"
+                while j < len(lines):
+                    mm = re.match(pat, lines[j])
+                    if mm:
+                        items.append(mm.group(1))
+                    elif lines[j].startswith("  ") and items:
+                        items[-1] += " " + lines[j].strip()
+                    else:
+                        break
+                    j += 1
+                out.append(f"<{tag}>" + "".join(f"<li>{_inline(x)}</li>" for x in items) + f"</{tag}>")
+                i = j
+                continue
+
+            if line.startswith(">"):
+                buf = []
+                j = i
+                while j < len(lines) and lines[j].startswith(">"):
+                    buf.append(lines[j].lstrip("> ").rstrip())
+                    j += 1
+                out.append(f"<blockquote><p>{_inline(' '.join(buf))}</p></blockquote>")
+                i = j
+                continue
+
+            buf = [line]
+            j = i + 1
+            while j < len(lines) and lines[j].strip() and not re.match(
+                r"^(#{1,4}\s|\||```|>|\s*[-*]\s|\s*\d+\.\s|---+$)", lines[j]
+            ):
+                buf.append(lines[j])
+                j += 1
+            out.append(f"<p>{_inline(' '.join(x.strip() for x in buf))}</p>")
+            i = j
 
     close_section()
     return "\n".join(out), fig

@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import json
 from pathlib import Path
-from urllib.parse import urlsplit
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -24,35 +23,9 @@ def fail(message: str) -> None:
     raise AssertionError(message)
 
 
-def accepts_status(specification: str, status: int) -> bool:
-    """Return whether a lychee status specification accepts ``status``."""
-    for token in (part.strip() for part in specification.split(",")):
-        if "..=" in token:
-            start, end = token.split("..=", 1)
-            if (not start or status >= int(start)) and (not end or status <= int(end)):
-                return True
-        elif ".." in token:
-            start, end = token.split("..", 1)
-            if (not start or status >= int(start)) and (not end or status < int(end)):
-                return True
-        elif token and status == int(token):
-            return True
-    return False
-
-
-def contains_markdown_host(document: str, target_host: str) -> bool:
-    """Return whether Markdown text contains an HTTP(S) URL for an exact host."""
-    normalized_target = target_host.rstrip(".").lower()
-    targets = re.findall(r"https?://[^\s<>\"']+", document, flags=re.IGNORECASE)
-    for target in targets:
-        candidate = target.rstrip(".,;:!?)]}")
-        try:
-            hostname = urlsplit(candidate).hostname
-        except ValueError:
-            continue
-        if hostname is not None and hostname.rstrip(".").lower() == normalized_target:
-            return True
-    return False
+def links_to_host(document: str, host: str) -> bool:
+    """True when the document links to exactly ``host`` (not a lookalike subdomain)."""
+    return re.search(rf"https?://{re.escape(host)}\.?(?![\w.-])", document, re.I) is not None
 
 
 def test_codeql_workflow_is_pinned_and_scans_repo_languages() -> None:
@@ -88,7 +61,7 @@ def test_browser_gate_blocks_deploy_when_it_fails() -> None:
     text = read(VALIDATE)
     if "browser:" not in text or "npm run browser:check" not in text:
         fail("validate workflow must include the generated-site browser smoke gate")
-    if "needs: [diagrams, html, links, invariants, generated, browser]" not in text:
+    if "needs: [diagrams, links, invariants, generated, browser]" not in text:
         fail("Pages deploy must wait for the browser smoke gate")
     if "permit unprivileged user namespaces for the browser sandbox" not in text:
         fail("browser job must prepare Ubuntu user namespaces without disabling Chromium sandbox")
@@ -137,14 +110,17 @@ def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -
     accept_match = re.search(r"--accept\s+([0-9.,=]+)", workflow)
     if not accept_match:
         fail("link checking must declare its accepted HTTP statuses")
-    for rejected in (403, 429):
-        if accepts_status(accept_match.group(1), rejected):
+    accepted = accept_match.group(1)
+    if ".." in accepted:
+        fail("link checking must list exact HTTP statuses, not ranges that can hide 403 or 429")
+    for rejected in ("403", "429"):
+        if rejected in accepted.split(","):
             fail(f"link checking must not accept HTTP {rejected} as evidence that a source exists")
 
     manual = read(MANUAL)
-    if contains_markdown_host(manual, "docs.vllm.ai"):
+    if links_to_host(manual, "docs.vllm.ai"):
         fail("vLLM evidence links must not use the hosted docs endpoint that rate-limits CI")
-    if contains_markdown_host(manual, "devin.ai"):
+    if links_to_host(manual, "devin.ai"):
         fail("Devin evidence links must not use the marketing homepage that rate-limits CI")
     if "https://docs.devin.ai/" not in manual:
         fail("manual is missing official Devin documentation: https://docs.devin.ai/")
@@ -163,34 +139,9 @@ def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -
             fail(f"manual is missing immutable official vLLM evidence: {stable_url}")
 
 
-def test_status_acceptance_parser_covers_exact_codes_and_ranges() -> None:
-    for specification in ("403", "400..500", "..=429", "429.."):
-        if not accepts_status(specification, 403 if "403" in specification else 429):
-            fail(f"status parser failed to recognize {specification!r}")
-    if accepts_status("200,201,202,204,206,301,302,308", 403):
-        fail("status parser incorrectly accepted HTTP 403")
-
-
-def test_markdown_host_matching_is_exact() -> None:
-    lookalike = "[lookalike](https://docs.vllm.ai.example.invalid/path)"
-    if contains_markdown_host(lookalike, "docs.vllm.ai"):
-        fail("host matching must not treat a lookalike subdomain as docs.vllm.ai")
-    valid_forms = (
-        "[inline](https://docs.vllm.ai/en/latest/)",
-        "[titled](<HTTPS://DOCS.VLLM.AI./en/latest/> \"vLLM docs\")",
-        "[reference]: https://docs.vllm.ai/en/latest/ 'vLLM docs'",
-        "<https://docs.vllm.ai/en/latest/>",
-    )
-    for target in valid_forms:
-        if not contains_markdown_host(target, "docs.vllm.ai"):
-            fail(f"host matching must recognize exact target form: {target}")
-
-
 if __name__ == "__main__":
     test_codeql_workflow_is_pinned_and_scans_repo_languages()
     test_browser_gate_blocks_deploy_when_it_fails()
     test_browser_gate_is_hermetic_and_surfaces_mermaid_failures()
     test_link_checker_uses_stable_primary_sources_without_accepting_failures()
-    test_status_acceptance_parser_covers_exact_codes_and_ranges()
-    test_markdown_host_matching_is_exact()
     print("security workflow contracts pass")

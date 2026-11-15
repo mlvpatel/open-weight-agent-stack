@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "source_sets": {
     "manual_section_27_1": {
       "path": "MANUAL.md",
@@ -45,6 +44,5 @@
     "tencent/Hy3",
     "zai-org/GLM-4.5-Air",
     "zai-org/GLM-5.2"
-  ],
-  "manual_only": {}
+  ]
 }
