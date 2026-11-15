@@ -2036,7 +2036,7 @@ L8 is the agent that writes code. There are dozens of options, in five distinct 
 | **Kilo Code** | Open source, free | ✅ any | Another Cline-lineage option |
 | **Continue** | Apache-2.0 | ✅ any | **Read-only since 2026**, no longer actively maintained by declaration in its own README. The 2.0.0 release was final |
 | **GitHub Copilot** | Plans and pricing vary | Multiple models, plan and surface dependent | Deep GitHub integration; choose from the models available to your plan and client |
-| **Tabnine** | Free tier; paid teams | ✅ any, self-host | The air-gapped and on-prem option; fits open-weight deployments |
+| **Tabnine** | Enterprise only; no new self-serve sign-ups | ✅ any, self-host | **Acquired by Tricentis** in July 2026; tabnine.com now redirects there. Still the air-gapped and on-prem option for enterprise deployments |
 | **Qodo** | Free tier | ✅ any | Test generation and PR review agents |
 | **Amazon Q Developer** | Free tier + paid | AWS | AWS-native shops |
 
@@ -2205,9 +2205,9 @@ tracked set of volatile model and tool claims, rather than proving that every se
 remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
 before relying on them months from now.
 
-**Last verified:** 16 August 2026. Hugging Face licence tags for the named 27.1 checkpoints were
-re-read that day. Parameter counts below are as those cards stated then. Vendor list prices move;
-the DeepSeek V4 Flash row cites the vendor's rate card by URL and verification date.
+**Last verified:** 15 November 2026. Hugging Face licence tags for the named 27.1 checkpoints were
+re-read that day. Parameter counts below are as those cards stated on 16 August 2026. Vendor list
+prices move; the DeepSeek V4 Flash row cites the vendor's rate card by URL and verification date.
 
 ### 27.1 Models and licences
 
@@ -2304,7 +2304,7 @@ Maintenance status is volatile. Every entry below links the project's own reposi
 | Goose | [github.com/aaif-goose/goose](https://github.com/aaif-goose/goose) |
 | Cursor | [cursor.com](https://cursor.com/) |
 | Zed | [github.com/zed-industries/zed](https://github.com/zed-industries/zed) |
-| Tabnine | [tabnine.com](https://www.tabnine.com/) |
+| Tabnine (acquired by Tricentis, July 2026) | [Tabnine deployment options](https://docs.tabnine.com/main/welcome/readme/architecture/deployment-options) · [Tricentis announcement](https://www.tricentis.com/news/tricentis-acquires-tabnine) · [VS Code listing](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) |
 | Qodo | [qodo.ai](https://www.qodo.ai/) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
 | Codex plan availability | [OpenAI Codex pricing](https://developers.openai.com/codex/pricing) |

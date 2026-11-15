@@ -88,8 +88,8 @@ def main() -> int:
          and excludes("readme", "Every factual claim carries its basis")
          and includes("contributing", "pins a tracked set of those claims as a regression check")
          and excludes("contributing", "every factual claim in `MANUAL.md` traces to a primary source")),
-        ("licence tags carry a last-verified date", includes("manual", "16 August 2026")
-         and includes("models", "16 August 2026")
+        ("licence tags carry a last-verified date", includes("manual", "**Last verified:** 15 November 2026")
+         and includes("models", "**Last verified:** 15 November 2026")
          and "Last verified" in TEXT["manual"]
          and "Last verified" in TEXT["models"]),
         ("DeepSeek V4 Flash pricing claim matches the live rate card", excludes("manual", "now opens the first-API-call guide")

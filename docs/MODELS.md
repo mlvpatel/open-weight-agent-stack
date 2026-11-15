@@ -4,7 +4,7 @@ The families this stack draws from. **Licences are stated per model, never per f
 
 Every licence below is linked to a model card or vendor licence document where practical. The linked primary source wins over this page; check the exact checkpoint before you commit.
 
-**Last verified:** 16 August 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of `other` means the card ships a named custom licence, not an OSI-approved SPDX id.
+**Last verified:** 15 November 2026, against Hugging Face model-card licence tags for the named checkpoints. A tag of `other` means the card ships a named custom licence, not an OSI-approved SPDX id.
 
 ## Read this first
 
@@ -47,7 +47,7 @@ These families ship different terms to different models. Use the specific row.
 | Qwen3-Coder-Next | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Coder-Next) |
 | Qwen3-Embedding-8B | Apache-2.0 | [Model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B) |
 | Qwen 2 and 2.5, most sizes | Apache-2.0 | Includes [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct), [14B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct), [32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) and [Coder-32B](https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct) |
-| Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement, or Tongyi Qianwen for the 1.5 line (tagged `other`) | Size decides here, not generation; see each card's licence tag |
+| Qwen 2.5-72B, 2.5-3B, Qwen 1.5 | Qwen License Agreement for 2.5-72B, Qwen Research License for 2.5-3B, Tongyi Qianwen for the 1.5 line (all tagged `other`) | Size decides here, not generation; see each card's licence tag |
 | Qwen 3.8 Max | Custom `qwen3.8-max` (tagged `other`) | The base checkpoint [Qwen3.8-2.4T-A95B](https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B) publishes first-party weights, 2.4T total / 95B active, text generation only, verified 19 August 2026. The Max API product adds vision input and built-in tools; at this scale the weights are consumed through an API in practice |
 
 ### Gemma
@@ -70,7 +70,7 @@ Scope any "Gemma is Apache-2.0 now" claim to the core numbered Gemma 4 series. T
 | Mistral-Small-4-119B | Apache-2.0 | [Model card](https://huggingface.co/mistralai/Mistral-Small-4-119B-2603) |
 | Devstral-Small-2-24B | Apache-2.0 | [Model card](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512) |
 | Mistral-Medium-3.5, Devstral-2-123B | Modified MIT with a monthly-revenue cap | A commercial-eligibility threshold, not a research restriction |
-| 2024-era Large, Small, Pixtral, Ministral | Mistral Research License | Genuinely research-only |
+| 2024-era Large, Small, Pixtral Large, Ministral | Mistral Research License | Genuinely research-only |
 | Codestral-22B | Mistral Non-Production License | |
 | Voxtral TTS | CC-BY-NC-4.0 | Non-commercial |
 

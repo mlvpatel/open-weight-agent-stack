@@ -174,11 +174,18 @@ jobs:
             --max-retries 3
             --retry-wait-time 10
             --accept 200,201,202,204,206,301,302,308
+            --exclude '^https://www\.tricentis\.com/news/tricentis-acquires-tabnine$'
             MANUAL.md README.md docs/
           fail: true
           # 403 and 429 are no longer accepted as success. A rate-limited or
           # forbidden response is not evidence that a page exists, and treating
           # it as success is how a link checker quietly stops checking.
+          # The one exclusion is the Tricentis press release that sources the
+          # Tabnine acquisition in MANUAL.md section 27.5. tricentis.com sends an
+          # 18,650-byte content-security-policy header, over the HTTP/2 header-list
+          # limit of lychee's client, so it fails with "HTTP/2 protocol error" while
+          # browsers get a 200. It is scoped to that exact URL, so any other
+          # tricentis.com link still fails and needs its own decision.
 
   deploy:
     # Job-level condition, never a workflow-level path filter: a workflow skipped
