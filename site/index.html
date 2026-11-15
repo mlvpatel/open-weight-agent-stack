@@ -375,7 +375,7 @@
   .product {
     margin: 0 var(--page-pad) var(--space-8);
     padding: var(--plate-pad) var(--space-8);
-    background: var(--gloss), linear-gradient(180deg, #ffffff 0%, #f3f6fb 100%);
+    background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #f3f6fb 100%);
     color: var(--color-ink);
     border-radius: var(--radius-card);
     border: 1px solid rgba(255, 255, 255, 0.95);
@@ -525,7 +525,7 @@
   }
   html[data-theme="dark"] body {
     background: radial-gradient(1200px 520px at 50% -80px, rgba(255, 255, 255, 0.06), transparent 70%),
-                #000000;
+                var(--color-background);
   }
   .search-hidden { display: none !important; }
   nav.toc ul {
@@ -578,7 +578,7 @@
 
   section { scroll-margin-top: calc(var(--nav-height) + var(--space-4)); }
   main > section {
-    background: var(--gloss), linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
+    background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #f5f8fc 100%);
     margin-inline: 0;
     padding: var(--space-8) var(--space-6);
     border-radius: var(--radius-card);
@@ -586,7 +586,7 @@
     box-shadow: var(--shadow-raise);
   }
   main > section:nth-child(even) {
-    background: var(--gloss), linear-gradient(180deg, #ffffff 0%, #eef3f9 100%);
+    background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #eef3f9 100%);
     margin-inline: 0;
     padding: var(--space-8) var(--space-6);
     border-radius: var(--radius-card);
