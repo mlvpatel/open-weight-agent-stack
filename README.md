@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 166 primary sources, with the five concentric rings from prompt to loop" width="880">
+<img src="site/preview.png" alt="The Open-Weight Agent Stack: a performance-first build manual covering 27 sections, 20 diagrams and 166 primary sources, with the five concentric rings from prompt to loop" width="880">
 
 **Performance-first build manual**
 
@@ -169,7 +169,7 @@ site/template.html   Design chrome. site/index.html is GENERATED; never edit it 
 diagrams/src/        All 20 diagrams as standalone .mmd files, reusable anywhere.
 assets/              The single Mermaid theme both the site and the SVGs render from.
 scripts/             Extract diagrams, generate the site, check invariants, watch upstream.
-.github/workflows/   Six validation jobs, a CodeQL workflow, plus the weekly freshness watcher.
+.github/workflows/   Five validation jobs, a CodeQL workflow, a release SBOM job, plus the weekly freshness watcher.
 ```
 
 ## What shipped in 1.1.1

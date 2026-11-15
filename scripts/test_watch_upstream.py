@@ -50,14 +50,10 @@ def drive(sequence: list[dict], tmp: Path) -> list[tuple[int, dict, str]]:
     original_state_path = w.STATE_PATH
     original_models = w.WATCHED_MODELS
     original_project_model = w.project_model
-    original_dependencies = w.project_dependencies
-    original_latest_npm = w.latest_npm
     w.STATE_PATH = tmp / "state.json"
     w.WATCHED_MODELS = ("test/model",)
     iterator = iter(sequence)
     w.project_model = lambda _repo: next(iterator)
-    w.project_dependencies = lambda: {}
-    w.latest_npm = lambda _name: None
     results = []
     cwd = Path.cwd()
     try:
@@ -73,40 +69,6 @@ def drive(sequence: list[dict], tmp: Path) -> list[tuple[int, dict, str]]:
         w.STATE_PATH = original_state_path
         w.WATCHED_MODELS = original_models
         w.project_model = original_project_model
-        w.project_dependencies = original_dependencies
-        w.latest_npm = original_latest_npm
-    return results
-
-
-def drive_dependencies(sequence: list[str | None], tmp: Path) -> list[tuple[int, dict, str]]:
-    """Run dependency-only observations without touching the network."""
-    original_state_path = w.STATE_PATH
-    original_models = w.WATCHED_MODELS
-    original_project_model = w.project_model
-    original_dependencies = w.project_dependencies
-    original_latest_npm = w.latest_npm
-    w.STATE_PATH = tmp / "state.json"
-    w.WATCHED_MODELS = ()
-    iterator = iter(sequence)
-    w.project_model = lambda _repo: transient("not-used")
-    w.project_dependencies = lambda: {"example": "1.0.0"}
-    w.latest_npm = lambda _name: next(iterator)
-    results = []
-    cwd = Path.cwd()
-    try:
-        os.chdir(tmp)
-        for _ in sequence:
-            out = io.StringIO()
-            with contextlib.redirect_stdout(out):
-                code = w.main()
-            results.append((code, json.loads(w.STATE_PATH.read_text(encoding="utf-8")), out.getvalue()))
-    finally:
-        os.chdir(cwd)
-        w.STATE_PATH = original_state_path
-        w.WATCHED_MODELS = original_models
-        w.project_model = original_project_model
-        w.project_dependencies = original_dependencies
-        w.latest_npm = original_latest_npm
     return results
 
 
@@ -196,16 +158,6 @@ def test_alternating_drift_requires_identical_consecutive_observations() -> None
         check("alternate model values do not reuse an old pending count",
               [code for code, _state, _out in runs[:4]] == [0, 0, 0, 0])
         check("second consecutive identical model value reports",
-              runs[-1][0] == 2)
-    with tempfile.TemporaryDirectory() as d:
-        runs = drive_dependencies(["2.0.0", "3.0.0", "2.0.0", "2.0.0"], Path(d))
-        check("alternate dependency values do not reuse an old pending count",
-              [code for code, _state, _out in runs[:3]] == [0, 0, 0])
-        check("second consecutive identical dependency value reports",
-              runs[-1][0] == 2)
-    with tempfile.TemporaryDirectory() as d:
-        runs = drive_dependencies(["2.0.0", None, "2.0.0"], Path(d))
-        check("indeterminate dependency lookup preserves pending count",
               runs[-1][0] == 2)
 
 

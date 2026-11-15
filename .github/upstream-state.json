@@ -43,11 +43,6 @@
       "license": "apache-2.0",
       "license_name": null
     },
-    "__deps__": {
-      "@mermaid-js/mermaid-cli": "11.16.0",
-      "html-validate": "11.6.2",
-      "puppeteer": "25.5.0"
-    },
     "allenai/Olmo-3-1025-7B": {
       "available": true,
       "gated": false,

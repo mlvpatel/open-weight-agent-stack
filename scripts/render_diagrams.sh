@@ -14,7 +14,7 @@ for f in diagrams/src/*.mmd; do
   tmp="$(mktemp)"
   printf '%s\n' "$THEME_INIT" > "$tmp"
   cat "$f" >> "$tmp"
-  npx --no-install mmdc -p scripts/puppeteer.json -i "$tmp" -o "diagrams/svg/${name}.svg"
+  npx --no-install mmdc -i "$tmp" -o "diagrams/svg/${name}.svg"
   rm -f "$tmp"
   echo "rendered ${name}"
 done

@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Detect upstream drift in the facts this manual publishes.
 
-One mechanism, two instantiations: model metadata on Hugging Face, and the
-build's own npm dependencies. Both are the same shape (poll, project, persist,
-require repeated observation, then propose an edit), so they share an
-implementation rather than existing as two bots.
+It watches model metadata on Hugging Face. The build's own npm dependencies are
+Dependabot's job (.github/dependabot.yml), which opens its own pull requests.
 
 Design decisions that matter:
 
@@ -67,23 +65,10 @@ def coverage_contract_errors(coverage: dict[str, Any] | None = None) -> list[str
     """Return unclassified or stale model-card sources as actionable errors."""
     coverage = coverage or load_model_coverage()
     automated = list(coverage.get("automated_models", []))
-    manual_only = coverage.get("manual_only", {})
     errors: list[str] = []
-    if coverage.get("schema_version") != 1:
-        errors.append("freshness source manifest must use schema_version 1")
     if automated != sorted(set(automated)):
         errors.append("automated_models must be unique and alphabetically sorted")
-    if not isinstance(manual_only, dict):
-        errors.append("manual_only must be a mapping")
-        manual_only = {}
-    unreasoned = [model for model, reason in manual_only.items()
-                  if not isinstance(reason, str) or not reason.strip()]
-    if unreasoned:
-        errors.append("manual-only models need a reason: " + ", ".join(sorted(unreasoned)))
-    classified = set(automated) | set(manual_only)
-    overlap = set(automated) & set(manual_only)
-    if overlap:
-        errors.append("models cannot be both automated and manual-only: " + ", ".join(sorted(overlap)))
+    classified = set(automated)
     declared = declared_model_cards(coverage)
     missing, stale = declared - classified, classified - declared
     if missing:
@@ -93,16 +78,9 @@ def coverage_contract_errors(coverage: dict[str, Any] | None = None) -> list[str
     return errors
 
 
-def watched_models() -> tuple[str, ...]:
-    coverage = load_model_coverage()
-    errors = coverage_contract_errors(coverage)
-    if errors:
-        raise ValueError("freshness coverage contract failed: " + "; ".join(errors))
-    return tuple(coverage["automated_models"])
-
-
-# Kept overrideable so tests do not need live network access.
-WATCHED_MODELS = watched_models()
+# Kept overrideable so tests do not need live network access. main() checks the
+# contract before using it.
+WATCHED_MODELS = tuple(load_model_coverage()["automated_models"])
 
 
 def fetch_json(url: str) -> dict[str, Any]:
@@ -154,31 +132,10 @@ def project_model(repo_id: str) -> dict[str, Any]:
     }
 
 
-def project_dependencies() -> dict:
-    """The build's own pinned versions, from package.json."""
-    pkg = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
-    return {name: ver for name, ver in sorted(pkg.get("devDependencies", {}).items())}
-
-
-def latest_npm(name: str) -> str | None:
-    response = fetch_json(f"https://registry.npmjs.org/{name}/latest")
-    if response["status"] != "ok":
-        return None
-    data = response["data"]
-    return data.get("version")
-
-
 def load_state() -> dict[str, Any]:
-    """Accept legacy state and always return the stable v2 shape."""
     if not STATE_PATH.exists():
-        return {"schema_version": 2, "observed": {}, "pending": {}}
-    state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
-    observed, pending = state.get("observed", {}), state.get("pending", {})
-    return {
-        "schema_version": 2,
-        "observed": observed if isinstance(observed, dict) else {},
-        "pending": pending if isinstance(pending, dict) else {},
-    }
+        return {"observed": {}, "pending": {}}
+    return json.loads(STATE_PATH.read_text(encoding="utf-8"))
 
 
 def diff(label: str, old: dict | None, new: dict | None) -> list[str]:
@@ -197,17 +154,6 @@ def diff(label: str, old: dict | None, new: dict | None) -> list[str]:
 def pending_for_model(pending: dict[str, int], repo_id: str) -> dict[str, int]:
     return {key: value for key, value in pending.items()
             if not key.startswith(f"{repo_id}: ")}
-
-
-def pending_for_dependency(
-    pending: dict[str, int], name: str, keep: str | None = None
-) -> dict[str, int]:
-    """Forget a dependency's alternate candidate versions, if any."""
-    prefix = f"dep:{name}:"
-    return {
-        key: value for key, value in pending.items()
-        if not key.startswith(prefix) or key == keep
-    }
 
 
 def observe_model(
@@ -249,17 +195,11 @@ def normalise_state(
 ) -> tuple[dict[str, Any], dict[str, int]]:
     """Migrate state by removing retired IDs and malformed counters."""
     prefixes = tuple(f"{model}: " for model in models)
-    observed_now = {
-        key: value for key, value in observed.items()
-        if key in models or key == "__deps__"
-    }
+    observed_now = {key: value for key, value in observed.items() if key in models}
     pending_now = {
         key: value for key, value in pending.items()
-        if isinstance(value, int) and value >= 0
-        and (key.startswith(prefixes) or key.startswith("dep:"))
+        if isinstance(value, int) and value >= 0 and key.startswith(prefixes)
     }
-    if "__deps__" in observed_now and not isinstance(observed_now["__deps__"], dict):
-        observed_now.pop("__deps__")
     return observed_now, pending_now
 
 
@@ -270,8 +210,9 @@ def main() -> int:
         return 1
 
     state = load_state()
+    # Retired IDs (including the old Devstral card) cannot retain counters.
     observed_now, pending = normalise_state(
-        state["observed"], state["pending"], tuple(WATCHED_MODELS)
+        state.get("observed", {}), state.get("pending", {}), tuple(WATCHED_MODELS)
     )
     findings: list[str] = []
     warnings: list[str] = []
@@ -291,28 +232,6 @@ def main() -> int:
             for change in changes
         )
 
-    deps = project_dependencies()
-    observed_now["__deps__"] = deps
-    for name, pinned in deps.items():
-        latest = latest_npm(name)
-        if latest and latest != pinned.lstrip("^~"):
-            key = f"dep:{name}:{latest}"
-            pending = pending_for_dependency(pending, name, keep=key)
-            pending[key] = pending.get(key, 0) + 1
-            if pending[key] >= CHANGE_CONFIRMATIONS:
-                findings.append(
-                    f"- {name} is pinned at {pinned} but {latest} is published\n"
-                    f"  source: https://www.npmjs.com/package/{name}"
-                )
-                pending = pending_for_dependency(pending, name)
-        elif latest:
-            # A return to the pinned version is a flap, not proof of an older
-            # candidate; discard any counter for this dependency.
-            pending = pending_for_dependency(pending, name)
-
-    # Retired IDs (including the old Devstral card) cannot retain counters.
-    observed_now, pending = normalise_state(observed_now, pending, tuple(WATCHED_MODELS))
-
     from datetime import datetime, timezone
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(
@@ -327,8 +246,7 @@ def main() -> int:
     reachable = sum(1 for repo_id in WATCHED_MODELS
                     if isinstance(observed_now.get(repo_id), dict)
                     and observed_now[repo_id].get("available"))
-    print(f"checked {len(WATCHED_MODELS)} models ({reachable} last-known available) "
-          f"and {len(deps)} pinned dependencies")
+    print(f"checked {len(WATCHED_MODELS)} models ({reachable} last-known available)")
     for warning in warnings:
         print(f"warning: {warning}")
 

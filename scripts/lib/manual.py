@@ -49,12 +49,32 @@ class Manual:
         return len(self.sections)
 
 
+# The one fence grammar: 3+ backticks open a block, and the same run alone on a
+# line closes it. Groups: marker, info string, body (with its final newline).
+FENCE = re.compile(r"^(`{3,})(.*?)\n(.*?)^\1[ \t]*$", re.M | re.S)
+
+
+def split_fences(text: str) -> list[tuple[re.Match[str] | None, str]]:
+    """Cut text into prose and fenced chunks, in order; a fenced chunk carries its match."""
+    parts: list[tuple[re.Match[str] | None, str]] = []
+    cursor = 0
+    for fence in FENCE.finditer(text):
+        parts.append((None, text[cursor:fence.start()]))
+        parts.append((fence, fence.group(0)))
+        cursor = fence.end()
+    parts.append((None, text[cursor:]))
+    return parts
+
+
+def mask_fences(text: str) -> str:
+    """Blank fenced code, keeping line numbers, so it never registers as headings or links."""
+    return FENCE.sub(lambda fence: "\n" * fence.group(0).count("\n"), text)
+
+
 def load(path: Path | None = None) -> Manual:
     path = path or MANUAL
     text = path.read_text(encoding="utf-8")
-
-    # Mask fenced code so its contents never register as headings or links.
-    masked = re.sub(r"```.*?```", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S)
+    masked = mask_fences(text)
 
     headings = [
         (len(m.group(1)), m.group(2).strip())
@@ -62,15 +82,14 @@ def load(path: Path | None = None) -> Manual:
     ]
     sections = [h for lvl, h in headings if lvl == 2 and re.match(r"^\d+\.", h)]
 
-    m = Manual(
+    return Manual(
         text=text,
         headings=headings,
         anchors={slug(h) for _, h in headings},
-        diagrams=re.findall(r"```mermaid\n(.*?)```", text, re.S),
+        diagrams=[f.group(3) for f in FENCE.finditer(text) if f.group(2).strip() == "mermaid"],
         links=re.findall(r"\]\((https?://[^)]+)\)", masked),
         sections=sections,
     )
-    return m
 
 
 def markdown_files() -> list[Path]:
