@@ -2,7 +2,6 @@
 """Regression tests for repository-document links in the generated site."""
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 import tempfile
@@ -61,17 +60,37 @@ class GeneratedSiteLinkTests(unittest.TestCase):
 
     def test_generated_site_link_invariant_passes(self) -> None:
         self.build_site()
-        env = {**os.environ, "SKIP_REPO_DESCRIPTION": "1"}
         result = subprocess.run(
-            [sys.executable, "scripts/check_invariants.py"],
+            [sys.executable, "scripts/check_invariants.py", "--only", "offline"],
             cwd=REPO,
-            env=env,
             capture_output=True,
             text=True,
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("generated-links:", result.stdout)
+
+    def test_offline_group_never_runs_clock_or_network_checks(self) -> None:
+        # npm test and the deploy gate must not depend on the date or on origin.
+        called = []
+        names = ("check_last_verified", "check_freshness_heartbeat",
+                 "check_repo_description", "check_release_version")
+        originals = {name: getattr(check_invariants, name) for name in names}
+        try:
+            for name in names:
+                setattr(check_invariants, name, lambda *_args, _n=name: called.append(_n))
+            check_invariants.FAILURES.clear()
+            check_invariants.SUMMARY.clear()
+            self.assertEqual(check_invariants.main(["--only", "offline"]), 0)
+            self.assertEqual(called, [])
+            check_invariants.SUMMARY.clear()
+            check_invariants.main(["--only", "online"])
+            self.assertEqual(called, list(names))
+        finally:
+            for name, function in originals.items():
+                setattr(check_invariants, name, function)
+            check_invariants.FAILURES.clear()
+            check_invariants.SUMMARY.clear()
 
     def test_generated_site_invariant_rejects_unpublished_relative_document(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -79,8 +79,9 @@ GitHub disables scheduled workflows in public repositories after **60 days witho
 If this repository goes quiet for that long, re-enable the workflow from the Actions tab. The dead
 schedule cannot report itself, so the heartbeat lives in a workflow that does still run: every
 watcher run commits a `last_run` timestamp to the `freshness-state` branch, and
-`scripts/check_invariants.py` reads that timestamp on every push and fails the `invariants` check
-when it is more than 14 days old, one missed weekly run.
+`scripts/check_invariants.py --only online` reads that timestamp in the weekly `drift` job of the
+`validate` workflow and fails it when it is more than 14 days old, one missed weekly run. A failed
+scheduled run opens or updates a GitHub issue.
 
 ## Running it by hand
 

@@ -61,8 +61,8 @@ def test_browser_gate_blocks_deploy_when_it_fails() -> None:
     text = read(VALIDATE)
     if "browser:" not in text or "npm run browser:check" not in text:
         fail("validate workflow must include the generated-site browser smoke gate")
-    if "needs: [diagrams, links, invariants, generated, browser]" not in text:
-        fail("Pages deploy must wait for the browser smoke gate")
+    if "needs: [diagrams, invariants, generated, browser]" not in text:
+        fail("Pages build must wait for every deterministic gate, including the browser smoke gate")
     if "permit unprivileged user namespaces for the browser sandbox" not in text:
         fail("browser job must prepare Ubuntu user namespaces without disabling Chromium sandbox")
     browser_start = text.index("  browser:")
@@ -70,6 +70,49 @@ def test_browser_gate_blocks_deploy_when_it_fails() -> None:
     browser_job = text[browser_start:invariants_start]
     if "kernel.apparmor_restrict_unprivileged_userns=0" not in browser_job:
         fail("browser job must mirror the diagram job user-namespace preparation")
+
+
+def job(text: str, name: str) -> str:
+    """The body of one top-level job in a workflow file."""
+    match = re.search(rf"^  {name}:\n(.*?)(?=^  [a-z][\w-]*:\n|\Z)", text, re.M | re.S)
+    if not match:
+        fail(f"workflow has no {name!r} job")
+    return match.group(1)
+
+
+def test_pages_deploy_is_split_dispatchable_and_offline_gated() -> None:
+    text = read(VALIDATE)
+    build, deploy = job(text, "build"), job(text, "deploy")
+    # Upload and deploy in one job raced: deploy-pages saw no github-pages artifact.
+    if "actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9" not in build:
+        fail("the build job must upload the Pages artifact with the pinned action")
+    if "actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128" not in deploy:
+        fail("the deploy job must run the pinned deploy-pages action")
+    if "upload-pages-artifact" in deploy or "deploy-pages" in build:
+        fail("upload-pages-artifact and deploy-pages must run in separate jobs")
+    # Re-running a failed attempt once left two github-pages artifacts in one run.
+    if "name: ${{ steps.artifact.outputs.name }}" not in build or \
+            "artifact_name: ${{ needs.build.outputs.artifact }}" not in deploy:
+        fail("deploy must read the per-attempt artifact name from the build job's output")
+    if "needs: build" not in deploy:
+        fail("deploy must wait for the build job")
+    if "workflow_dispatch" not in build:
+        fail("a manual run on main must be able to redeploy, as SECURITY.md documents")
+    if "pages: write" in build or "id-token: write" in build:
+        fail("the build job must not hold Pages write or OIDC permissions")
+    if "contents:" in deploy:
+        fail("the deploy job needs no repository contents permission")
+    # Clock- and network-dependent checks must not gate merges or the deploy.
+    invariants = job(text, "invariants")
+    if "check_invariants.py --only offline" not in invariants:
+        fail("the required invariants job must run only the offline check group")
+    if "check_invariants.py --only online" not in job(text, "drift"):
+        fail("the scheduled drift job must run the online check group")
+    if "links" in build:
+        fail("an external link outage must not block the Pages deploy")
+    report = job(text, "report")
+    if "issues: write" not in report or "gh issue create" not in report:
+        fail("scheduled failures must open or update a GitHub issue")
 
 
 def test_browser_gate_is_hermetic_and_surfaces_mermaid_failures() -> None:
@@ -142,6 +185,7 @@ def test_link_checker_uses_stable_primary_sources_without_accepting_failures() -
 if __name__ == "__main__":
     test_codeql_workflow_is_pinned_and_scans_repo_languages()
     test_browser_gate_blocks_deploy_when_it_fails()
+    test_pages_deploy_is_split_dispatchable_and_offline_gated()
     test_browser_gate_is_hermetic_and_surfaces_mermaid_failures()
     test_link_checker_uses_stable_primary_sources_without_accepting_failures()
     print("security workflow contracts pass")

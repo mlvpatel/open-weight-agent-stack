@@ -16,7 +16,7 @@ A claim with no marker and no source is a defect. Report it.
 
 ## What CI verifies automatically
 
-Five validation jobs run on every push to `main`, on every pull request, and weekly on a schedule. The conditional Pages deployment runs only for a push to `main` and waits for all five.
+Four deterministic jobs (`diagrams`, `generated`, `browser`, `invariants`) run on every push to `main`, on every pull request, and weekly on a schedule. Their result depends only on the commit. The Pages deployment runs for a push to `main` or a manual run on `main`, and waits for all four. Checks that depend on the network or the calendar (`links` and `drift`) do not gate the deployment, so a third-party outage or a date cannot block a fix. A failed scheduled run opens or updates a GitHub issue.
 
 **`diagrams`**
 - Every Mermaid source extracted from the manual compiles.
@@ -40,18 +40,21 @@ Five validation jobs run on every push to `main`, on every pull request, and wee
 - Every internal `MANUAL.md#anchor` reference resolves to a real heading.
 - Every relative link between repository files points at a file that exists.
 - Every count stated in prose matches the measured value.
-- The GitHub repository description agrees with the repository. That description lives outside the repository, so no generator can fix it.
 - Each check reports how many items it inspected and fails when it inspected none.
 - A separate step breaks an anchor on purpose and fails if the checker still passes.
-- Last-verified dates must be parseable and younger than 45 days.
-- package.json must match the latest GitHub release tag when `gh` can see one.
 
 The claim-contract suite is a golden-string pin on wording that has drifted, not a proof that every sentence is sourced. It currently runs more than 30 pins across MANUAL.md, MODELS.md, README.md, CONTRIBUTING.md, and the layer guides. Model-card licence coverage for `automated_models` in `.github/freshness-sources.json` is mechanically complete.
 
 Section 27.1 through 27.3 together hold 54 evidence-table rows. Of those, 9 are backed by at least one pinned check above: the Qwen 2/2.5, DeepSeek V4 Pro, DeepSeek V4 Flash, GLM-5.2, GLM-4.5-Air, MiniMax M2.7, gpt-oss-120b/20b, and Qwen 3.8 27B rows in 27.1, plus the OWASP Top 10 for Agentic Applications row in 27.3. The other 45 rows carry no automated pin and rely on the human-sampling process documented in [HUMAN-REVIEW.md](HUMAN-REVIEW.md).
 
-**`links`**
+**`links`** (pull requests, weekly schedule, manual runs; not a deploy gate)
 - Every external link in the manual, README, and docs returns a genuine success status. Rate-limited and forbidden responses are not accepted as success.
+
+**`drift`** (weekly schedule and manual runs; not a deploy gate)
+- Last-verified dates must be parseable and younger than 45 days.
+- The freshness watcher wrote its `last_run` heartbeat within the last 14 days.
+- The GitHub repository description agrees with the repository. That description lives outside the repository, so no generator can fix it.
+- package.json must match the latest GitHub release tag when `gh` can see one.
 
 The `codeql` workflow is configured locally to scan Python and JavaScript/TypeScript on pushes, pull requests, weekly schedules, and manual dispatch. It will upload findings to GitHub code scanning only after it is pushed and runs successfully; the owner can then add its checks to branch protection.
 

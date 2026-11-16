@@ -203,7 +203,7 @@ If you change the manual:
 npm ci
 python3 scripts/extract_diagrams.py   # refresh diagrams/src from the manual
 python3 scripts/build_site.py         # regenerate site/index.html
-python3 scripts/check_invariants.py   # anchors, relative links, stated counts
+python3 scripts/check_invariants.py   # anchors, relative links, stated counts; --only offline skips date and network checks
 python3 scripts/test_watch_upstream.py
 npm test                              # offline regression suite and Python coverage
 npm run validate:html                 # generated HTML validity

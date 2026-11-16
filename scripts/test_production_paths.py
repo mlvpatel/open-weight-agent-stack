@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import os
 import shutil
 import tempfile
 import sys
@@ -110,19 +109,13 @@ class ProductionPathTests(unittest.TestCase):
             template_path.write_text(template[:opening] + template[end:], encoding="utf-8")
             self.assertEqual(build_site.build(repo), 1)
 
-        original_env = os.environ.get("SKIP_REPO_DESCRIPTION")
-        os.environ["SKIP_REPO_DESCRIPTION"] = "1"
         check_invariants.FAILURES.clear()
         check_invariants.SUMMARY.clear()
         try:
-            self.assertEqual(check_invariants.main(), 0)
+            self.assertEqual(check_invariants.main(["--only", "offline"]), 0)
         finally:
             check_invariants.FAILURES.clear()
             check_invariants.SUMMARY.clear()
-            if original_env is None:
-                os.environ.pop("SKIP_REPO_DESCRIPTION", None)
-            else:
-                os.environ["SKIP_REPO_DESCRIPTION"] = original_env
 
     def test_diagram_extraction_matches_committed_sources(self) -> None:
         original_root = extract_diagrams.ROOT
