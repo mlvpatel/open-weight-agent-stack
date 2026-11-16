@@ -85,7 +85,7 @@ This is the realistic incident, because one person can push to `main` once requi
 2. Revoke active sessions, personal access tokens, SSH keys, and any GitHub App installed on this repository, including the freshness watcher app if `APP_ID` is set.
 3. Rotate `APP_PRIVATE_KEY` and any other repository secrets.
 4. Review recent commits, workflow runs, and Pages deploys. Revert anything that did not come from you.
-5. Rebuild and redeploy from a commit you trust: `python3 scripts/build_site.py` and the existing `generated` job.
+5. Redeploy from a commit you trust. Make sure `main` points at it (revert the bad commits through a pull request), confirm `python3 scripts/build_site.py` leaves `site/` unchanged, then run the `validate` workflow on `main` from the Actions tab (Run workflow). A manual run on `main` deploys once the `diagrams`, `generated`, `browser`, and `invariants` jobs pass.
 
 Do not enable required signatures or administrator-enforced branch protection until a second identity exists. Those settings can lock the only maintainer out of the repository they are meant to protect.
 

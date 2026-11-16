@@ -3,7 +3,7 @@ on:
   push: { branches: [main] }
   pull_request:
   schedule:
-    - cron: "0 6 * * 1"   # weekly scheduled link check
+    - cron: "0 6 * * 1"   # weekly: links and the clock- or network-dependent drift checks
   workflow_dispatch:
 
 permissions:
@@ -138,10 +138,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: offline regression suite and Python coverage
         run: npm test
+      # Only the offline group gates pull requests and the deploy. Checks that
+      # depend on the calendar or the network run in the scheduled drift job.
       - name: internal anchors, relative links, and stated counts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/check_invariants.py
+        run: python3 scripts/check_invariants.py --only offline
       - name: the gate rejects a broken reference
         run: |
           # prove the checker is not vacuous before trusting a pass
@@ -151,7 +151,7 @@ jobs:
           p = pathlib.Path("MANUAL.md")
           p.write_text(p.read_text().replace("## 22. Task-to-model routing", "## 22. Renamed", 1))
           EOP
-          if SKIP_REPO_DESCRIPTION=1 python3 scripts/check_invariants.py; then
+          if python3 scripts/check_invariants.py --only offline; then
             echo "::error::Invariant checker passed against a deliberately broken anchor."
             cp /tmp/manual.bak MANUAL.md
             exit 1
@@ -159,7 +159,11 @@ jobs:
           cp /tmp/manual.bak MANUAL.md
           echo "checker correctly rejects a broken reference"
 
+  # Runs on pull requests, on the schedule, and on manual runs, but never gates
+  # the deploy: a third-party 403 or 429 must not block a hotfix. Scheduled
+  # failures open an issue through the report job.
   links:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -187,20 +191,68 @@ jobs:
           # browsers get a 200. It is scoped to that exact URL, so any other
           # tricentis.com link still fails and needs its own decision.
 
-  deploy:
-    # Job-level condition, never a workflow-level path filter: a workflow skipped
-    # by paths reports Pending forever and would block required checks, while a
-    # job skipped by a conditional reports Success.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [diagrams, links, invariants, generated, browser]
+  # Calendar- and network-dependent checks: Last verified age, the freshness
+  # watcher heartbeat, the repository description, and the release tag. They
+  # run on the schedule and on manual runs, and never gate a merge or deploy.
+  drift:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: dates, watcher heartbeat, description, and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/check_invariants.py --only online
+
+  # One open issue per failure streak: a new failure comments on the existing
+  # issue instead of opening another one.
+  report:
+    if: failure() && github.event_name == 'schedule'
+    needs: [links, drift]
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: open or update the scheduled-failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          LINKS_RESULT: ${{ needs.links.result }}
+          DRIFT_RESULT: ${{ needs.drift.result }}
+        run: |
+          title="Scheduled validation is failing"
+          body=$(printf '%s\n\n- links: %s\n- drift: %s\n\nRun: %s\n\n%s' \
+            "The weekly validate run failed." "$LINKS_RESULT" "$DRIFT_RESULT" "$RUN_URL" \
+            "These checks depend on the network or the calendar, so they do not block pull requests or the Pages deploy. Fix the cause, then close this issue.")
+          number=$(gh issue list --state open --search "in:title \"$title\"" --json number,title \
+            --jq ".[] | select(.title == \"$title\") | .number" | head -n 1)
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
+
+  # Build and deploy are separate jobs. With both actions in one job,
+  # deploy-pages listed the run's artifacts 0.3 s after the upload finished and
+  # found only diagrams-svg, failing with 'No artifacts named "github-pages"'.
+  # A job boundary means the artifact is finalised before deploy looks for it.
+  #
+  # Job-level conditions, never a workflow-level path filter: a workflow skipped
+  # by paths reports Pending forever and would block required checks, while a
+  # job skipped by a conditional reports Success. A manual run on main deploys,
+  # which is the recovery path SECURITY.md documents.
+  build:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [diagrams, invariants, generated, browser]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -209,5 +261,16 @@ jobs:
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

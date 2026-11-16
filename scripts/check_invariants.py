@@ -10,9 +10,18 @@ Checks:
   files     every relative markdown link points at a file that exists
   counts    every count stated in prose matches the measured value
   desc      the GitHub repository description agrees with the repository
+
+Groups (--only offline|online, default all):
+  offline   reads only the checkout, so its result depends on the commit alone.
+            Pull requests and the Pages deploy gate on this group.
+  online    depends on the calendar or the network: Last verified age, the
+            freshness watcher heartbeat, the repository description, and the
+            release tag. The scheduled run checks these and opens an issue,
+            so a third-party outage or a date cannot block a hotfix.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -368,19 +377,31 @@ def check_repo_description(m) -> None:
     SUMMARY.append(f"description: checked against {m.section_count} sections, {m.diagram_count} diagrams")
 
 
-def main() -> int:
+OFFLINE_CHECKS = (
+    check_anchors,
+    lambda m: check_relative_files(),
+    lambda m: check_generated_site_links(),
+    check_counts,
+    lambda m: check_layer_files(),
+    lambda m: check_architecture_diagram(),
+    lambda m: check_evidence_markers(),
+)
+ONLINE_CHECKS = (
+    lambda m: check_last_verified(),
+    lambda m: check_freshness_heartbeat(),
+    lambda m: check_repo_description(m),
+    lambda m: check_release_version(),
+)
+GROUPS = {"offline": OFFLINE_CHECKS, "online": ONLINE_CHECKS, "all": OFFLINE_CHECKS + ONLINE_CHECKS}
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--only", choices=sorted(GROUPS), default="all")
+    group = parser.parse_args(argv).only
     m = load()
-    check_anchors(m)
-    check_relative_files()
-    check_generated_site_links()
-    check_counts(m)
-    check_last_verified()
-    check_layer_files()
-    check_architecture_diagram()
-    check_evidence_markers()
-    check_freshness_heartbeat()
-    check_repo_description(m)
-    check_release_version()
+    for check in GROUPS[group]:
+        check(m)
 
     for line in SUMMARY:
         print(f"  {line}")
