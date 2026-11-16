@@ -90,6 +90,10 @@ def test_pages_deploy_is_split_dispatchable_and_offline_gated() -> None:
         fail("the deploy job must run the pinned deploy-pages action")
     if "upload-pages-artifact" in deploy or "deploy-pages" in build:
         fail("upload-pages-artifact and deploy-pages must run in separate jobs")
+    # Re-running a failed attempt once left two github-pages artifacts in one run.
+    if "name: ${{ steps.artifact.outputs.name }}" not in build or \
+            "artifact_name: ${{ needs.build.outputs.artifact }}" not in deploy:
+        fail("deploy must read the per-attempt artifact name from the build job's output")
     if "needs: build" not in deploy:
         fail("deploy must wait for the build job")
     if "workflow_dispatch" not in build:

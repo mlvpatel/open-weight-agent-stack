@@ -241,6 +241,9 @@ jobs:
   # deploy-pages listed the run's artifacts 0.3 s after the upload finished and
   # found only diagrams-svg, failing with 'No artifacts named "github-pages"'.
   # A job boundary means the artifact is finalised before deploy looks for it.
+  # The artifact is named per attempt, and deploy reads the name from build's
+  # output: re-running all jobs uploads under a new name instead of a second
+  # github-pages, and re-running only deploy reuses build's original output.
   #
   # Job-level conditions, never a workflow-level path filter: a workflow skipped
   # by paths reports Pending forever and would block required checks, while a
@@ -253,14 +256,19 @@ jobs:
     permissions:
       contents: read
       pages: read
+    outputs:
+      artifact: ${{ steps.artifact.outputs.name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - id: artifact
+        run: echo "name=github-pages-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
+          name: ${{ steps.artifact.outputs.name }}
 
   deploy:
     needs: build
@@ -274,3 +282,5 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact }}
