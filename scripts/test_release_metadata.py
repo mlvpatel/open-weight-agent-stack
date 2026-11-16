@@ -9,8 +9,8 @@ from pathlib import Path
 
 
 REPO = Path(__file__).resolve().parent.parent
-VERSION = "1.1.1"
-RELEASE_DATE = "2026-08-16"
+VERSION = "1.1.2"
+RELEASE_DATE = "2026-11-16"
 
 
 class ReleaseMetadataTests(unittest.TestCase):

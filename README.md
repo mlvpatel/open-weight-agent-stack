@@ -172,18 +172,14 @@ scripts/             Extract diagrams, generate the site, check invariants, watc
 .github/workflows/   Five validation jobs, a CodeQL workflow, a release SBOM job, plus the weekly freshness watcher.
 ```
 
-## What shipped in 1.1.1
+## What shipped in 1.1.2
 
-The generated Pages site converts repository-local documentation links to
-stable GitHub URLs, so they do not 404 when served below
-`/open-weight-agent-stack/`. A sandboxed Chromium gate serves that exact path,
-requires all 20 Mermaid diagrams to be visible, and makes a Mermaid failure
-visible instead of swallowing it.
-
-The release also carries a deterministic, schema-validated SBOM; measured
-Python coverage for the offline regression suite; tighter factual wording; a
-freshness watcher tied to the models the manual actually names; and hosted
-CodeQL scanning on every push and on a weekly schedule.
+The manual's pricing, licence and capability rows match their primary sources
+as re-read in November 2026, including every watched Hugging Face licence tag.
+Dark mode meets WCAG AA contrast on all three pages, and the browser test
+checks contrast in both themes. Publishing no longer depends on third-party
+links or the calendar: the deploy waits only for deterministic checks, links
+are checked on pull requests and weekly, and freshness is checked weekly.
 
 See [CHANGELOG.md](CHANGELOG.md) for the complete notes, and the
 [releases page](https://github.com/mlvpatel/open-weight-agent-stack/releases)

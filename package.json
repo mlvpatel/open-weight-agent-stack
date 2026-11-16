@@ -1,6 +1,6 @@
 {
   "name": "open-weight-agent-stack",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "description": "Build tooling for the Open-Weight Agent Stack manual: diagram rendering and site assets.",
   "license": "CC-BY-4.0",
