@@ -22,18 +22,12 @@
   :root {
     --color-white: #ffffff;
     --color-gray-50: #fbfbfd;
-    --color-gray-100: #f5f5f7;
-    --color-gray-200: #e8e8ed;
-    --color-gray-300: #d2d2d7;
-    --color-gray-400: #86868b;
     --color-gray-500: #6e6e73;
     --color-gray-700: #424245;
     --color-ink: #1d1d1f;
     --color-black: #000000;
     --color-blue: #0071e3;
     --color-blue-text: #0066cc;
-    --color-green: #248a3d;
-    --color-orange: #b25000;
     --color-red: #e30000;
 
     --color-background: #eef2f7;
@@ -46,9 +40,6 @@
     --color-primary: var(--color-blue);
     --color-on-primary: var(--color-white);
     --color-link: var(--color-blue-text);
-    --color-accent-soft: color-mix(in srgb, var(--color-blue) 10%, var(--color-white));
-    --color-ok-soft: color-mix(in srgb, var(--color-green) 10%, var(--color-white));
-    --color-warn-soft: color-mix(in srgb, var(--color-orange) 10%, var(--color-white));
     --color-danger-soft: color-mix(in srgb, var(--color-red) 8%, var(--color-white));
     --color-text-secondary: var(--color-gray-700);
     --color-surface-sunken: var(--color-gray-50);
@@ -82,7 +73,6 @@
     --space-7: 32px;
     --space-8: 48px;
     --space-9: 64px;
-    --space-10: 80px;
     --space-11: 96px;
 
     --radius-sm: 8px;
@@ -282,12 +272,6 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-6);
-  }
-  .eyebrow {
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--color-primary);
-    letter-spacing: 0.01em;
   }
   h1 {
     font-size: var(--fs-display);
@@ -642,9 +626,6 @@
   }
   main section > ul,
   main section > ol { font-size: 17px; line-height: 1.55; }
-  .sec-head p {
-    font-family: var(--font-text);
-  }
 
   .sec-head {
     display: flex;
@@ -658,14 +639,6 @@
     font-weight: 600;
     letter-spacing: -0.015em;
     line-height: 1.08;
-  }
-  .sec-head p {
-    text-align: left;
-    max-width: var(--measure);
-    margin-inline: auto;
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--color-text-secondary);
   }
 
   /* ---------------- figure plates ---------------- */

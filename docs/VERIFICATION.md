@@ -19,9 +19,7 @@ A claim with no marker and no source is a defect. Report it.
 Four deterministic jobs (`diagrams`, `generated`, `browser`, `invariants`) run on every push to `main`, on every pull request, and weekly on a schedule. Their result depends only on the commit. The Pages deployment runs for a push to `main` or a manual run on `main`, and waits for all four. Checks that depend on the network or the calendar (`links` and `drift`) do not gate the deployment, so a third-party outage or a date cannot block a fix. A failed scheduled run opens or updates a GitHub issue.
 
 **`diagrams`**
-- Every Mermaid source extracted from the manual compiles.
 - `diagrams/src` matches what the manual currently contains, so the extracted sources cannot go stale.
-- The renderer produces byte-identical output when run twice, which is what makes the drift gate below meaningful.
 
 **`generated`**
 - The vendored Mermaid browser bundle is compared byte-for-byte against the version pinned in the lockfile.

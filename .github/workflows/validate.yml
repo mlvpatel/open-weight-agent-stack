@@ -20,12 +20,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22
-          cache: npm
-      - name: install pinned toolchain
-        run: npm ci --no-audit --no-fund
       - name: extract diagrams from MANUAL.md
         run: python3 scripts/extract_diagrams.py
       - name: sources match the manual
@@ -35,30 +29,6 @@ jobs:
             git diff --stat -- diagrams/src
             exit 1
           fi
-      # Chromium's sandbox needs unprivileged user namespaces, which Ubuntu
-      # restricts by default via AppArmor. Permitting them lets the renderer
-      # run sandboxed, which matters because pull requests from forks supply
-      # the diagram source it renders.
-      - name: permit unprivileged user namespaces for the browser sandbox
-        run: |
-          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
-            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-          fi
-          echo "unprivileged_userns_clone: $(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo n/a)"
-
-      - name: render twice and require identical bytes
-        run: |
-          bash scripts/render_diagrams.sh
-          cp -r diagrams/svg /tmp/render-a
-          rm -rf diagrams/svg
-          bash scripts/render_diagrams.sh
-          diff -rq /tmp/render-a diagrams/svg
-          echo "rendering is reproducible in this environment"
-      - name: publish rendered diagrams
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: diagrams-svg
-          path: diagrams/svg/
 
   generated:
     runs-on: ubuntu-latest
@@ -111,8 +81,8 @@ jobs:
           cache: npm
       - name: install pinned toolchain
         run: npm ci --no-audit --no-fund
-      # Keep Chromium sandboxed. This mirrors the diagram job because hosted
-      # Ubuntu runners restrict unprivileged user namespaces through AppArmor.
+      # Keep Chromium sandboxed. Hosted Ubuntu runners restrict unprivileged
+      # user namespaces through AppArmor, and the sandbox needs them.
       - name: permit unprivileged user namespaces for the browser sandbox
         run: |
           if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then

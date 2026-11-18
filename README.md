@@ -167,7 +167,7 @@ docs/FRESHNESS.md    How the upstream watcher works and how to enable pull reque
 CONTRIBUTORS.md      Human accountability, evidenced AI assistance, and repository automation.
 site/template.html   Design chrome. site/index.html, site/architecture.html, and site/models.html are generated; never edit them by hand.
 diagrams/src/        All 20 diagrams as standalone .mmd files, reusable anywhere.
-assets/              The single Mermaid theme both the site and the SVGs render from.
+assets/              The single Mermaid theme the published pages render from.
 scripts/             Extract diagrams, generate the site, check invariants, watch upstream.
 .github/workflows/   Five validation jobs, a CodeQL workflow, a release SBOM job, plus the weekly freshness watcher.
 ```
@@ -191,7 +191,7 @@ for the tagged versions.
 git clone https://github.com/mlvpatel/open-weight-agent-stack.git
 ```
 
-Read [MANUAL.md](MANUAL.md) top to bottom, or jump in using the tables above. To reuse a diagram, take any file from [`diagrams/src/`](diagrams/src/); they are standard Mermaid and render in GitHub, GitLab, Obsidian, and VS Code. Pre-rendered SVGs are attached to every CI run as the `diagrams-svg` artifact, rather than committed, because font metrics differ by operating system and a committed render would drift.
+Read [MANUAL.md](MANUAL.md) top to bottom, or jump in using the tables above. To reuse a diagram, take any file from [`diagrams/src/`](diagrams/src/); they are standard Mermaid and render in GitHub, GitLab, Obsidian, and VS Code.
 
 If you change the manual:
 
@@ -221,7 +221,7 @@ Open a pull request.
 - **Tracked claims carry their basis.** Volatile model and tool facts in `MANUAL.md` are pinned to a primary source, dated arithmetic, or an explicit `indicative` marker. That is a golden-string regression pin on wording that has drifted before, not a proof that every sentence in the repository is sourced. [docs/VERIFICATION.md](docs/VERIFICATION.md) states the coverage number.
 - **Derived files cannot drift.** `site/index.html`, `site/architecture.html`, and `site/models.html` are generated from `MANUAL.md`, `docs/ARCHITECTURE.md`, and `docs/MODELS.md`, and CI regenerates them and fails when a committed copy differs. The same check covers the extracted diagram sources and the container diagram embedded in the architecture document.
 - **Gates are tested for teeth.** Every check reports how many items it inspected and fails when it inspected none. CI additionally breaks an anchor on purpose and fails if the checker still passes. A gate that only ever passes proves nothing.
-- **Builds are reproducible.** Dependencies pinned by lockfile, Actions pinned by commit SHA, and diagram rendering byte-identical across runs.
+- **Builds are reproducible.** Dependencies pinned by lockfile, and Actions pinned by commit SHA.
 - **Model facts are re-checked after publication.** A weekly watcher compares licence, parameter count, availability, and flagship status for the models the manual names against their sources, and reports drift only once it has been confirmed across runs ([how it works](docs/FRESHNESS.md)).
 - **What CI cannot do is written down.** It cannot judge whether a source supports the claim it is cited for. [docs/VERIFICATION.md](docs/VERIFICATION.md) is explicit about that, and about the fact that this page has been wrong before.
 

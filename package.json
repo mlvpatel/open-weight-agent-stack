@@ -8,7 +8,6 @@
     "node": ">=22"
   },
   "scripts": {
-    "render": "bash scripts/render_diagrams.sh",
     "test": "PYTHONUNBUFFERED=1 python3 scripts/test_coverage_gate.py && PYTHONUNBUFFERED=1 python3 scripts/coverage_gate.py && echo 'Offline tests and Python coverage passed. Run npm run validate:html and npm run browser:check for generated-site validation.'",
     "browser:check:normal": "node scripts/test_site_browser.cjs",
     "browser:check:failure": "node scripts/test_site_browser.cjs --simulate-mermaid-failure",
