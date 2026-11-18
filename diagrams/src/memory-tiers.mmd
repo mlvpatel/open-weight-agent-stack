@@ -1,4 +1,6 @@
 flowchart LR
+accTitle: Four lifetimes of memory and cache
+accDescr: A turn scratchpad summarises into session state, which can promote durable facts. The agent also looks up a scoped semantic cache and writes traces for later evals.
     subgraph T1["Tier 1 · Turn scope"]
         M1["Scratchpad<br/>current reasoning · tool results<br/>lifetime: one request"]
     end

@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: The order of one model turn
+accDescr: System contract, tool schemas, retrieved evidence, user input, policy, and the task schema are assembled in that order. Output is a scratchpad and a schema-locked final block, with abstention when evidence is missing, and a separate judge.
     subgraph TURN["One turn · assembled in this order"]
         direction TB
         P1["1 · System contract<br/>role · hard constraints · refusal rules<br/>stable, versioned, audited"]

@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Hardware choice to a runtime and model size
+accDescr: Questions about accelerator, memory, and operating system lead to a runtime and a size band, or to an API when there is no local accelerator.
     Q0{"Do you have a GPU<br/>or Apple Silicon?"}
     Q0 -->|"Apple Silicon"| MAC{"How much<br/>unified memory?"}
     Q0 -->|"NVIDIA"| NV{"How much VRAM?"}

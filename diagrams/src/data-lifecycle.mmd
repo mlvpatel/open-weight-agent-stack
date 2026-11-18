@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Derived copies and a re-embedding cutover
+accDescr: Documents and conversations are chunked, embedded, and copied into six derived stores. An erasure fans out to each store and is checked by querying them again. A model change builds a new index beside the old one, compares recall, then cuts over.
     S1["Document corpus"]
     S2["User conversations"]
     DRV["Derivation<br/>chunk · embed · extract facts · cache · log"]

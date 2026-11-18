@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Identity attenuating from user to tool
+accDescr: A person, a service account, and an agent each receive a token, and each hop narrows the scope. Retrieval, cache, tools, and memory enforce that scope, and an attribution log records the call.
     subgraph IDP["Identity · the source of truth for who"]
         direction LR
         U["Human user<br/>OIDC · SSO"]

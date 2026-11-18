@@ -34,6 +34,8 @@ wraps the one before it, and a failure in an inner ring cannot be repaired by an
 
 ```mermaid
 flowchart TB
+accTitle: Five nested rings from prompt to loop
+accDescr: Prompt sits inside context, then harness, eval, and loop. A note says an inner failure cannot be repaired by an outer ring.
     subgraph LOOP["<b>Loop</b> · sections 7, 9, 17, 20, 25"]
         direction TB
         subgraph EVAL["<b>Eval</b> · section 13"]
@@ -122,6 +124,8 @@ download the artefact that matches your stack instead of converting after the fa
 
 ```mermaid
 flowchart TB
+accTitle: Hardware choice to a runtime and model size
+accDescr: Questions about accelerator, memory, and operating system lead to a runtime and a size band, or to an API when there is no local accelerator.
     Q0{"Do you have a GPU<br/>or Apple Silicon?"}
     Q0 -->|"Apple Silicon"| MAC{"How much<br/>unified memory?"}
     Q0 -->|"NVIDIA"| NV{"How much VRAM?"}
@@ -269,6 +273,8 @@ and the feedback loop. Cross-cutting layers attach at a single point each so the
 
 ```mermaid
 flowchart TB
+accTitle: Containers from clients to the model
+accDescr: Clients reach a gateway and input guard, then an orchestrator that can retrieve, call tools, run code, or generate. Memory, guards, and observability sit beside that path, and a cited response returns to the client.
     subgraph L1["1 · Clients"]
         direction LR
         C1["Web browser"]
@@ -424,6 +430,8 @@ shown answer with a corrected one and says so.
 
 ```mermaid
 sequenceDiagram
+accTitle: One prompt from the user to a cited answer
+accDescr: The user, frontend, gateway, guardrails, and orchestrator pass a request through a scoped cache. A miss retrieves, loops on the model and tools, streams chunks, then commits or replaces the answer before the trace closes.
     autonumber
     actor U as User
     participant FE as Frontend
@@ -504,6 +512,8 @@ cannot spin forever.
 
 ```mermaid
 stateDiagram-v2
+accTitle: States of the agent loop and where they stop
+accDescr: Intake moves to planning, then retrieval, tools, coding, or generation. Checks can complete the task, repair it, retry a transient failure, or escalate to a person. Complete and failed both end.
     [*] --> Intake
     Intake --> Planning : goal parsed
 
@@ -617,6 +627,8 @@ CREATE POLICY chunks_by_scope ON chunks
 
 ```mermaid
 flowchart LR
+accTitle: Offline ingestion beside each query
+accDescr: Sources are parsed, chunked, redacted, enriched, and stored in a vector index and a keyword index. A question is rewritten, filtered by entitlement, searched both ways, fused, reranked, and either cited or marked incomplete.
     subgraph ING["Ingestion · offline batch"]
         direction TB
         I1["Sources<br/>PDF · DOCX · HTML · code · tickets"]
@@ -689,6 +701,8 @@ answer, a model grading its own output is not a gate, and rework is bounded at t
 
 ```mermaid
 flowchart TB
+accTitle: Task shape choosing a model tier
+accDescr: A step is tested for structured output, long context, reasoning, or code. The chosen model is checked by a separate verifier, which can return the result, escalate one tier, use a frontier fallback, or hand the turn to a person.
     S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
     C1 -->|yes| SMALL["Small dense fast tier<br/>Qwen 3.5 9B · Phi-4-mini<br/>constrained decoding to JSON"]
     C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
@@ -741,6 +755,8 @@ last thing the model reads is your contract rather than an attacker's payload.
 
 ```mermaid
 flowchart TB
+accTitle: The order of one model turn
+accDescr: System contract, tool schemas, retrieved evidence, user input, policy, and the task schema are assembled in that order. Output is a scratchpad and a schema-locked final block, with abstention when evidence is missing, and a separate judge.
     subgraph TURN["One turn · assembled in this order"]
         direction TB
         P1["1 · System contract<br/>role · hard constraints · refusal rules<br/>stable, versioned, audited"]
@@ -824,6 +840,8 @@ into context. It needs the same treatment as a retrieved chunk.
 
 ```mermaid
 flowchart TB
+accTitle: Untrusted text meeting the boundary controls
+accDescr: User input, retrieved chunks, tool results, and code-agent output each pass a control before the model window. System contract and tool credentials outrank them. Egress either runs a bounded action or refuses it, and the result comes back as untrusted.
     subgraph UNTRUSTED["Untrusted input · treat as data, never authority"]
         direction LR
         U1["User input"]
@@ -917,6 +935,8 @@ Summarise on turn end is not a policy. Compaction, in this order: drop the oldes
 
 ```mermaid
 flowchart LR
+accTitle: Four lifetimes of memory and cache
+accDescr: A turn scratchpad summarises into session state, which can promote durable facts. The agent also looks up a scoped semantic cache and writes traces for later evals.
     subgraph T1["Tier 1 · Turn scope"]
         M1["Scratchpad<br/>current reasoning · tool results<br/>lifetime: one request"]
     end
@@ -1027,6 +1047,8 @@ metrics, run three times and take the median; a single judge run is a biased coi
 
 ```mermaid
 flowchart TB
+accTitle: Inline guards, offline evals, and production signals
+accDescr: Every request passes input, tool, and output guards. Traces and feedback become new eval cases. Retrieval, generation, agent, red-team, and abstention checks must pass before a prompt, model, or index change ships.
     subgraph INLINE["Inline · every request · milliseconds"]
         direction TB
         G1["Input guard<br/>PII redaction · injection detection<br/>topic and length limits"]
@@ -1108,6 +1130,8 @@ length, so it is usually what runs out first, not the weights.
 
 ```mermaid
 flowchart TB
+accTitle: Three serving sizes and their sizing notes
+accDescr: One GPU, one multi-GPU node, and several nodes are shown with the models and concurrency each is drawn for. Notes give the weight plus KV sizing rule and the split between prefill and decode.
     subgraph A["A · Single GPU · 24 to 48 GB"]
         direction TB
         A1["RTX 5090 · L40S class"]
@@ -1181,6 +1205,8 @@ upgrade. Build beside, compare, cut over, keep the old index until you are sure.
 
 ```mermaid
 flowchart TB
+accTitle: Derived copies and a re-embedding cutover
+accDescr: Documents and conversations are chunked, embedded, and copied into six derived stores. An erasure fans out to each store and is checked by querying them again. A model change builds a new index beside the old one, compares recall, then cuts over.
     S1["Document corpus"]
     S2["User conversations"]
     DRV["Derivation<br/>chunk · embed · extract facts · cache · log"]
@@ -1277,6 +1303,8 @@ Rule 3 is fail closed, and it applies to the guards themselves. If the guard mod
 
 ```mermaid
 flowchart TB
+accTitle: Admission, versioned release, and backups
+accDescr: Requests pass a budget check, then run now or wait in a bounded queue that can shed load. Prompt, model, index, and policy ship together and roll forward or back as one set. Index, memory, and the spend ledger are backed up and restore-tested.
     REQ["Incoming requests"]
     BUD{"Budget check<br/>per user and per tenant"}
     DENY["Refuse with a quota message<br/>and the reset time"]
@@ -1373,6 +1401,8 @@ never store or hash user credentials yourself when an IdP can hold them.
 
 ```mermaid
 flowchart TB
+accTitle: Identity attenuating from user to tool
+accDescr: A person, a service account, and an agent each receive a token, and each hop narrows the scope. Retrieval, cache, tools, and memory enforce that scope, and an attribution log records the call.
     subgraph IDP["Identity · the source of truth for who"]
         direction LR
         U["Human user<br/>OIDC · SSO"]
@@ -1480,6 +1510,8 @@ context. A credential the model can read is a credential the transcript now stor
 
 ```mermaid
 flowchart LR
+accTitle: Gated memory writes and pinned tools
+accDescr: A turn is promoted to durable memory only when it can be checked, otherwise it is quarantined. An added MCP server is pinned, scope-reviewed, and updated only as a reviewed change.
     subgraph WRITE["Memory writes · gated before promotion"]
         direction TB
         W1["Conversation turn"]
@@ -1533,6 +1565,8 @@ prefix reuse outranks almost every other optimisation here.
 
 ```mermaid
 flowchart TB
+accTitle: Where time goes in one agent turn
+accDescr: The drawn stages run from the input guard through cache, retrieval, rerank, prefill, decode, and the output guard. A second list shows levers aimed at prefill, decode, or throughput.
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
         L1["Gateway and regex input guard<br/>5 to 20 ms · Llama Guard is 50 to 200 ms"]
@@ -1612,6 +1646,8 @@ A star marks the recommended starting default, chosen on the criteria below. The
 
 ```mermaid
 flowchart LR
+accTitle: One picked option in each technology layer
+accDescr: Deployment, observability, evals, guardrails, code agents, tools, memory, parsing, reranking, vector stores, embeddings, models, serving, orchestration, and frontend are each listed, with arrows joining the marked picks into one path.
     subgraph CAT_DP["Deployment"]
         DP1["★ Single GPU node · 24 to 48 GB"]
         DP2["★ Multi-GPU node · NVLink"]
@@ -1760,6 +1796,8 @@ never whether you can afford to run them.
 
 ```mermaid
 quadrantChart
+accTitle: Models by size and how they are served
+accDescr: The horizontal axis runs from one node to a cluster or an API. The vertical axis runs from a utility tier to a frontier tier. Named checkpoints are plotted in those four quadrants.
     title Size decides where a model runs, not licence
     x-axis "Fits one node" --> "Cluster or API"
     y-axis "Utility tier" --> "Frontier tier"
@@ -1859,6 +1897,8 @@ Most SDKs answer only the first. Very few answer both.
 
 ```mermaid
 flowchart TB
+accTitle: Choosing who runs the agent loop
+accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude Agent SDK, managed agents, Google ADK, Bedrock AgentCore, the OpenAI Agents SDK, or a loop you run yourself.
     Q1{"Does the agent need deep OS access?<br/>filesystem · shell · repos"}
     Q1 -->|yes| CASDK["Claude Agent SDK<br/>Claude Code as a library<br/>harness only · you host"]
     Q1 -->|no| Q2{"Should someone else run<br/>the loop and the sandbox?"}

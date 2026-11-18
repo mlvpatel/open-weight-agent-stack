@@ -46,7 +46,10 @@ FIGURE_TITLES = tuple(title for _slug, title in FIGURES)
 # Only these may appear in an href. Anything else becomes inert text.
 # javascript: and data: are the executable ones; vbscript: still works in some
 # embedded engines. A relative path or fragment has no scheme at all.
-_SAFE_SCHEME = re.compile(r"^(?:https?:|mailto:|#|/|\.{0,2}/|[\w.-]+\.md|[\w.-]+/)", re.I)
+_SAFE_SCHEME = re.compile(
+    r"^(?:https?:|mailto:|#|/|\.{0,2}/|[\w.-]+\.md|[\w.-]+\.html(#\S*)?|[\w.-]+/)",
+    re.I,
+)
 
 
 

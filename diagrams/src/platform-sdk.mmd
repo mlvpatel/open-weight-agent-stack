@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Choosing who runs the agent loop
+accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude Agent SDK, managed agents, Google ADK, Bedrock AgentCore, the OpenAI Agents SDK, or a loop you run yourself.
     Q1{"Does the agent need deep OS access?<br/>filesystem · shell · repos"}
     Q1 -->|yes| CASDK["Claude Agent SDK<br/>Claude Code as a library<br/>harness only · you host"]
     Q1 -->|no| Q2{"Should someone else run<br/>the loop and the sandbox?"}

@@ -1,4 +1,6 @@
 sequenceDiagram
+accTitle: One prompt from the user to a cited answer
+accDescr: The user, frontend, gateway, guardrails, and orchestrator pass a request through a scoped cache. A miss retrieves, loops on the model and tools, streams chunks, then commits or replaces the answer before the trace closes.
     autonumber
     actor U as User
     participant FE as Frontend

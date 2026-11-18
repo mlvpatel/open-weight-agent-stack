@@ -22,18 +22,12 @@
   :root {
     --color-white: #ffffff;
     --color-gray-50: #fbfbfd;
-    --color-gray-100: #f5f5f7;
-    --color-gray-200: #e8e8ed;
-    --color-gray-300: #d2d2d7;
-    --color-gray-400: #86868b;
     --color-gray-500: #6e6e73;
     --color-gray-700: #424245;
     --color-ink: #1d1d1f;
     --color-black: #000000;
     --color-blue: #0071e3;
     --color-blue-text: #0066cc;
-    --color-green: #248a3d;
-    --color-orange: #b25000;
     --color-red: #e30000;
 
     --color-background: #eef2f7;
@@ -46,9 +40,6 @@
     --color-primary: var(--color-blue);
     --color-on-primary: var(--color-white);
     --color-link: var(--color-blue-text);
-    --color-accent-soft: color-mix(in srgb, var(--color-blue) 10%, var(--color-white));
-    --color-ok-soft: color-mix(in srgb, var(--color-green) 10%, var(--color-white));
-    --color-warn-soft: color-mix(in srgb, var(--color-orange) 10%, var(--color-white));
     --color-danger-soft: color-mix(in srgb, var(--color-red) 8%, var(--color-white));
     --color-text-secondary: var(--color-gray-700);
     --color-surface-sunken: var(--color-gray-50);
@@ -82,7 +73,6 @@
     --space-7: 32px;
     --space-8: 48px;
     --space-9: 64px;
-    --space-10: 80px;
     --space-11: 96px;
 
     --radius-sm: 8px;
@@ -121,8 +111,11 @@
     --toc-width: 232px;
     --shell-gap: 48px;
     --page-pad: 24px;
+    --shell-pad: var(--page-pad);
+    --section-inline: var(--space-6);
+    --section-border: 1px;
     --shell-side: max(0px, calc((100vw - var(--shell-max)) / 2));
-    --main-inset: calc(var(--shell-side) + var(--page-pad) + var(--toc-width) + var(--shell-gap));
+    --main-inset: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
     color-scheme: light;
   }
 
@@ -155,7 +148,7 @@
 
   @media (max-width: 1024px) {
     :root {
-      --main-inset: calc(var(--shell-side) + var(--page-pad));
+      --main-inset: calc(var(--shell-side) + var(--shell-pad));
       --shell-gap: 24px;
     }
   }
@@ -283,12 +276,6 @@
     align-items: center;
     gap: var(--space-6);
   }
-  .eyebrow {
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--color-primary);
-    letter-spacing: 0.01em;
-  }
   h1 {
     font-size: var(--fs-display);
     font-weight: var(--fw-display);
@@ -296,7 +283,9 @@
     line-height: var(--lh-tight);
     color: var(--color-foreground);
     max-width: 12ch;
+    hyphens: manual;
   }
+  h1.hero-title { max-width: 14em; }
   .standfirst {
     font-family: var(--font-text);
     font-size: var(--fs-lead);
@@ -306,10 +295,12 @@
   }
   .stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(10rem, calc((100% - 2 * var(--space-4)) / 3)));
+    justify-content: center;
     gap: var(--space-4);
     width: min(100%, 680px);
     margin-top: var(--space-2);
+    margin-inline: auto;
   }
   .stat {
     text-align: center;
@@ -478,11 +469,24 @@
   .shell {
     max-width: var(--shell-max);
     margin: 0 auto;
-    padding: 0 var(--page-pad) var(--space-11);
+    padding: 0 var(--shell-pad) var(--space-11);
     display: grid;
     grid-template-columns: var(--toc-width) minmax(0, 1fr);
     gap: var(--shell-gap);
     align-items: start;
+    position: relative;
+  }
+  /* Page color over the contents column, so a full-bleed plate cannot show through it. */
+  .shell::before {
+    content: "";
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * var(--shell-side));
+    width: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
+    background: var(--color-background);
+    pointer-events: none;
   }
 
   nav.toc {
@@ -491,7 +495,8 @@
     padding-top: var(--space-8);
     max-height: calc(100vh - var(--nav-height) - var(--space-6));
     overflow-y: auto;
-    z-index: 1;
+    z-index: 30;
+    background: var(--color-background);
   }
   nav.toc h2 {
     font-size: var(--fs-nav);
@@ -545,6 +550,12 @@
     background: var(--gloss), var(--color-surface);
   }
   .search-hidden { display: none !important; }
+  .search-status {
+    margin: 0 0 var(--space-3);
+    color: var(--color-muted);
+    font-size: var(--fs-nav);
+  }
+  .search-status:empty { display: none; }
   nav.toc ul {
     list-style: none;
     margin: 0;
@@ -597,15 +608,15 @@
   main > section {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #f5f8fc 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
-    border: 1px solid var(--color-edge);
+    border: var(--section-border) solid var(--color-edge);
     box-shadow: var(--shadow-raise);
   }
   main > section:nth-child(even) {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #eef3f9 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
   }
   main > section + section { margin-top: var(--space-7); }
@@ -635,9 +646,6 @@
   }
   main section > ul,
   main section > ol { font-size: 17px; line-height: 1.55; }
-  .sec-head p {
-    font-family: var(--font-text);
-  }
 
   .sec-head {
     display: flex;
@@ -652,20 +660,12 @@
     letter-spacing: -0.015em;
     line-height: 1.08;
   }
-  .sec-head p {
-    text-align: left;
-    max-width: var(--measure);
-    margin-inline: auto;
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--color-text-secondary);
-  }
 
   /* ---------------- figure plates ---------------- */
 
   figure.plate {
     position: relative;
-    z-index: 2;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -673,7 +673,7 @@
     width: 100vw;
     max-width: 100vw;
     margin: var(--space-8) 0;
-    margin-left: calc(-1 * var(--main-inset));
+    margin-left: calc(-1 * (var(--main-inset) + var(--section-inline) + var(--section-border)));
     padding: var(--plate-pad);
     background: transparent;
   }
@@ -801,6 +801,9 @@
 
   .table-wrap {
     overflow-x: auto;
+    max-width: 100%;
+    min-width: 0;
+    -webkit-overflow-scrolling: touch;
     border: 1px solid var(--color-edge);
     border-radius: var(--radius-lg);
     background: var(--gloss), var(--color-surface);
@@ -809,6 +812,7 @@
   table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 40rem;
     font-size: var(--fs-table);
     font-variant-numeric: tabular-nums;
   }
@@ -824,8 +828,9 @@
     padding: var(--space-3) var(--space-5);
     vertical-align: top;
     border-bottom: 1px solid var(--color-border);
-    overflow-wrap: anywhere;
-    hyphens: auto;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
   }
   thead th {
     font-size: var(--fs-nav);
@@ -860,6 +865,13 @@
     border-radius: 6px;
     color: var(--color-foreground);
   }
+  main code {
+    overflow-wrap: anywhere;
+  }
+  table code {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
   pre {
     overflow-x: auto;
     background: var(--color-surface-sunken);
@@ -867,7 +879,7 @@
     border-radius: var(--radius-lg);
     padding: var(--space-4);
   }
-  pre code { background: none; border: 0; padding: 0; }
+  pre code { background: none; border: 0; padding: 0; overflow-wrap: normal; }
   strong, b { color: var(--color-foreground); font-weight: 600; }
   .plate-body strong, .figview-body strong { color: inherit; }
 
@@ -913,6 +925,7 @@
 
   @media (max-width: 1024px) {
     .shell { grid-template-columns: 1fr; }
+    .shell::before { content: none; }
     nav.toc {
       position: static;
       max-height: none;
@@ -928,9 +941,14 @@
   }
 
   @media (max-width: 640px) {
+    :root {
+      --shell-pad: var(--space-4);
+      --section-inline: var(--space-4);
+    }
     .hero-in { padding: var(--space-9) var(--space-4) var(--space-7); }
-    .shell { padding: 0 var(--space-4) var(--space-9); }
-    .stats { grid-template-columns: 1fr; gap: var(--space-4); }
+    h1:not(.hero-title) { max-width: none; }
+    .shell { padding: 0 var(--shell-pad) var(--space-9); }
+    .stats { grid-template-columns: 1fr; gap: var(--space-4); width: 100%; }
     .global-in {
       padding: 0 var(--space-3);
       flex-wrap: wrap;
@@ -948,7 +966,7 @@
     main > section,
     main > section:nth-child(even) {
       margin-inline: 0;
-      padding-inline: var(--space-4);
+      padding-inline: var(--section-inline);
     }
   }
 </style>
@@ -969,16 +987,10 @@
 </nav>
 <header class="hero">
   <div class="hero-in">
-    <h1>The Open-Weight<br>Agent Stack</h1>
-    <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens
-      a pull request when upstream model cards drift. That machinery is the differentiator;
-      the manual is what it protects.</p>
-    <dl class="stats">
-      <div class="stat"><dt>Sections</dt><dd>{{SECTIONS}}<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>{{DIAGRAMS}}<span>standard Mermaid</span></dd></div>
-    </dl>
+    <h1{{HERO_TITLE_CLASS}}>{{HERO_TITLE}}</h1>
+    <p class="standfirst">{{STANDFIRST}}</p>{{HERO_STATS}}
     <p class="hero-cta">
-      <a class="btn btn-primary" href="#main">Read the manual</a>
+      <a class="btn btn-primary" href="#main">{{HERO_CTA}}</a>
       <a class="btn btn-secondary" href="https://github.com/mlvpatel/open-weight-agent-stack">View on GitHub</a>
     </p>
   </div>
@@ -1037,6 +1049,7 @@
       <span class="visually-hidden">Search this page</span>
       <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
     </label>
+    <p id="search-status" class="search-status" aria-live="polite"></p>
     <ul>{{TOC}}</ul>
   </nav>
   <main id="main">
@@ -1046,7 +1059,7 @@
 
 <footer>
   <div class="foot-in">
-    Generated from MANUAL.md. Every diagram is standard Mermaid.
+    {{FOOTER_NOTE}}
     <div class="foot-links">
       <a href="{{NAV_MANUAL_HREF}}">Manual</a>
       <a href="{{NAV_ARCHITECTURE_HREF}}">Architecture</a>
@@ -1084,28 +1097,71 @@
   }
 
   const search = document.getElementById("site-search");
+  const searchStatus = document.getElementById("search-status");
+  function sectionSearchText(section) {
+    const clone = section.cloneNode(true);
+    for (const node of clone.querySelectorAll("style")) node.remove();
+    return (clone.textContent || "").toLowerCase();
+  }
   if (search) {
+    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
+    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
     search.addEventListener("input", function () {
       const query = search.value.trim().toLowerCase();
-      const sections = document.querySelectorAll("main > section, main > h2, main > h3, main > p, main > div, main > figure, main > ol, main > ul");
-      const tocItems = document.querySelectorAll("nav.toc li");
-      if (!query) {
-        for (const node of sections) node.classList.remove("search-hidden");
-        for (const item of tocItems) item.classList.remove("search-hidden");
-        return;
-      }
+      const hits = new Set();
       for (const section of document.querySelectorAll("main > section")) {
-        const hit = (section.textContent || "").toLowerCase().includes(query);
-        section.classList.toggle("search-hidden", !hit);
+        const hit = !query || sectionSearchText(section).includes(query);
+        section.classList.toggle("search-hidden", Boolean(query) && !hit);
+        if (hit && section.id) hits.add(section.id);
       }
+      for (const node of leadNodes) {
+        const text = (node.textContent || "").toLowerCase();
+        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
+      }
+      let shown = 0;
       for (const item of tocItems) {
-        const hit = (item.textContent || "").toLowerCase().includes(query);
+        const link = item.querySelector("a[href^='#']");
+        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+        const hit = !query || hits.has(id);
         item.classList.toggle("search-hidden", !hit);
+        if (query && hit) shown += 1;
+      }
+      if (searchStatus) {
+        if (!query) searchStatus.textContent = "";
+        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
+        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
       }
     });
   }
 
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  const diagramSources = new Map();
+  for (const diagram of diagrams) {
+    const plate = diagram.closest("figure.plate");
+    if (plate) diagramSources.set(plate, diagram.textContent);
+  }
+
+  function recoverUnrendered() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      if (plate.querySelector("svg")) continue;
+      const body = plate.querySelector(".plate-body") || plate;
+      let source = body.querySelector("pre.mermaid");
+      const original = diagramSources.get(plate) || "";
+      if (!source) {
+        source = document.createElement("pre");
+        source.className = "mermaid";
+        source.textContent = original;
+        body.appendChild(source);
+      } else if (!source.textContent.trim() && original) {
+        source.textContent = original;
+      }
+      if (body.querySelector(".mermaid-fallback")) continue;
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      source.before(fallback);
+    }
+  }
 
   const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
   if (tocLinks.length && window.IntersectionObserver) {
@@ -1204,7 +1260,12 @@
       throw new Error("Mermaid browser bundle did not load");
     }
     window.mermaid.initialize({ startOnLoad: false });
-    await window.mermaid.run({ nodes: diagrams });
+    try {
+      await window.mermaid.run({ nodes: diagrams });
+    } catch (e) {
+      console.error("Mermaid failed to render diagrams", e);
+    }
+    recoverUnrendered();
     presentAll();
     let resizeTimer;
     const refit = function () {
@@ -1218,12 +1279,7 @@
     window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
-    for (const diagram of diagrams) {
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      diagram.replaceWith(fallback);
-    }
+    recoverUnrendered();
   }
 })();
 </script>

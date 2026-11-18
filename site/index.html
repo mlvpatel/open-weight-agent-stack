@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7AtnY+clMR/po0VjiQSTgKiiy+7whkDVFZzvlyUWIT8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ACTO+NBNyBC5ViwYuHsuD1lB7R48Sp9cZMMWVmJKcGQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
@@ -22,18 +22,12 @@
   :root {
     --color-white: #ffffff;
     --color-gray-50: #fbfbfd;
-    --color-gray-100: #f5f5f7;
-    --color-gray-200: #e8e8ed;
-    --color-gray-300: #d2d2d7;
-    --color-gray-400: #86868b;
     --color-gray-500: #6e6e73;
     --color-gray-700: #424245;
     --color-ink: #1d1d1f;
     --color-black: #000000;
     --color-blue: #0071e3;
     --color-blue-text: #0066cc;
-    --color-green: #248a3d;
-    --color-orange: #b25000;
     --color-red: #e30000;
 
     --color-background: #eef2f7;
@@ -46,9 +40,6 @@
     --color-primary: var(--color-blue);
     --color-on-primary: var(--color-white);
     --color-link: var(--color-blue-text);
-    --color-accent-soft: color-mix(in srgb, var(--color-blue) 10%, var(--color-white));
-    --color-ok-soft: color-mix(in srgb, var(--color-green) 10%, var(--color-white));
-    --color-warn-soft: color-mix(in srgb, var(--color-orange) 10%, var(--color-white));
     --color-danger-soft: color-mix(in srgb, var(--color-red) 8%, var(--color-white));
     --color-text-secondary: var(--color-gray-700);
     --color-surface-sunken: var(--color-gray-50);
@@ -82,7 +73,6 @@
     --space-7: 32px;
     --space-8: 48px;
     --space-9: 64px;
-    --space-10: 80px;
     --space-11: 96px;
 
     --radius-sm: 8px;
@@ -121,8 +111,11 @@
     --toc-width: 232px;
     --shell-gap: 48px;
     --page-pad: 24px;
+    --shell-pad: var(--page-pad);
+    --section-inline: var(--space-6);
+    --section-border: 1px;
     --shell-side: max(0px, calc((100vw - var(--shell-max)) / 2));
-    --main-inset: calc(var(--shell-side) + var(--page-pad) + var(--toc-width) + var(--shell-gap));
+    --main-inset: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
     color-scheme: light;
   }
 
@@ -155,7 +148,7 @@
 
   @media (max-width: 1024px) {
     :root {
-      --main-inset: calc(var(--shell-side) + var(--page-pad));
+      --main-inset: calc(var(--shell-side) + var(--shell-pad));
       --shell-gap: 24px;
     }
   }
@@ -283,12 +276,6 @@
     align-items: center;
     gap: var(--space-6);
   }
-  .eyebrow {
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--color-primary);
-    letter-spacing: 0.01em;
-  }
   h1 {
     font-size: var(--fs-display);
     font-weight: var(--fw-display);
@@ -296,7 +283,9 @@
     line-height: var(--lh-tight);
     color: var(--color-foreground);
     max-width: 12ch;
+    hyphens: manual;
   }
+  h1.hero-title { max-width: 14em; }
   .standfirst {
     font-family: var(--font-text);
     font-size: var(--fs-lead);
@@ -306,10 +295,12 @@
   }
   .stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(10rem, calc((100% - 2 * var(--space-4)) / 3)));
+    justify-content: center;
     gap: var(--space-4);
     width: min(100%, 680px);
     margin-top: var(--space-2);
+    margin-inline: auto;
   }
   .stat {
     text-align: center;
@@ -478,11 +469,24 @@
   .shell {
     max-width: var(--shell-max);
     margin: 0 auto;
-    padding: 0 var(--page-pad) var(--space-11);
+    padding: 0 var(--shell-pad) var(--space-11);
     display: grid;
     grid-template-columns: var(--toc-width) minmax(0, 1fr);
     gap: var(--shell-gap);
     align-items: start;
+    position: relative;
+  }
+  /* Page color over the contents column, so a full-bleed plate cannot show through it. */
+  .shell::before {
+    content: "";
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * var(--shell-side));
+    width: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
+    background: var(--color-background);
+    pointer-events: none;
   }
 
   nav.toc {
@@ -491,7 +495,8 @@
     padding-top: var(--space-8);
     max-height: calc(100vh - var(--nav-height) - var(--space-6));
     overflow-y: auto;
-    z-index: 1;
+    z-index: 30;
+    background: var(--color-background);
   }
   nav.toc h2 {
     font-size: var(--fs-nav);
@@ -545,6 +550,12 @@
     background: var(--gloss), var(--color-surface);
   }
   .search-hidden { display: none !important; }
+  .search-status {
+    margin: 0 0 var(--space-3);
+    color: var(--color-muted);
+    font-size: var(--fs-nav);
+  }
+  .search-status:empty { display: none; }
   nav.toc ul {
     list-style: none;
     margin: 0;
@@ -597,15 +608,15 @@
   main > section {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #f5f8fc 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
-    border: 1px solid var(--color-edge);
+    border: var(--section-border) solid var(--color-edge);
     box-shadow: var(--shadow-raise);
   }
   main > section:nth-child(even) {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #eef3f9 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
   }
   main > section + section { margin-top: var(--space-7); }
@@ -635,9 +646,6 @@
   }
   main section > ul,
   main section > ol { font-size: 17px; line-height: 1.55; }
-  .sec-head p {
-    font-family: var(--font-text);
-  }
 
   .sec-head {
     display: flex;
@@ -652,20 +660,12 @@
     letter-spacing: -0.015em;
     line-height: 1.08;
   }
-  .sec-head p {
-    text-align: left;
-    max-width: var(--measure);
-    margin-inline: auto;
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--color-text-secondary);
-  }
 
   /* ---------------- figure plates ---------------- */
 
   figure.plate {
     position: relative;
-    z-index: 2;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -673,7 +673,7 @@
     width: 100vw;
     max-width: 100vw;
     margin: var(--space-8) 0;
-    margin-left: calc(-1 * var(--main-inset));
+    margin-left: calc(-1 * (var(--main-inset) + var(--section-inline) + var(--section-border)));
     padding: var(--plate-pad);
     background: transparent;
   }
@@ -801,6 +801,9 @@
 
   .table-wrap {
     overflow-x: auto;
+    max-width: 100%;
+    min-width: 0;
+    -webkit-overflow-scrolling: touch;
     border: 1px solid var(--color-edge);
     border-radius: var(--radius-lg);
     background: var(--gloss), var(--color-surface);
@@ -809,6 +812,7 @@
   table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 40rem;
     font-size: var(--fs-table);
     font-variant-numeric: tabular-nums;
   }
@@ -824,8 +828,9 @@
     padding: var(--space-3) var(--space-5);
     vertical-align: top;
     border-bottom: 1px solid var(--color-border);
-    overflow-wrap: anywhere;
-    hyphens: auto;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
   }
   thead th {
     font-size: var(--fs-nav);
@@ -860,6 +865,13 @@
     border-radius: 6px;
     color: var(--color-foreground);
   }
+  main code {
+    overflow-wrap: anywhere;
+  }
+  table code {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
   pre {
     overflow-x: auto;
     background: var(--color-surface-sunken);
@@ -867,7 +879,7 @@
     border-radius: var(--radius-lg);
     padding: var(--space-4);
   }
-  pre code { background: none; border: 0; padding: 0; }
+  pre code { background: none; border: 0; padding: 0; overflow-wrap: normal; }
   strong, b { color: var(--color-foreground); font-weight: 600; }
   .plate-body strong, .figview-body strong { color: inherit; }
 
@@ -913,6 +925,7 @@
 
   @media (max-width: 1024px) {
     .shell { grid-template-columns: 1fr; }
+    .shell::before { content: none; }
     nav.toc {
       position: static;
       max-height: none;
@@ -928,9 +941,14 @@
   }
 
   @media (max-width: 640px) {
+    :root {
+      --shell-pad: var(--space-4);
+      --section-inline: var(--space-4);
+    }
     .hero-in { padding: var(--space-9) var(--space-4) var(--space-7); }
-    .shell { padding: 0 var(--space-4) var(--space-9); }
-    .stats { grid-template-columns: 1fr; gap: var(--space-4); }
+    h1:not(.hero-title) { max-width: none; }
+    .shell { padding: 0 var(--shell-pad) var(--space-9); }
+    .stats { grid-template-columns: 1fr; gap: var(--space-4); width: 100%; }
     .global-in {
       padding: 0 var(--space-3);
       flex-wrap: wrap;
@@ -948,7 +966,7 @@
     main > section,
     main > section:nth-child(even) {
       margin-inline: 0;
-      padding-inline: var(--space-4);
+      padding-inline: var(--section-inline);
     }
   }
 </style>
@@ -969,14 +987,9 @@
 </nav>
 <header class="hero">
   <div class="hero-in">
-    <h1>The Open-Weight<br>Agent Stack</h1>
-    <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens
-      a pull request when upstream model cards drift. That machinery is the differentiator;
-      the manual is what it protects.</p>
-    <dl class="stats">
-      <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div>
-    </dl>
+    <h1>The Open‑Weight<br>Agent Stack</h1>
+    <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens a pull request when upstream model cards drift. That machinery is the differentiator; the manual is what it protects.</p>
+    <dl class="stats"><div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div><div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div></dl>
     <p class="hero-cta">
       <a class="btn btn-primary" href="#main">Read the manual</a>
       <a class="btn btn-secondary" href="https://github.com/mlvpatel/open-weight-agent-stack">View on GitHub</a>
@@ -1037,11 +1050,12 @@
       <span class="visually-hidden">Search this page</span>
       <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
     </label>
+    <p id="search-status" class="search-status" aria-live="polite"></p>
     <ul><li><a href="#1-how-to-read-this-manual"><span class="n">01</span> How to read this manual</a></li><li><a href="#2-what-can-you-actually-run"><span class="n">02</span> What can you actually run?</a></li><li><a href="#3-the-thirteen-layer-stack"><span class="n">03</span> The thirteen-layer stack</a></li><li><a href="#4-the-design-method-hld-lld-and-the-rules"><span class="n">04</span> The design method: HLD, LLD and the rules</a></li><li><a href="#5-master-architecture"><span class="n">05</span> Master architecture</a></li><li><a href="#6-request-lifecycle"><span class="n">06</span> Request lifecycle</a></li><li><a href="#7-agent-control-loop"><span class="n">07</span> Agent control loop</a></li><li><a href="#8-rag-pipeline-internals"><span class="n">08</span> RAG pipeline internals</a></li><li><a href="#9-model-routing"><span class="n">09</span> Model routing</a></li><li><a href="#10-prompt-and-turn-contract"><span class="n">10</span> Prompt and turn contract</a></li><li><a href="#11-trust-boundaries"><span class="n">11</span> Trust boundaries</a></li><li><a href="#12-memory-and-data-tiers"><span class="n">12</span> Memory and data tiers</a></li><li><a href="#13-guardrails-evals-and-the-improvement-loop"><span class="n">13</span> Guardrails, evals and the improvement loop</a></li><li><a href="#14-deployment-topology"><span class="n">14</span> Deployment topology</a></li><li><a href="#15-data-lifecycle-deletion-and-re-indexing"><span class="n">15</span> Data lifecycle, deletion and re-indexing</a></li><li><a href="#16-databases-and-state"><span class="n">16</span> Databases and state</a></li><li><a href="#17-serving-budgets-and-rollback"><span class="n">17</span> Serving, budgets and rollback</a></li><li><a href="#18-identity-delegation-and-authority"><span class="n">18</span> Identity, delegation and authority</a></li><li><a href="#19-threat-model"><span class="n">19</span> Threat model</a></li><li><a href="#20-latency-budget"><span class="n">20</span> Latency budget</a></li><li><a href="#21-technology-catalogue"><span class="n">21</span> Technology catalogue</a></li><li><a href="#22-task-to-model-routing"><span class="n">22</span> Task-to-model routing</a></li><li><a href="#23-platform-and-sdk-choice"><span class="n">23</span> Platform and SDK choice</a></li><li><a href="#24-code-agents-the-full-landscape"><span class="n">24</span> Code agents: the full landscape</a></li><li><a href="#25-versioning-and-change-control"><span class="n">25</span> Versioning and change control</a></li><li><a href="#26-build-order-and-troubleshooting"><span class="n">26</span> Build order and troubleshooting</a></li><li><a href="#27-sources-and-verification"><span class="n">27</span> Sources and verification</a></li></ul>
   </nav>
   <main id="main">
 <p>The complete blueprint for building agentic AI on open-weight models: choosing hardware and serving it fast, grounding answers in your own data, guarding every input, and operating the loop in production. Hardware is assumed rather than minimised; <strong>latency and throughput</strong> are the ruling metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls pays each cost eight times.</p>
-<p><strong>A note on names.</strong> &quot;Open-weight&quot; and &quot;open-source&quot; are not interchangeable, and licences vary <em>within</em> a family far more than the family name suggests. Llama is licensed per generation, none of them OSI-approved. Gemma 4&#x27;s core series is Apache-2.0 while Gemma 3 and earlier, and the sibling variants, keep custom terms. Qwen 2 and 2.5 are generally Apache-2.0, but some sizes and older generations use Qwen-specific terms. Mistral ships four different licences at once, and its flagship is the permissive one. MiniMax M2.7 requires prior written authorisation for commercial use. The named DeepSeek V4 Pro / V4 Flash and GLM-5.2 / GLM-4.5-Air checkpoints are MIT; Kimi K3 has its own licence. Never infer a licence from a family name: check the model card, and see docs/MODELS.md for the per-model breakdown. The Sources and verification section at the end of this manual records primary sources for a tracked set of volatile claims.</p>
+<p><strong>A note on names.</strong> &quot;Open-weight&quot; and &quot;open-source&quot; are not interchangeable, and licences vary <em>within</em> a family far more than the family name suggests. Llama is licensed per generation, none of them OSI-approved. Gemma 4&#x27;s core series is Apache-2.0 while Gemma 3 and earlier, and the sibling variants, keep custom terms. Qwen 2 and 2.5 are generally Apache-2.0, but some sizes and older generations use Qwen-specific terms. Mistral ships four different licences at once, and its flagship is the permissive one. MiniMax M2.7 requires prior written authorisation for commercial use. The named DeepSeek V4 Pro / V4 Flash and GLM-5.2 / GLM-4.5-Air checkpoints are MIT; Kimi K3 has its own licence. Never infer a licence from a family name: check the model card, and see <a href="models.html">docs/MODELS.md</a> for the per-model breakdown. The Sources and verification section at the end of this manual records primary sources for a tracked set of volatile claims.</p>
 <section id="1-how-to-read-this-manual" class="reveal">
 <div class="sec-head"><h2>1. How to read this manual</h2></div>
 <p>Ring: Eval. An inner-ring failure here is a section that never names what a Prompt-ring miss looks like.</p>
@@ -1049,6 +1063,8 @@
 <div class="table-wrap"><table><thead><tr><th scope="col">Ring</th><th scope="col">What it governs</th><th scope="col">Sections</th></tr></thead><tbody><tr><th scope="row">Prompt</th><td>one model turn: contract, schema, refusal path</td><td>10</td></tr><tr><th scope="row">Context</th><td>what enters the window, and its provenance</td><td>8, 12, 15, 16</td></tr><tr><th scope="row">Harness</th><td>tools, sandboxing, credentials, trust boundaries</td><td>5, 6, 11, 14, 18, 19</td></tr><tr><th scope="row">Eval</th><td>how &quot;good&quot; becomes a reproducible verdict</td><td>13</td></tr><tr><th scope="row">Loop</th><td>scheduling, bounded rework, termination</td><td>7, 9, 17, 20, 25</td></tr></tbody></table></div>
 <figure class="plate" data-studio="dark" aria-label="Fig. 01. Concentric rings"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Five nested rings from prompt to loop
+accDescr: Prompt sits inside context, then harness, eval, and loop. A note says an inner failure cannot be repaired by an outer ring.
     subgraph LOOP["&lt;b&gt;Loop&lt;/b&gt; · sections 7, 9, 17, 20, 25"]
         direction TB
         subgraph EVAL["&lt;b&gt;Eval&lt;/b&gt; · section 13"]
@@ -1086,6 +1102,8 @@ flowchart TB
 <div class="table-wrap"><table><thead><tr><th scope="col">Your setup</th><th scope="col">Runtime to use</th><th scope="col">Realistic ceiling</th><th scope="col">Notes</th></tr></thead><tbody><tr><th scope="row"><strong>Mac, 16 GB</strong></th><td>MLX, or Ollama / LM Studio</td><td>7-8B at 4-bit</td><td>Comfortable for a fast tier and structured output</td></tr><tr><th scope="row"><strong>Mac, 32 GB</strong></th><td>MLX</td><td>14-32B at 4-bit</td><td>The sweet spot for local development</td></tr><tr><th scope="row"><strong>Mac, 64 GB+</strong></th><td>MLX</td><td>70B at 4-bit</td><td>Unified memory runs models a discrete GPU of the same price cannot</td></tr><tr><th scope="row"><strong>NVIDIA 8-12 GB</strong></th><td>Ollama · llama.cpp (CUDA)</td><td>7-8B at 4-bit</td><td>3060/4060 class</td></tr><tr><th scope="row"><strong>NVIDIA 16-24 GB</strong></th><td>vLLM · SGLang</td><td>14-32B at 4-bit</td><td>3090/4080/4090 class; real batching starts here</td></tr><tr><th scope="row"><strong>NVIDIA 48 GB+</strong></th><td>SGLang · vLLM · TensorRT-LLM</td><td>70B at 4-bit</td><td>A6000 / L40S / H100</td></tr><tr><th scope="row"><strong>Multi-GPU node</strong></th><td>SGLang · vLLM · TensorRT-LLM</td><td>70-120B, tensor parallel</td><td>NVLink matters more than raw count</td></tr><tr><th scope="row"><strong>AMD on Linux</strong></th><td>ROCm + llama.cpp or vLLM</td><td>By VRAM, as NVIDIA</td><td>ROCm support is good on Linux</td></tr><tr><th scope="row"><strong>AMD on Windows</strong></th><td><strong>llama.cpp with Vulkan</strong></td><td>By VRAM</td><td><strong>ROCm on Windows covers only select new hardware</strong> (Radeon AI PRO R9000, Ryzen AI Max PRO 400). Vulkan ships with every AMD driver, no CUDA emulation needed</td></tr><tr><th scope="row"><strong>Intel Arc / Core Ultra</strong></th><td>IPEX-LLM · OpenVINO · Vulkan</td><td>7-14B at 4-bit</td><td>Improving quickly; verify your model is supported</td></tr><tr><th scope="row"><strong>Windows, any GPU</strong></th><td>LM Studio / Ollama native, or <strong>WSL2</strong> for the Linux stack</td><td>As per GPU row</td><td>WSL2 is how you get vLLM/SGLang on Windows</td></tr><tr><th scope="row"><strong>CPU only</strong></th><td>llama.cpp</td><td>3-8B, <code>indicative</code> 3-7 tok/s</td><td>7B Q4, batch 1, recent desktop CPU under llama.cpp. CPU-only chat is possible for small models, but typically slow and limited to low-concurrency use; benchmark your processor and context length</td></tr><tr><th scope="row"><strong>NVIDIA DGX Spark</strong></th><td>SGLang · vLLM · Ollama</td><td>70B-class at 4-bit</td><td>GB10, 128 GB unified memory; the desktop supercomputer tier</td></tr><tr><th scope="row"><strong>NVIDIA Jetson (edge)</strong></th><td>llama.cpp · TensorRT-LLM</td><td>3-13B on-device</td><td>Orin and Thor modules; agents at the edge, no rack required</td></tr><tr><th scope="row"><strong>Cloud accelerators</strong></th><td>Managed runtimes</td><td>By instance</td><td>TPU on GCP, Trainium and Inferentia on AWS, ND GPUs on Azure; see section 23.5</td></tr><tr><th scope="row"><strong>Rented GPU</strong></th><td>Same as NVIDIA rows</td><td>Whatever you pay for</td><td>RunPod · Modal · Lambda · vast.ai, hourly, no capex</td></tr><tr><th scope="row"><strong>No local hardware</strong></th><td>API only</td><td>Frontier</td><td>Skip the serving layer entirely; sections 5 to 21 still apply</td></tr></tbody></table></div>
 <figure class="plate" data-studio="light" aria-label="Fig. 02. Hardware paths"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Hardware choice to a runtime and model size
+accDescr: Questions about accelerator, memory, and operating system lead to a runtime and a size band, or to an API when there is no local accelerator.
     Q0{"Do you have a GPU&lt;br/&gt;or Apple Silicon?"}
     Q0 --&gt;|"Apple Silicon"| MAC{"How much&lt;br/&gt;unified memory?"}
     Q0 --&gt;|"NVIDIA"| NV{"How much VRAM?"}
@@ -1149,6 +1167,8 @@ flowchart TB
 <p>The request path top to bottom. Solid arrows carry the request; dotted arrows are state, telemetry and the feedback loop. Cross-cutting layers attach at a single point each so the spine stays legible , deployment gets its own view in section 14.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 03. Master architecture"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Containers from clients to the model
+accDescr: Clients reach a gateway and input guard, then an orchestrator that can retrieve, call tools, run code, or generate. Memory, guards, and observability sit beside that path, and a cited response returns to the client.
     subgraph L1["1 · Clients"]
         direction LR
         C1["Web browser"]
@@ -1296,6 +1316,8 @@ flowchart TB
 <p>Four interface patterns follow from this lifecycle, and retrofitting any of them is painful: stream tokens as they arrive; show tool calls as visible steps rather than silence; render citations as links to their sources; and design the retraction path up front, a failed final check replaces the shown answer with a corrected one and says so.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 04. Request lifecycle"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 sequenceDiagram
+accTitle: One prompt from the user to a cited answer
+accDescr: The user, frontend, gateway, guardrails, and orchestrator pass a request through a scoped cache. A miss retrieves, loops on the model and tools, streams chunks, then commits or replaces the answer before the trace closes.
     autonumber
     actor U as User
     participant FE as Frontend
@@ -1371,6 +1393,8 @@ sequenceDiagram
 <p>The state machine the orchestrator actually runs. Every terminal path is explicit, so the agent cannot spin forever.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 05. Agent control loop"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 stateDiagram-v2
+accTitle: States of the agent loop and where they stop
+accDescr: Intake moves to planning, then retrieval, tools, coding, or generation. Checks can complete the task, repair it, retry a transient failure, or escalate to a person. Complete and failed both end.
     [*] --&gt; Intake
     Intake --&gt; Planning : goal parsed
 
@@ -1444,6 +1468,8 @@ CREATE POLICY chunks_by_scope ON chunks
   USING (entitlement = ANY(current_setting(&#x27;app.scopes&#x27;)::text[]));</code></pre>
 <figure class="plate" data-studio="light" aria-label="Fig. 06. RAG pipeline"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart LR
+accTitle: Offline ingestion beside each query
+accDescr: Sources are parsed, chunked, redacted, enriched, and stored in a vector index and a keyword index. A question is rewritten, filtered by entitlement, searched both ways, fused, reranked, and either cited or marked incomplete.
     subgraph ING["Ingestion · offline batch"]
         direction TB
         I1["Sources&lt;br/&gt;PDF · DOCX · HTML · code · tickets"]
@@ -1510,6 +1536,8 @@ flowchart LR
 <p>Sending every request to the largest model is a common cost and latency mistake. Route by task shape, not by preference. The verifier is a separate prompt from the one that produced the answer, a model grading its own output is not a gate, and rework is bounded at two cycles.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 07. Model routing"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Task shape choosing a model tier
+accDescr: A step is tested for structured output, long context, reasoning, or code. The chosen model is checked by a separate verifier, which can return the result, escalate one tier, use a frontier fallback, or hand the turn to a person.
     S["Incoming step"] --&gt; C1{"Structured extraction&lt;br/&gt;or classification?"}
     C1 --&gt;|yes| SMALL["Small dense fast tier&lt;br/&gt;Qwen 3.5 9B · Phi-4-mini&lt;br/&gt;constrained decoding to JSON"]
     C1 --&gt;|no| C2{"Long context&lt;br/&gt;over 32k tokens?"}
@@ -1552,6 +1580,8 @@ flowchart TB
 <p>Two properties make groundedness structural rather than hoped-for. Claims may only cite chunk ids that the window actually supplied, and the policy is restated <em>after</em> the untrusted content, so the last thing the model reads is your contract rather than an attacker&#x27;s payload.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 08. Prompt contract"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: The order of one model turn
+accDescr: System contract, tool schemas, retrieved evidence, user input, policy, and the task schema are assembled in that order. Output is a scratchpad and a schema-locked final block, with abstention when evidence is missing, and a separate judge.
     subgraph TURN["One turn · assembled in this order"]
         direction TB
         P1["1 · System contract&lt;br/&gt;role · hard constraints · refusal rules&lt;br/&gt;stable, versioned, audited"]
@@ -1613,6 +1643,8 @@ graph = builder.compile(checkpointer=checkpointer)</code></pre>
 <p>Four things enter the model&#x27;s window and none of them are trustworthy. The failure most teams miss is the third: tool and MCP results are usually treated as safe because <em>we</em> called the tool, but a GitHub issue body, a Slack message or a scraped page is attacker-controllable text heading straight into context. It needs the same treatment as a retrieved chunk.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 09. Trust boundaries"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Untrusted text meeting the boundary controls
+accDescr: User input, retrieved chunks, tool results, and code-agent output each pass a control before the model window. System contract and tool credentials outrank them. Egress either runs a bounded action or refuses it, and the result comes back as untrusted.
     subgraph UNTRUSTED["Untrusted input · treat as data, never authority"]
         direction LR
         U1["User input"]
@@ -1686,6 +1718,8 @@ flowchart TB
 <p>Summarise on turn end is not a policy. Compaction, in this order: drop the oldest tool payloads first (keep the tool name and a one-line result), then fold earlier assistant turns into a dated summary, keep the latest user turn and the current scratchpad verbatim. Never compact the citation ids still needed by the output guard. Bound the packed window to the serving <code>max-model-len</code>, not to a hope.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 10. Memory tiers"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart LR
+accTitle: Four lifetimes of memory and cache
+accDescr: A turn scratchpad summarises into session state, which can promote durable facts. The agent also looks up a scoped semantic cache and writes traces for later evals.
     subgraph T1["Tier 1 · Turn scope"]
         M1["Scratchpad&lt;br/&gt;current reasoning · tool results&lt;br/&gt;lifetime: one request"]
     end
@@ -1738,6 +1772,8 @@ flowchart LR
 <p>Determinism rules: temperature 0 and pinned seeds for anything asserted exactly. For judged metrics, run three times and take the median; a single judge run is a biased coin, not a verdict.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 11. Guardrails and evals"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Inline guards, offline evals, and production signals
+accDescr: Every request passes input, tool, and output guards. Traces and feedback become new eval cases. Retrieval, generation, agent, red-team, and abstention checks must pass before a prompt, model, or index change ships.
     subgraph INLINE["Inline · every request · milliseconds"]
         direction TB
         G1["Input guard&lt;br/&gt;PII redaction · injection detection&lt;br/&gt;topic and length limits"]
@@ -1813,6 +1849,8 @@ flowchart TB
 <p>Three shapes, chosen by how much concurrency you need. The sizing rule that decides all of them: <strong>weights plus KV cache plus activation overhead</strong>: and KV cache grows with batch size times context length, so it is usually what runs out first, not the weights.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 12. Deployment topology"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Three serving sizes and their sizing notes
+accDescr: One GPU, one multi-GPU node, and several nodes are shown with the models and concurrency each is drawn for. Notes give the weight plus KV sizing rule and the split between prefill and decode.
     subgraph A["A · Single GPU · 24 to 48 GB"]
         direction TB
         A1["RTX 5090 · L40S class"]
@@ -1858,6 +1896,8 @@ flowchart TB
 <p>The second half is the migration nobody plans for. Changing the embedding model invalidates every vector you have, the new model&#x27;s space is not comparable with the old one, so there is no partial upgrade. Build beside, compare, cut over, keep the old index until you are sure.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 13. Data lifecycle"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Derived copies and a re-embedding cutover
+accDescr: Documents and conversations are chunked, embedded, and copied into six derived stores. An erasure fans out to each store and is checked by querying them again. A model change builds a new index beside the old one, compares recall, then cuts over.
     S1["Document corpus"]
     S2["User conversations"]
     DRV["Derivation&lt;br/&gt;chunk · embed · extract facts · cache · log"]
@@ -1914,6 +1954,8 @@ flowchart TB
 <p>Rule 3 is fail closed, and it applies to the guards themselves. If the guard model times out, the embedder is down, the reranker is down, or the vector store is down, the turn returns no answer. It does not return an unguarded or uncited answer. Section 17&#x27;s 429 path is for the <em>generator</em>; the retrieval and guard dependencies fail closed.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 14. Serving budgets"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Admission, versioned release, and backups
+accDescr: Requests pass a budget check, then run now or wait in a bounded queue that can shed load. Prompt, model, index, and policy ship together and roll forward or back as one set. Index, memory, and the spend ledger are backed up and restore-tested.
     REQ["Incoming requests"]
     BUD{"Budget check&lt;br/&gt;per user and per tenant"}
     DENY["Refuse with a quota message&lt;br/&gt;and the reset time"]
@@ -1977,6 +2019,8 @@ flowchart TB
 <p>The token mechanics, named: delegated authority travels as short-lived JWTs whose <code>aud</code>, <code>exp</code> and scope claims are checked at every enforcement point; attenuation is OAuth 2.0 token exchange (RFC 8693), a broad token is traded for a narrower one, never the reverse; services authenticate to each other with mTLS; and password handling belongs to your identity provider, not this stack, never store or hash user credentials yourself when an IdP can hold them.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 15. Identity delegation"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Identity attenuating from user to tool
+accDescr: A person, a service account, and an agent each receive a token, and each hop narrows the scope. Retrieval, cache, tools, and memory enforce that scope, and an attribution log records the call.
     subgraph IDP["Identity · the source of truth for who"]
         direction LR
         U["Human user&lt;br/&gt;OIDC · SSO"]
@@ -2041,6 +2085,8 @@ flowchart TB
 <p>Secrets follow the same discipline. They live in a secrets manager, HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager, or SOPS-encrypted files in git for small stacks, reach processes as environment injected at start, rotate on a schedule, and never appear in prompts, traces, or model context. A credential the model can read is a credential the transcript now stores.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 16. Threat write-paths"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart LR
+accTitle: Gated memory writes and pinned tools
+accDescr: A turn is promoted to durable memory only when it can be checked, otherwise it is quarantined. An added MCP server is pinned, scope-reviewed, and updated only as a reviewed change.
     subgraph WRITE["Memory writes · gated before promotion"]
         direction TB
         W1["Conversation turn"]
@@ -2083,6 +2129,8 @@ flowchart LR
 <p>The number that matters for an agent is not the turn, it is the turn multiplied by the loop. A plan-act-observe cycle that runs eight model calls pays the prefill cost eight times, which is why prefix reuse outranks almost every other optimisation here.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 17. Latency budget"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Where time goes in one agent turn
+accDescr: The drawn stages run from the input guard through cache, retrieval, rerank, prefill, decode, and the output guard. A second list shows levers aimed at prefill, decode, or throughput.
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
         L1["Gateway and regex input guard&lt;br/&gt;5 to 20 ms · Llama Guard is 50 to 200 ms"]
@@ -2135,6 +2183,8 @@ flowchart TB
 <p><strong>Starting-default criteria, applied in this order:</strong> runs on hardware this manual sizes; has a primary source in section 27; is the least machinery that covers the failure mode; can be replaced without rewriting the rings. A diagram nobody could disagree with is decoration; the stars are the disagreement.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 18. Technology catalogue"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart LR
+accTitle: One picked option in each technology layer
+accDescr: Deployment, observability, evals, guardrails, code agents, tools, memory, parsing, reranking, vector stores, embeddings, models, serving, orchestration, and frontend are each listed, with arrows joining the marked picks into one path.
     subgraph CAT_DP["Deployment"]
         DP1["★ Single GPU node · 24 to 48 GB"]
         DP2["★ Multi-GPU node · NVLink"]
@@ -2272,6 +2322,8 @@ flowchart LR
 <p>Read the positions below as <code>indicative</code>. Parameter counts and licences are sourced in section 27, but where a model sits on either axis is an engineering judgement, not a measurement: capability tiers are not a single published number, and whether something &quot;fits one node&quot; depends on the node. What the figure is for is the scatter along the horizontal axis. MIT and Apache-2.0 models appear at both extremes, which is the point: a permissive licence tells you what you may do with the weights, never whether you can afford to run them.</p>
 <figure class="plate" data-studio="dark" aria-label="Fig. 19. Task-to-model quadrant"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 quadrantChart
+accTitle: Models by size and how they are served
+accDescr: The horizontal axis runs from one node to a cluster or an API. The vertical axis runs from a utility tier to a frontier tier. Named checkpoints are plotted in those four quadrants.
     title Size decides where a model runs, not licence
     x-axis "Fits one node" --&gt; "Cluster or API"
     y-axis "Utility tier" --&gt; "Frontier tier"
@@ -2312,6 +2364,8 @@ quadrantChart
 <p>Most SDKs answer only the first. Very few answer both.</p>
 <figure class="plate" data-studio="light" aria-label="Fig. 20. Platform SDK"><div class="plate-body"><pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"fontFamily":"sans-serif","fontSize":"20px","primaryColor":"#e8f0fe","primaryBorderColor":"#0071e3","primaryTextColor":"#1d1d1f","secondaryColor":"#dff3e6","tertiaryColor":"#ffeeda","lineColor":"#86868b","textColor":"#1d1d1f","mainBkg":"#e8f0fe","nodeBorder":"#a1a1a6","clusterBkg":"#fbfbfd","clusterBorder":"#d2d2d7","edgeLabelBackground":"#ffffff","titleColor":"#1d1d1f","actorBkg":"#e8f0fe","actorBorder":"#0071e3","actorTextColor":"#1d1d1f","actorLineColor":"#a1a1a6","signalColor":"#424245","signalTextColor":"#424245","labelBoxBkgColor":"#f5f7fb","labelBoxBorderColor":"#d2d2d7","labelTextColor":"#1d1d1f","loopTextColor":"#1d1d1f","activationBkgColor":"#dfe3ea","activationBorderColor":"#86868b","sequenceNumberColor":"#ffffff","noteBkgColor":"#fff3c2","noteBorderColor":"#997404","noteTextColor":"#5c2e00","stateBkg":"#e8f0fe","stateLabelColor":"#1d1d1f","compositeBackground":"#fbfbfd","compositeTitleBackground":"#dfe3ea","compositeBorder":"#d2d2d7","altBackground":"#eef1f6","innerEndBackground":"#0071e3","specialStateColor":"#0071e3","transitionColor":"#86868b","transitionLabelColor":"#424245","labelBackgroundColor":"#ffffff"},"flowchart":{"curve":"basis","htmlLabels":true,"useMaxWidth":false,"nodeSpacing":64,"padding":16,"rankSpacing":80},"sequence":{"actorMargin":44},"deterministicIds":true,"deterministicIDSeed":"owas","look":"classic","handDrawnSeed":1}}%%
 flowchart TB
+accTitle: Choosing who runs the agent loop
+accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude Agent SDK, managed agents, Google ADK, Bedrock AgentCore, the OpenAI Agents SDK, or a loop you run yourself.
     Q1{"Does the agent need deep OS access?&lt;br/&gt;filesystem · shell · repos"}
     Q1 --&gt;|yes| CASDK["Claude Agent SDK&lt;br/&gt;Claude Code as a library&lt;br/&gt;harness only · you host"]
     Q1 --&gt;|no| Q2{"Should someone else run&lt;br/&gt;the loop and the sandbox?"}
@@ -2491,28 +2545,71 @@ flowchart TB
   }
 
   const search = document.getElementById("site-search");
+  const searchStatus = document.getElementById("search-status");
+  function sectionSearchText(section) {
+    const clone = section.cloneNode(true);
+    for (const node of clone.querySelectorAll("style")) node.remove();
+    return (clone.textContent || "").toLowerCase();
+  }
   if (search) {
+    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
+    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
     search.addEventListener("input", function () {
       const query = search.value.trim().toLowerCase();
-      const sections = document.querySelectorAll("main > section, main > h2, main > h3, main > p, main > div, main > figure, main > ol, main > ul");
-      const tocItems = document.querySelectorAll("nav.toc li");
-      if (!query) {
-        for (const node of sections) node.classList.remove("search-hidden");
-        for (const item of tocItems) item.classList.remove("search-hidden");
-        return;
-      }
+      const hits = new Set();
       for (const section of document.querySelectorAll("main > section")) {
-        const hit = (section.textContent || "").toLowerCase().includes(query);
-        section.classList.toggle("search-hidden", !hit);
+        const hit = !query || sectionSearchText(section).includes(query);
+        section.classList.toggle("search-hidden", Boolean(query) && !hit);
+        if (hit && section.id) hits.add(section.id);
       }
+      for (const node of leadNodes) {
+        const text = (node.textContent || "").toLowerCase();
+        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
+      }
+      let shown = 0;
       for (const item of tocItems) {
-        const hit = (item.textContent || "").toLowerCase().includes(query);
+        const link = item.querySelector("a[href^='#']");
+        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+        const hit = !query || hits.has(id);
         item.classList.toggle("search-hidden", !hit);
+        if (query && hit) shown += 1;
+      }
+      if (searchStatus) {
+        if (!query) searchStatus.textContent = "";
+        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
+        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
       }
     });
   }
 
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  const diagramSources = new Map();
+  for (const diagram of diagrams) {
+    const plate = diagram.closest("figure.plate");
+    if (plate) diagramSources.set(plate, diagram.textContent);
+  }
+
+  function recoverUnrendered() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      if (plate.querySelector("svg")) continue;
+      const body = plate.querySelector(".plate-body") || plate;
+      let source = body.querySelector("pre.mermaid");
+      const original = diagramSources.get(plate) || "";
+      if (!source) {
+        source = document.createElement("pre");
+        source.className = "mermaid";
+        source.textContent = original;
+        body.appendChild(source);
+      } else if (!source.textContent.trim() && original) {
+        source.textContent = original;
+      }
+      if (body.querySelector(".mermaid-fallback")) continue;
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      source.before(fallback);
+    }
+  }
 
   const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
   if (tocLinks.length && window.IntersectionObserver) {
@@ -2611,7 +2708,12 @@ flowchart TB
       throw new Error("Mermaid browser bundle did not load");
     }
     window.mermaid.initialize({ startOnLoad: false });
-    await window.mermaid.run({ nodes: diagrams });
+    try {
+      await window.mermaid.run({ nodes: diagrams });
+    } catch (e) {
+      console.error("Mermaid failed to render diagrams", e);
+    }
+    recoverUnrendered();
     presentAll();
     let resizeTimer;
     const refit = function () {
@@ -2625,12 +2727,7 @@ flowchart TB
     window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
-    for (const diagram of diagrams) {
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      diagram.replaceWith(fallback);
-    }
+    recoverUnrendered();
   }
 })();
 </script>

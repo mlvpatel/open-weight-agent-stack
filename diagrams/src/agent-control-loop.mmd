@@ -1,4 +1,6 @@
 stateDiagram-v2
+accTitle: States of the agent loop and where they stop
+accDescr: Intake moves to planning, then retrieval, tools, coding, or generation. Checks can complete the task, repair it, retry a transient failure, or escalate to a person. Complete and failed both end.
     [*] --> Intake
     Intake --> Planning : goal parsed
 

@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Untrusted text meeting the boundary controls
+accDescr: User input, retrieved chunks, tool results, and code-agent output each pass a control before the model window. System contract and tool credentials outrank them. Egress either runs a bounded action or refuses it, and the result comes back as untrusted.
     subgraph UNTRUSTED["Untrusted input · treat as data, never authority"]
         direction LR
         U1["User input"]

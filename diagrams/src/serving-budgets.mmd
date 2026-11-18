@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Admission, versioned release, and backups
+accDescr: Requests pass a budget check, then run now or wait in a bounded queue that can shed load. Prompt, model, index, and policy ship together and roll forward or back as one set. Index, memory, and the spend ledger are backed up and restore-tested.
     REQ["Incoming requests"]
     BUD{"Budget check<br/>per user and per tenant"}
     DENY["Refuse with a quota message<br/>and the reset time"]

@@ -12,11 +12,10 @@ Open an issue with the [correction template](.github/ISSUE_TEMPLATE/correction.m
 
 ## Ground rules
 
-- `MANUAL.md` is the single source of truth. `site/index.html` and `diagrams/` derive from it.
-- Diagram edits happen in the manual's mermaid blocks; run `scripts/extract_diagrams.py` after.
+- Page sources are `MANUAL.md`, `docs/ARCHITECTURE.md`, and `docs/MODELS.md`. Run `python3 scripts/build_site.py` after editing one. Diagram edits happen in the manual's mermaid blocks; run `python3 scripts/extract_diagrams.py` after.
 - New tools or models enter with multiple options per category, never as the single answer.
 - No em dashes, no section symbols, sentence-case headings.
-- CI must pass: all diagrams compile, all links resolve.
+- Before a pull request, run `npm test`, `python3 scripts/check_invariants.py --only offline`, `npm run validate:html`, and `npm run browser:check`.
 
 ## AI-assisted contributions
 

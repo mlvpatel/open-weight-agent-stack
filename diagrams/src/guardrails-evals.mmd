@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Inline guards, offline evals, and production signals
+accDescr: Every request passes input, tool, and output guards. Traces and feedback become new eval cases. Retrieval, generation, agent, red-team, and abstention checks must pass before a prompt, model, or index change ships.
     subgraph INLINE["Inline · every request · milliseconds"]
         direction TB
         G1["Input guard<br/>PII redaction · injection detection<br/>topic and length limits"]

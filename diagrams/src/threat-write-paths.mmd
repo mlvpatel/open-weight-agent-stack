@@ -1,4 +1,6 @@
 flowchart LR
+accTitle: Gated memory writes and pinned tools
+accDescr: A turn is promoted to durable memory only when it can be checked, otherwise it is quarantined. An added MCP server is pinned, scope-reviewed, and updated only as a reviewed change.
     subgraph WRITE["Memory writes · gated before promotion"]
         direction TB
         W1["Conversation turn"]
