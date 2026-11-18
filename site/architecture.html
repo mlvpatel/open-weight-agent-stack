@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7AtnY+clMR/po0VjiQSTgKiiy+7whkDVFZzvlyUWIT8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-t6+dRnkENRuwsB8l77tytJqfLE1tqyruWYZrggiaGzQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Architecture, in C4</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/architecture.html">
@@ -1291,6 +1291,33 @@ flowchart TB
   }
 
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  const diagramSources = new Map();
+  for (const diagram of diagrams) {
+    const plate = diagram.closest("figure.plate");
+    if (plate) diagramSources.set(plate, diagram.textContent);
+  }
+
+  function recoverUnrendered() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      if (plate.querySelector("svg")) continue;
+      const body = plate.querySelector(".plate-body") || plate;
+      let source = body.querySelector("pre.mermaid");
+      const original = diagramSources.get(plate) || "";
+      if (!source) {
+        source = document.createElement("pre");
+        source.className = "mermaid";
+        source.textContent = original;
+        body.appendChild(source);
+      } else if (!source.textContent.trim() && original) {
+        source.textContent = original;
+      }
+      if (body.querySelector(".mermaid-fallback")) continue;
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      source.before(fallback);
+    }
+  }
 
   const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
   if (tocLinks.length && window.IntersectionObserver) {
@@ -1389,7 +1416,12 @@ flowchart TB
       throw new Error("Mermaid browser bundle did not load");
     }
     window.mermaid.initialize({ startOnLoad: false });
-    await window.mermaid.run({ nodes: diagrams });
+    try {
+      await window.mermaid.run({ nodes: diagrams });
+    } catch (e) {
+      console.error("Mermaid failed to render diagrams", e);
+    }
+    recoverUnrendered();
     presentAll();
     let resizeTimer;
     const refit = function () {
@@ -1403,12 +1435,7 @@ flowchart TB
     window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
-    for (const diagram of diagrams) {
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      diagram.replaceWith(fallback);
-    }
+    recoverUnrendered();
   }
 })();
 </script>

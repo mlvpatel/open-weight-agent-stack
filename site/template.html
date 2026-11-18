@@ -1101,6 +1101,33 @@
   }
 
   const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  const diagramSources = new Map();
+  for (const diagram of diagrams) {
+    const plate = diagram.closest("figure.plate");
+    if (plate) diagramSources.set(plate, diagram.textContent);
+  }
+
+  function recoverUnrendered() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      if (plate.querySelector("svg")) continue;
+      const body = plate.querySelector(".plate-body") || plate;
+      let source = body.querySelector("pre.mermaid");
+      const original = diagramSources.get(plate) || "";
+      if (!source) {
+        source = document.createElement("pre");
+        source.className = "mermaid";
+        source.textContent = original;
+        body.appendChild(source);
+      } else if (!source.textContent.trim() && original) {
+        source.textContent = original;
+      }
+      if (body.querySelector(".mermaid-fallback")) continue;
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      source.before(fallback);
+    }
+  }
 
   const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
   if (tocLinks.length && window.IntersectionObserver) {
@@ -1199,7 +1226,12 @@
       throw new Error("Mermaid browser bundle did not load");
     }
     window.mermaid.initialize({ startOnLoad: false });
-    await window.mermaid.run({ nodes: diagrams });
+    try {
+      await window.mermaid.run({ nodes: diagrams });
+    } catch (e) {
+      console.error("Mermaid failed to render diagrams", e);
+    }
+    recoverUnrendered();
     presentAll();
     let resizeTimer;
     const refit = function () {
@@ -1213,12 +1245,7 @@
     window.addEventListener("resize", refit);
   } catch (e) {
     console.error("Mermaid failed to render diagrams", e);
-    for (const diagram of diagrams) {
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      diagram.replaceWith(fallback);
-    }
+    recoverUnrendered();
   }
 })();
 </script>
