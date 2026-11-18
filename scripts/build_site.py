@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Generate site/index.html from MANUAL.md.
+"""Generate the three published pages.
 
-MANUAL.md is the only hand-edited source. This produces the published document:
-the design chrome comes from site/template.html, the content and every count
-come from the manual. Running it twice on unchanged input yields identical
-bytes, so CI can regenerate and diff to prove nothing drifted.
+site/template.html supplies the design chrome. MANUAL.md, docs/ARCHITECTURE.md,
+and docs/MODELS.md supply the pages. Running this twice on unchanged input
+yields identical bytes, so CI can regenerate and diff to prove nothing drifted.
 """
 from __future__ import annotations
 
@@ -22,6 +21,11 @@ from lib.manual import REPO, load, slug, split_fences  # noqa: E402
 from lib.render import render  # noqa: E402
 
 SITE_URL = "https://mlvpatel.github.io/open-weight-agent-stack/"
+MANUAL_STANDFIRST = (
+    "CI fact-checks this manual's prose for agentic AI on open-weight models and opens "
+    "a pull request when upstream model cards drift. That machinery is the differentiator; "
+    "the manual is what it protects."
+)
 REPOSITORY_FILE_URL = "https://github.com/mlvpatel/open-weight-agent-stack/blob/main/"
 PUBLISHED_MARKDOWN_PAGES = {
     "MANUAL.md": "index.html",
@@ -124,6 +128,25 @@ def _fill_template(template: str, facts: dict[str, str]) -> str | None:
     return out
 
 
+def _stats(*rows: tuple[str, str, str]) -> str:
+    """One hero stat row. An empty call means the page states no count."""
+    if not rows:
+        return ""
+    parts = ['<dl class="stats">']
+    for label, value, note in rows:
+        parts.append(
+            f'<div class="stat"><dt>{html_lib.escape(label)}</dt>'
+            f'<dd>{html_lib.escape(value)}<span>{html_lib.escape(note)}</span></dd></div>'
+        )
+    parts.append("</dl>")
+    return "\n    " + "".join(parts)
+
+
+def _c4_level_count(doc) -> int:
+    """Heading count for the C4 levels already named in the architecture document."""
+    return sum(1 for level, heading in doc.headings if level == 2 and heading.startswith("Level "))
+
+
 def _nav(current: str) -> dict[str, str]:
     facts: dict[str, str] = {}
     for key, href in (("manual", "index.html"), ("architecture", "architecture.html"), ("models", "models.html")):
@@ -147,14 +170,22 @@ def build(repo: Path = REPO) -> int:
         f' {h.split(". ", 1)[1] if ". " in h else h}</a></li>'
         for h in manual.sections
     )
-    shared = {
-        "SECTIONS": str(manual.section_count),
-        "DIAGRAMS": str(manual.diagram_count),
-        "SITE_URL": SITE_URL,
+    shared = {"SITE_URL": SITE_URL}
+    manual_hero = {
+        "HERO_TITLE_CLASS": "",
+        "HERO_TITLE": "The Open-Weight<br>Agent Stack",
+        "STANDFIRST": MANUAL_STANDFIRST,
+        "HERO_STATS": _stats(
+            ("Sections", str(manual.section_count), "hardware to sources"),
+            ("Diagrams", str(manual.diagram_count), "standard Mermaid"),
+        ),
+        "HERO_CTA": "Read the manual",
+        "FOOTER_NOTE": "Generated from MANUAL.md. Every diagram is standard Mermaid.",
     }
 
     manual_html = _fill_template(template, {
         **shared,
+        **manual_hero,
         **_nav("manual"),
         "TOC": toc,
         "BODY": body,
@@ -181,8 +212,29 @@ def build(repo: Path = REPO) -> int:
             f'<li><a href="#{slug(heading)}">{html_lib.escape(heading)}</a></li>'
             for level, heading in doc.headings if level == 2
         )
+        if name == "architecture":
+            hero = {
+                "HERO_TITLE_CLASS": ' class="hero-title"',
+                "HERO_TITLE": "Architecture, in C4",
+                "STANDFIRST": (
+                    "The four C4 levels: context, containers, components, code."
+                ),
+                "HERO_STATS": _stats(("Levels", str(_c4_level_count(doc)), "context to code")),
+                "HERO_CTA": "Read the architecture",
+                "FOOTER_NOTE": "Generated from docs/ARCHITECTURE.md.",
+            }
+        else:
+            hero = {
+                "HERO_TITLE_CLASS": ' class="hero-title"',
+                "HERO_TITLE": "Open-weight model families and their licences",
+                "STANDFIRST": "Licences are stated per model, never per family.",
+                "HERO_STATS": "",
+                "HERO_CTA": "Read the models",
+                "FOOTER_NOTE": "Generated from docs/MODELS.md.",
+            }
         filled = _fill_template(template, {
             **shared,
+            **hero,
             **_nav(name),
             "TOC": page_toc,
             "BODY": page_body,

@@ -297,6 +297,7 @@
     color: var(--color-foreground);
     max-width: 12ch;
   }
+  h1.hero-title { max-width: 14em; }
   .standfirst {
     font-family: var(--font-text);
     font-size: var(--fs-lead);
@@ -969,16 +970,11 @@
 </nav>
 <header class="hero">
   <div class="hero-in">
-    <h1>The Open-Weight<br>Agent Stack</h1>
-    <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens
-      a pull request when upstream model cards drift. That machinery is the differentiator;
-      the manual is what it protects.</p>
-    <dl class="stats">
-      <div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div>
-      <div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div>
-    </dl>
+    <h1 class="hero-title">Architecture, in C4</h1>
+    <p class="standfirst">The four C4 levels: context, containers, components, code.</p>
+    <dl class="stats"><div class="stat"><dt>Levels</dt><dd>4<span>context to code</span></dd></div></dl>
     <p class="hero-cta">
-      <a class="btn btn-primary" href="#main">Read the manual</a>
+      <a class="btn btn-primary" href="#main">Read the architecture</a>
       <a class="btn btn-secondary" href="https://github.com/mlvpatel/open-weight-agent-stack">View on GitHub</a>
     </p>
   </div>
@@ -1233,7 +1229,7 @@ flowchart TB
 
 <footer>
   <div class="foot-in">
-    Generated from MANUAL.md. Every diagram is standard Mermaid.
+    Generated from docs/ARCHITECTURE.md.
     <div class="foot-links">
       <a href="index.html">Manual</a>
       <a href="architecture.html">Architecture</a>
