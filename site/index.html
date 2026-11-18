@@ -6,7 +6,299 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0wxgXdJDyN3rOKWVbaDRXuoPWm3nPm7v1OiQfbrOlX0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RaYr4n4JvA+GTLe0rFhDjXaW8x8m8QWlXlgqyGR2yds='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<script>
+(function () {
+  const root = document.documentElement;
+  let theme = "light";
+  try {
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) theme = "dark";
+  } catch (e) { /* matchMedia unavailable */ }
+  try {
+    const saved = window.localStorage.getItem("theme");
+    if (saved === "dark" || saved === "light") theme = saved;
+  } catch (e) { /* private mode */ }
+  root.setAttribute("data-theme", theme);
+
+  const tocNarrow = window.matchMedia("(max-width: 1024px)");
+  if (tocNarrow.matches) {
+    root.setAttribute("data-toc", "fold");
+    const watchToc = new MutationObserver(function () {
+      const tocFold = document.querySelector(".toc-fold");
+      if (!tocFold) return;
+      tocFold.removeAttribute("open");
+      tocFold.classList.add("toc-ready");
+      watchToc.disconnect();
+    });
+    watchToc.observe(root, { childList: true, subtree: true });
+  }
+
+  function humanPathLabel(path) {
+    const file = path.split("/").pop();
+    const stem = file.replace(/\.[^.]+$/, "");
+    const words = stem.split(/[-_]+/).filter(Boolean).map(function (word) {
+      return word.toLowerCase();
+    });
+    if (!words.length) return "Source file";
+    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+    return words.join(" ");
+  }
+
+  function labelRepoPaths() {
+    const pathLabel = /^(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+\.(?:mmd|md)$/;
+    for (const link of document.querySelectorAll("a")) {
+      const path = (link.textContent || "").trim();
+      if (!pathLabel.test(path)) continue;
+      const visible = document.createElement("span");
+      visible.textContent = humanPathLabel(path);
+      const hidden = document.createElement("span");
+      hidden.className = "visually-hidden";
+      hidden.textContent = ", " + path;
+      link.replaceChildren(visible, hidden);
+    }
+  }
+
+  async function boot() {
+    function applyTheme(next) {
+      theme = next;
+      root.setAttribute("data-theme", theme);
+      const toggle = document.getElementById("theme-toggle");
+      if (toggle) toggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+    }
+    applyTheme(theme);
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", function () {
+        applyTheme(theme === "dark" ? "light" : "dark");
+        try { window.localStorage.setItem("theme", theme); } catch (e) { /* ignore */ }
+      });
+    }
+    labelRepoPaths();
+    function markScrollingTables() {
+      for (const wrap of document.querySelectorAll(".table-wrap")) {
+        wrap.classList.toggle("scrolls", wrap.scrollWidth > wrap.clientWidth + 1);
+      }
+    }
+    markScrollingTables();
+    window.addEventListener("resize", markScrollingTables);
+    const tocFoldNow = document.querySelector(".toc-fold");
+    if (tocFoldNow && tocNarrow.matches) {
+      root.setAttribute("data-toc", "fold");
+      if (!tocFoldNow.classList.contains("toc-ready")) tocFoldNow.removeAttribute("open");
+      tocFoldNow.classList.add("toc-ready");
+    }
+    tocNarrow.addEventListener("change", function () {
+      const tocFold = document.querySelector(".toc-fold");
+      if (!tocFold) return;
+      if (tocNarrow.matches) {
+        root.setAttribute("data-toc", "fold");
+        tocFold.classList.add("toc-ready");
+        tocFold.removeAttribute("open");
+      } else {
+        root.removeAttribute("data-toc");
+        tocFold.open = true;
+      }
+    });
+
+    const search = document.getElementById("site-search");
+  const searchStatus = document.getElementById("search-status");
+  function sectionSearchText(section) {
+    const clone = section.cloneNode(true);
+    for (const node of clone.querySelectorAll("style")) node.remove();
+    return (clone.textContent || "").toLowerCase();
+  }
+  if (search) {
+    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
+    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
+    search.addEventListener("input", function () {
+      const query = search.value.trim().toLowerCase();
+      const hits = new Set();
+      for (const section of document.querySelectorAll("main > section")) {
+        const hit = !query || sectionSearchText(section).includes(query);
+        section.classList.toggle("search-hidden", Boolean(query) && !hit);
+        if (hit && section.id) hits.add(section.id);
+      }
+      for (const node of leadNodes) {
+        const text = (node.textContent || "").toLowerCase();
+        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
+      }
+      let shown = 0;
+      for (const item of tocItems) {
+        const link = item.querySelector("a[href^='#']");
+        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+        const hit = !query || hits.has(id);
+        item.classList.toggle("search-hidden", !hit);
+        if (query && hit) shown += 1;
+      }
+      if (searchStatus) {
+        if (!query) searchStatus.textContent = "";
+        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
+        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
+      }
+    });
+  }
+
+  const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+  const diagramSources = new Map();
+  for (const diagram of diagrams) {
+    const plate = diagram.closest("figure.plate");
+    if (plate) diagramSources.set(plate, diagram.textContent);
+  }
+
+  function recoverUnrendered() {
+    for (const plate of document.querySelectorAll("figure.plate")) {
+      if (plate.querySelector("svg")) continue;
+      const body = plate.querySelector(".plate-body") || plate;
+      let source = body.querySelector("pre.mermaid");
+      const original = diagramSources.get(plate) || "";
+      if (!source) {
+        source = document.createElement("pre");
+        source.className = "mermaid";
+        source.textContent = original;
+        body.appendChild(source);
+      } else if (!source.textContent.trim() && original) {
+        source.textContent = original;
+      }
+      if (body.querySelector(".mermaid-fallback")) continue;
+      const fallback = document.createElement("p");
+      fallback.className = "mermaid-fallback";
+      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+      source.before(fallback);
+    }
+  }
+
+  const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
+  const tocFold = document.querySelector(".toc-fold");
+  if (tocFold) {
+    tocFold.addEventListener("click", function (event) {
+      const link = event.target.closest("a");
+      if (!link || !tocNarrow.matches) return;
+      tocFold.removeAttribute("open");
+    });
+  }
+  if (tocLinks.length && window.IntersectionObserver) {
+    const tocObserver = new window.IntersectionObserver(function (entries) {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const id = entry.target.id;
+        for (const link of tocLinks) {
+          if (link.hash === "#" + id) link.setAttribute("aria-current", "true");
+          else link.removeAttribute("aria-current");
+        }
+      }
+    }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
+    for (const link of tocLinks) {
+      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+      if (target) tocObserver.observe(target);
+    }
+  }
+
+  const viewer = document.createElement("dialog");
+  viewer.className = "figview";
+  viewer.innerHTML =
+    '<div class="figview-head"><h2 id="figview-title"></h2>' +
+    '<button type="button" class="figview-close">Close</button></div>' +
+    '<div class="figview-body"></div>';
+  viewer.setAttribute("aria-labelledby", "figview-title");
+  const viewerTitle = viewer.querySelector("#figview-title");
+  const viewerBody = viewer.querySelector(".figview-body");
+  viewer.querySelector(".figview-close").addEventListener("click", function () {
+    viewer.close();
+  });
+  viewer.addEventListener("close", function () { viewerBody.replaceChildren(); });
+  viewer.addEventListener("click", function (event) {
+    if (event.target === viewer) viewer.close();
+  });
+  document.body.appendChild(viewer);
+
+  let viewerSeq = 0;
+  function openViewer(svg, label) {
+    viewerTitle.textContent = label;
+    const copy = svg.cloneNode(true);
+    const oldId = svg.getAttribute("id");
+    if (oldId) {
+      const newId = oldId + "-fullsize-" + (viewerSeq += 1);
+      copy.innerHTML = copy.innerHTML.split(oldId).join(newId);
+      copy.setAttribute("id", newId);
+    }
+    copy.style.maxWidth = "none";
+    copy.style.width = svg.viewBox.baseVal.width + "px";
+    viewerBody.replaceChildren(copy);
+    viewer.showModal();
+    viewerBody.scrollLeft = Math.max(0, (viewerBody.scrollWidth - viewerBody.clientWidth) / 2);
+    viewerBody.scrollTop = 0;
+  }
+
+  function presentDiagram(plate) {
+    const svg = plate.querySelector(".plate-body svg");
+    const caption = plate.querySelector("figcaption");
+    if (!svg || !caption) return;
+    const box = svg.viewBox && svg.viewBox.baseVal;
+    const stage = plate.querySelector(".plate-body");
+    if (box && box.width && stage) {
+      const maxW = stage.clientWidth;
+      if (maxW > 0) {
+        const width = Math.min(maxW, box.width);
+        svg.style.width = width + "px";
+        svg.style.maxWidth = "100%";
+        svg.style.height = "auto";
+        svg.removeAttribute("height");
+      }
+    }
+    if (plate.querySelector(".plate-figtools")) return;
+    const label = (caption.textContent || "Diagram").trim();
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "plate-zoom";
+    button.setAttribute("aria-label", "View " + label + " at full size");
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>' +
+      '<path d="M11 8v6"></path><path d="M8 11h6"></path></svg>View full size';
+    button.addEventListener("click", function () { openViewer(svg, label); });
+    const tools = document.createElement("div");
+    tools.className = "plate-figtools";
+    tools.appendChild(button);
+    caption.insertAdjacentElement("afterend", tools);
+  }
+
+  function presentAll() {
+    for (const plate of document.querySelectorAll("figure.plate")) presentDiagram(plate);
+  }
+
+  try {
+    if (!window.mermaid) {
+      throw new Error("Mermaid browser bundle did not load");
+    }
+    window.mermaid.initialize({ startOnLoad: false });
+    try {
+      await window.mermaid.run({ nodes: diagrams });
+    } catch (e) {
+      console.error("Mermaid failed to render diagrams", e);
+    }
+    recoverUnrendered();
+    presentAll();
+    let resizeTimer;
+    const refit = function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(presentAll, 150);
+    };
+    if (window.ResizeObserver) {
+      const observer = new window.ResizeObserver(refit);
+      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
+    }
+    window.addEventListener("resize", refit);
+  } catch (e) {
+    console.error("Mermaid failed to render diagrams", e);
+    recoverUnrendered();
+  }
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
@@ -262,6 +554,9 @@
     cursor: pointer;
   }
   .theme-toggle:hover { border-color: var(--color-foreground); }
+  .theme-toggle .theme-word-light { display: none; }
+  html[data-theme="dark"] .theme-toggle .theme-word-dark { display: none; }
+  html[data-theme="dark"] .theme-toggle .theme-word-light { display: inline; }
 
   /* ---------------- hero ---------------- */
 
@@ -421,12 +716,24 @@
     gap: var(--space-8);
     align-items: center;
   }
+  .rings-figure {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-3);
+    align-items: center;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
   .rings-shot {
     width: 100%;
+    min-width: 0;
     max-width: 640px;
     margin: 0 auto;
     display: block;
   }
+  .rings-shot .glow { fill: transparent; }
+  .rings-shot .glow { fill: url("#studio-glow"); }
   .rings-shot .ring { fill: none; }
   .rings-shot .ring-5 { stroke: var(--ring-5); stroke-width: 1; }
   .rings-shot .ring-4 { stroke: var(--ring-4); stroke-width: 1.25; }
@@ -434,21 +741,44 @@
   .rings-shot .ring-2 { stroke: var(--ring-2); stroke-width: 1.75; }
   .rings-shot .ring-1 { stroke: var(--color-accent-ink); stroke-width: 2.5; }
   .rings-shot .core { fill: var(--color-accent-ink); }
-  .rings-shot .glow-start, .rings-shot .glow-end { stop-color: var(--color-accent-ink); }
-  .rings-shot text { font-family: var(--font-text); }
-  .rings-shot .callout {
-    fill: var(--color-foreground);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0;
+  .rings-shot .glow-start { stop-color: var(--color-accent-ink); stop-opacity: 0.22; }
+  .rings-shot .glow-end { stop-color: var(--color-accent-ink); stop-opacity: 0; }
+  .ring-callouts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-3);
   }
-  .rings-shot .callout-n {
-    fill: var(--color-muted);
-    font-size: 12px;
+  .ring-callouts li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .ring-callouts li + li { margin-top: 0; }
+  .ring-callouts li::before {
+    content: "";
+    width: var(--space-4);
+    border-top: 1px solid var(--ring-leader);
+    flex: none;
+  }
+  .ring-callouts .rn {
+    font-variant-numeric: tabular-nums;
+    font-size: var(--fs-nav);
     font-weight: 600;
     letter-spacing: 0.06em;
+    color: var(--color-muted);
   }
-  .rings-shot .leader { stroke: var(--ring-leader); stroke-width: 1; }
+  .ring-callouts .name {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--color-foreground);
+    white-space: nowrap;
+  }
   .product-copy { max-width: 36em; }
   .product-kicker {
     font-size: var(--fs-nav);
@@ -606,6 +936,40 @@
   nav.toc a[aria-current="true"]:link,
   nav.toc a[aria-current="true"]:visited { color: var(--color-accent-ink); }
   nav.toc a[aria-current="true"] .n { color: var(--color-accent-ink); }
+  /* Wide pages keep the list open. A narrow page folds it, and the rule below wins. */
+  .toc-jump { display: none; }
+  .toc-summary {
+    display: none;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--touch);
+    padding: 0;
+    font-family: var(--font-text);
+    font-size: var(--fs-nav);
+    font-weight: 600;
+    color: var(--color-foreground);
+    cursor: pointer;
+    list-style: none;
+    border-bottom: 1px solid var(--color-foreground);
+  }
+  .toc-summary::-webkit-details-marker { display: none; }
+  .toc-summary::marker { content: ""; }
+  html[data-toc="fold"] .toc-jump { display: block; }
+  html[data-toc="fold"] .toc-summary { display: flex; }
+  html[data-toc="fold"] .toc-summary::after {
+    content: "+";
+    margin-left: auto;
+  }
+  html[data-toc="fold"] .toc-fold[open] > .toc-summary::after { content: "-"; }
+  html[data-toc="fold"] .toc-panel > h2 { display: none; }
+  html[data-toc="fold"] .toc-fold:not(.toc-ready) > .toc-panel,
+  html[data-toc="fold"] .toc-fold.toc-ready:not([open]) > .toc-panel { display: none; }
+  html[data-toc="fold"] .toc-fold.toc-ready[open] > .toc-panel {
+    display: block;
+    max-height: min(50vh, 22rem);
+    overflow: auto;
+  }
+  #contents { scroll-margin-top: calc(var(--nav-height) + var(--space-4)); }
 
   main {
     padding-top: var(--space-8);
@@ -974,17 +1338,11 @@
     nav.toc {
       position: static;
       max-height: none;
-      padding-top: var(--space-6);
-      border-bottom: 1px solid var(--color-border-strong);
-      padding-bottom: var(--space-4);
+      padding-top: var(--space-4);
+      border-bottom: 0;
+      padding-bottom: 0;
     }
-    nav.toc ul { flex-direction: row; flex-wrap: wrap; gap: var(--space-1); }
-    nav.toc a {
-      border-left: 0;
-      border-bottom: 2px solid transparent;
-      background: transparent;
-    }
-    nav.toc a[aria-current="true"] { border-bottom-color: var(--color-accent-ink); }
+    #contents { scroll-margin-top: 8rem; }
     .product-in { grid-template-columns: 1fr; }
     main { padding-top: var(--space-5); }
     .plate-body { padding: var(--space-4); }
@@ -1027,11 +1385,12 @@
   <div class="global-in">
     <a class="wordmark" href="https://mlvpatel.github.io/open-weight-agent-stack/">Open-Weight Agent Stack</a>
     <ul class="global-links">
+      <li class="toc-jump"><a href="#contents">Contents</a></li>
       <li><a href="#main" aria-current="page">Manual</a></li>
       <li><a href="architecture.html">Architecture</a></li>
       <li><a href="models.html">Models</a></li>
       <li><a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a></li>
-      <li><button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">Dark</button></li>
+      <li><button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false"><span class="theme-word-dark">Dark</span><span class="theme-word-light">Light</span></button></li>
     </ul>
   </div>
 </nav>
@@ -1051,37 +1410,31 @@
 </header>
 <section class="product" aria-label="Five concentric rings">
   <div class="product-in">
-    <svg class="rings-shot" viewBox="0 0 640 420" role="img" aria-labelledby="rings-title">
+    <div class="rings-figure">
+    <svg class="rings-shot" viewBox="0 0 400 420" role="img" aria-labelledby="rings-title">
       <title id="rings-title">Five concentric rings from prompt at the centre to loop at the rim</title>
       <defs>
-        <radialGradient id="studio-glow" cx="31%" cy="50%" r="42%">
-          <stop class="glow-start" offset="0%" stop-opacity="0.22"/>
-          <stop class="glow-end" offset="100%" stop-opacity="0"/>
+        <radialGradient id="studio-glow" cx="50%" cy="50%" r="50%">
+          <stop class="glow-start" offset="0%"/>
+          <stop class="glow-end" offset="100%"/>
         </radialGradient>
       </defs>
-      <circle cx="200" cy="210" r="188" fill="url(#studio-glow)"/>
+      <circle class="glow" cx="200" cy="210" r="188"/>
       <circle class="ring ring-5" cx="200" cy="210" r="176"/>
       <circle class="ring ring-4" cx="200" cy="210" r="142"/>
       <circle class="ring ring-3" cx="200" cy="210" r="106"/>
       <circle class="ring ring-2" cx="200" cy="210" r="70"/>
       <circle class="ring ring-1" cx="200" cy="210" r="36"/>
       <circle class="core" cx="200" cy="210" r="7"/>
-      <line class="leader" x1="376" y1="48" x2="430" y2="48"/>
-      <line class="leader" x1="342" y1="88" x2="430" y2="88"/>
-      <line class="leader" x1="306" y1="128" x2="430" y2="128"/>
-      <line class="leader" x1="270" y1="168" x2="430" y2="168"/>
-      <line class="leader" x1="236" y1="210" x2="430" y2="210"/>
-      <text class="callout-n" x="438" y="44">05</text>
-      <text class="callout" x="470" y="48">Loop</text>
-      <text class="callout-n" x="438" y="84">04</text>
-      <text class="callout" x="470" y="88">Eval</text>
-      <text class="callout-n" x="438" y="124">03</text>
-      <text class="callout" x="470" y="128">Harness</text>
-      <text class="callout-n" x="438" y="164">02</text>
-      <text class="callout" x="470" y="168">Context</text>
-      <text class="callout-n" x="438" y="206">01</text>
-      <text class="callout" x="470" y="210">Prompt</text>
     </svg>
+    <ul class="ring-callouts">
+      <li><span class="rn">05</span><span class="name">Loop</span></li>
+      <li><span class="rn">04</span><span class="name">Eval</span></li>
+      <li><span class="rn">03</span><span class="name">Harness</span></li>
+      <li><span class="rn">02</span><span class="name">Context</span></li>
+      <li><span class="rn">01</span><span class="name">Prompt</span></li>
+    </ul>
+    </div>
     <div class="product-copy">
       <p class="product-kicker">The stack</p>
       <h2 class="product-lead">Five rings, innermost first.</h2>
@@ -1097,14 +1450,19 @@
 </section>
 
 <div class="shell">
-  <nav class="toc" aria-label="Contents">
-    <h2>Contents</h2>
-    <label class="toc-search">
-      <span class="visually-hidden">Search this page</span>
-      <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
-    </label>
-    <p id="search-status" class="search-status" aria-live="polite"></p>
-    <ul><li><a href="#1-how-to-read-this-manual"><span class="n">01</span> How to read this manual</a></li><li><a href="#2-what-can-you-run"><span class="n">02</span> What can you run?</a></li><li><a href="#3-the-thirteen-layer-stack"><span class="n">03</span> The thirteen-layer stack</a></li><li><a href="#4-the-design-method-hld-lld-and-the-rules"><span class="n">04</span> The design method: HLD, LLD and the rules</a></li><li><a href="#5-master-architecture"><span class="n">05</span> Master architecture</a></li><li><a href="#6-request-lifecycle"><span class="n">06</span> Request lifecycle</a></li><li><a href="#7-agent-control-loop"><span class="n">07</span> Agent control loop</a></li><li><a href="#8-rag-pipeline-internals"><span class="n">08</span> RAG pipeline internals</a></li><li><a href="#9-model-routing"><span class="n">09</span> Model routing</a></li><li><a href="#10-prompt-and-turn-contract"><span class="n">10</span> Prompt and turn contract</a></li><li><a href="#11-trust-boundaries"><span class="n">11</span> Trust boundaries</a></li><li><a href="#12-memory-and-data-tiers"><span class="n">12</span> Memory and data tiers</a></li><li><a href="#13-guardrails-evals-and-the-improvement-loop"><span class="n">13</span> Guardrails, evals and the improvement loop</a></li><li><a href="#14-deployment-topology"><span class="n">14</span> Deployment topology</a></li><li><a href="#15-data-lifecycle-deletion-and-re-indexing"><span class="n">15</span> Data lifecycle, deletion and re-indexing</a></li><li><a href="#16-databases-and-state"><span class="n">16</span> Databases and state</a></li><li><a href="#17-serving-budgets-and-rollback"><span class="n">17</span> Serving, budgets and rollback</a></li><li><a href="#18-identity-delegation-and-authority"><span class="n">18</span> Identity, delegation and authority</a></li><li><a href="#19-threat-model"><span class="n">19</span> Threat model</a></li><li><a href="#20-latency-budget"><span class="n">20</span> Latency budget</a></li><li><a href="#21-technology-catalogue"><span class="n">21</span> Technology catalogue</a></li><li><a href="#22-task-to-model-routing"><span class="n">22</span> Task-to-model routing</a></li><li><a href="#23-platform-and-sdk-choice"><span class="n">23</span> Platform and SDK choice</a></li><li><a href="#24-code-agents-the-full-landscape"><span class="n">24</span> Code agents: the full landscape</a></li><li><a href="#25-versioning-and-change-control"><span class="n">25</span> Versioning and change control</a></li><li><a href="#26-build-order-and-troubleshooting"><span class="n">26</span> Build order and troubleshooting</a></li><li><a href="#27-sources-and-verification"><span class="n">27</span> Sources and verification</a></li></ul>
+  <nav class="toc" id="contents" aria-label="Contents">
+    <details class="toc-fold" open>
+      <summary class="toc-summary">Contents</summary>
+      <div class="toc-panel">
+        <h2>Contents</h2>
+        <label class="toc-search">
+          <span class="visually-hidden">Search this page</span>
+          <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
+        </label>
+        <p id="search-status" class="search-status" aria-live="polite"></p>
+        <ul><li><a href="#1-how-to-read-this-manual"><span class="n">01</span> How to read this manual</a></li><li><a href="#2-what-can-you-run"><span class="n">02</span> What can you run?</a></li><li><a href="#3-the-thirteen-layer-stack"><span class="n">03</span> The thirteen-layer stack</a></li><li><a href="#4-the-design-method-hld-lld-and-the-rules"><span class="n">04</span> The design method: HLD, LLD and the rules</a></li><li><a href="#5-master-architecture"><span class="n">05</span> Master architecture</a></li><li><a href="#6-request-lifecycle"><span class="n">06</span> Request lifecycle</a></li><li><a href="#7-agent-control-loop"><span class="n">07</span> Agent control loop</a></li><li><a href="#8-rag-pipeline-internals"><span class="n">08</span> RAG pipeline internals</a></li><li><a href="#9-model-routing"><span class="n">09</span> Model routing</a></li><li><a href="#10-prompt-and-turn-contract"><span class="n">10</span> Prompt and turn contract</a></li><li><a href="#11-trust-boundaries"><span class="n">11</span> Trust boundaries</a></li><li><a href="#12-memory-and-data-tiers"><span class="n">12</span> Memory and data tiers</a></li><li><a href="#13-guardrails-evals-and-the-improvement-loop"><span class="n">13</span> Guardrails, evals and the improvement loop</a></li><li><a href="#14-deployment-topology"><span class="n">14</span> Deployment topology</a></li><li><a href="#15-data-lifecycle-deletion-and-re-indexing"><span class="n">15</span> Data lifecycle, deletion and re-indexing</a></li><li><a href="#16-databases-and-state"><span class="n">16</span> Databases and state</a></li><li><a href="#17-serving-budgets-and-rollback"><span class="n">17</span> Serving, budgets and rollback</a></li><li><a href="#18-identity-delegation-and-authority"><span class="n">18</span> Identity, delegation and authority</a></li><li><a href="#19-threat-model"><span class="n">19</span> Threat model</a></li><li><a href="#20-latency-budget"><span class="n">20</span> Latency budget</a></li><li><a href="#21-technology-catalogue"><span class="n">21</span> Technology catalogue</a></li><li><a href="#22-task-to-model-routing"><span class="n">22</span> Task-to-model routing</a></li><li><a href="#23-platform-and-sdk-choice"><span class="n">23</span> Platform and SDK choice</a></li><li><a href="#24-code-agents-the-full-landscape"><span class="n">24</span> Code agents: the full landscape</a></li><li><a href="#25-versioning-and-change-control"><span class="n">25</span> Versioning and change control</a></li><li><a href="#26-build-order-and-troubleshooting"><span class="n">26</span> Build order and troubleshooting</a></li><li><a href="#27-sources-and-verification"><span class="n">27</span> Sources and verification</a></li></ul>
+      </div>
+    </details>
   </nav>
   <main id="main">
 <p>The complete blueprint for building agentic AI on open-weight models: choosing hardware and serving it fast, grounding answers in your own data, guarding every input, and operating the loop in production. Hardware is assumed rather than minimised; <strong>latency and throughput</strong> are the ruling metrics, because an agent loop multiplies every millisecond, a turn that makes eight model calls pays each cost eight times.</p>
@@ -2571,226 +2929,6 @@ accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude 
 </footer>
 
 <script src="mermaid.min.js"></script>
-<script>
-(async function () {
-  const root = document.documentElement;
-  function applyTheme(theme) {
-    root.setAttribute("data-theme", theme);
-    const toggle = document.getElementById("theme-toggle");
-    if (toggle) {
-      toggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
-      toggle.textContent = theme === "dark" ? "Light" : "Dark";
-    }
-  }
-  let theme = "light";
-  try {
-    theme = window.localStorage.getItem("theme") || theme;
-  } catch (e) { /* private mode */ }
-  if (theme !== "dark" && theme !== "light") theme = "light";
-  applyTheme(theme);
-  const themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      theme = theme === "dark" ? "light" : "dark";
-      applyTheme(theme);
-      try { window.localStorage.setItem("theme", theme); } catch (e) { /* ignore */ }
-    });
-  }
 
-  function markScrollingTables() {
-    for (const wrap of document.querySelectorAll(".table-wrap")) {
-      wrap.classList.toggle("scrolls", wrap.scrollWidth > wrap.clientWidth + 1);
-    }
-  }
-  markScrollingTables();
-  window.addEventListener("resize", markScrollingTables);
-
-  const search = document.getElementById("site-search");
-  const searchStatus = document.getElementById("search-status");
-  function sectionSearchText(section) {
-    const clone = section.cloneNode(true);
-    for (const node of clone.querySelectorAll("style")) node.remove();
-    return (clone.textContent || "").toLowerCase();
-  }
-  if (search) {
-    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
-    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
-    search.addEventListener("input", function () {
-      const query = search.value.trim().toLowerCase();
-      const hits = new Set();
-      for (const section of document.querySelectorAll("main > section")) {
-        const hit = !query || sectionSearchText(section).includes(query);
-        section.classList.toggle("search-hidden", Boolean(query) && !hit);
-        if (hit && section.id) hits.add(section.id);
-      }
-      for (const node of leadNodes) {
-        const text = (node.textContent || "").toLowerCase();
-        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
-      }
-      let shown = 0;
-      for (const item of tocItems) {
-        const link = item.querySelector("a[href^='#']");
-        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
-        const hit = !query || hits.has(id);
-        item.classList.toggle("search-hidden", !hit);
-        if (query && hit) shown += 1;
-      }
-      if (searchStatus) {
-        if (!query) searchStatus.textContent = "";
-        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
-        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
-      }
-    });
-  }
-
-  const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
-  const diagramSources = new Map();
-  for (const diagram of diagrams) {
-    const plate = diagram.closest("figure.plate");
-    if (plate) diagramSources.set(plate, diagram.textContent);
-  }
-
-  function recoverUnrendered() {
-    for (const plate of document.querySelectorAll("figure.plate")) {
-      if (plate.querySelector("svg")) continue;
-      const body = plate.querySelector(".plate-body") || plate;
-      let source = body.querySelector("pre.mermaid");
-      const original = diagramSources.get(plate) || "";
-      if (!source) {
-        source = document.createElement("pre");
-        source.className = "mermaid";
-        source.textContent = original;
-        body.appendChild(source);
-      } else if (!source.textContent.trim() && original) {
-        source.textContent = original;
-      }
-      if (body.querySelector(".mermaid-fallback")) continue;
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      source.before(fallback);
-    }
-  }
-
-  const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
-  if (tocLinks.length && window.IntersectionObserver) {
-    const tocObserver = new window.IntersectionObserver(function (entries) {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const id = entry.target.id;
-        for (const link of tocLinks) {
-          if (link.hash === "#" + id) link.setAttribute("aria-current", "true");
-          else link.removeAttribute("aria-current");
-        }
-      }
-    }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
-    for (const link of tocLinks) {
-      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
-      if (target) tocObserver.observe(target);
-    }
-  }
-
-  const viewer = document.createElement("dialog");
-  viewer.className = "figview";
-  viewer.innerHTML =
-    '<div class="figview-head"><h2 id="figview-title"></h2>' +
-    '<button type="button" class="figview-close">Close</button></div>' +
-    '<div class="figview-body"></div>';
-  viewer.setAttribute("aria-labelledby", "figview-title");
-  const viewerTitle = viewer.querySelector("#figview-title");
-  const viewerBody = viewer.querySelector(".figview-body");
-  viewer.querySelector(".figview-close").addEventListener("click", function () {
-    viewer.close();
-  });
-  viewer.addEventListener("close", function () { viewerBody.replaceChildren(); });
-  viewer.addEventListener("click", function (event) {
-    if (event.target === viewer) viewer.close();
-  });
-  document.body.appendChild(viewer);
-
-  let viewerSeq = 0;
-  function openViewer(svg, label) {
-    viewerTitle.textContent = label;
-    const copy = svg.cloneNode(true);
-    const oldId = svg.getAttribute("id");
-    if (oldId) {
-      const newId = oldId + "-fullsize-" + (viewerSeq += 1);
-      copy.innerHTML = copy.innerHTML.split(oldId).join(newId);
-      copy.setAttribute("id", newId);
-    }
-    copy.style.maxWidth = "none";
-    copy.style.width = svg.viewBox.baseVal.width + "px";
-    viewerBody.replaceChildren(copy);
-    viewer.showModal();
-    viewerBody.scrollLeft = Math.max(0, (viewerBody.scrollWidth - viewerBody.clientWidth) / 2);
-    viewerBody.scrollTop = 0;
-  }
-
-  function presentDiagram(plate) {
-    const svg = plate.querySelector(".plate-body svg");
-    const caption = plate.querySelector("figcaption");
-    if (!svg || !caption) return;
-    const box = svg.viewBox && svg.viewBox.baseVal;
-    const stage = plate.querySelector(".plate-body");
-    if (box && box.width && stage) {
-      const maxW = stage.clientWidth;
-      if (maxW > 0) {
-        const width = Math.min(maxW, box.width);
-        svg.style.width = width + "px";
-        svg.style.maxWidth = "100%";
-        svg.style.height = "auto";
-        svg.removeAttribute("height");
-      }
-    }
-    if (plate.querySelector(".plate-figtools")) return;
-    const label = (caption.textContent || "Diagram").trim();
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "plate-zoom";
-    button.setAttribute("aria-label", "View " + label + " at full size");
-    button.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>' +
-      '<path d="M11 8v6"></path><path d="M8 11h6"></path></svg>View full size';
-    button.addEventListener("click", function () { openViewer(svg, label); });
-    const tools = document.createElement("div");
-    tools.className = "plate-figtools";
-    tools.appendChild(button);
-    caption.insertAdjacentElement("afterend", tools);
-  }
-
-  function presentAll() {
-    for (const plate of document.querySelectorAll("figure.plate")) presentDiagram(plate);
-  }
-
-  try {
-    if (!window.mermaid) {
-      throw new Error("Mermaid browser bundle did not load");
-    }
-    window.mermaid.initialize({ startOnLoad: false });
-    try {
-      await window.mermaid.run({ nodes: diagrams });
-    } catch (e) {
-      console.error("Mermaid failed to render diagrams", e);
-    }
-    recoverUnrendered();
-    presentAll();
-    let resizeTimer;
-    const refit = function () {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(presentAll, 150);
-    };
-    if (window.ResizeObserver) {
-      const observer = new window.ResizeObserver(refit);
-      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
-    }
-    window.addEventListener("resize", refit);
-  } catch (e) {
-    console.error("Mermaid failed to render diagrams", e);
-    recoverUnrendered();
-  }
-})();
-</script>
 </body>
 </html>
