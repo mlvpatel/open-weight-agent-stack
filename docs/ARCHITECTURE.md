@@ -27,6 +27,8 @@ The deployable units and what runs between them. This is the manual's master arc
 
 ```mermaid
 flowchart TB
+accTitle: Containers from clients to the model
+accDescr: Clients reach a gateway and input guard, then an orchestrator that can retrieve, call tools, run code, or generate. Memory, guards, and observability sit beside that path, and a cited response returns to the client.
     subgraph L1["1 · Clients"]
         direction LR
         C1["Web browser"]

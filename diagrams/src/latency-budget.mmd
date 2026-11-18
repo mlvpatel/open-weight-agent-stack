@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Where time goes in one agent turn
+accDescr: The drawn stages run from the input guard through cache, retrieval, rerank, prefill, decode, and the output guard. A second list shows levers aimed at prefill, decode, or throughput.
     subgraph BUDGET["Where one agent turn goes"]
         direction TB
         L1["Gateway and regex input guard<br/>5 to 20 ms · Llama Guard is 50 to 200 ms"]

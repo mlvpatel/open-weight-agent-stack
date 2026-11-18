@@ -1,4 +1,6 @@
 flowchart LR
+accTitle: Offline ingestion beside each query
+accDescr: Sources are parsed, chunked, redacted, enriched, and stored in a vector index and a keyword index. A question is rewritten, filtered by entitlement, searched both ways, fused, reranked, and either cited or marked incomplete.
     subgraph ING["Ingestion · offline batch"]
         direction TB
         I1["Sources<br/>PDF · DOCX · HTML · code · tickets"]

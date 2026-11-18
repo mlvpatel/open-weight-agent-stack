@@ -1,4 +1,6 @@
 flowchart TB
+accTitle: Task shape choosing a model tier
+accDescr: A step is tested for structured output, long context, reasoning, or code. The chosen model is checked by a separate verifier, which can return the result, escalate one tier, use a frontier fallback, or hand the turn to a person.
     S["Incoming step"] --> C1{"Structured extraction<br/>or classification?"}
     C1 -->|yes| SMALL["Small dense fast tier<br/>Qwen 3.5 9B · Phi-4-mini<br/>constrained decoding to JSON"]
     C1 -->|no| C2{"Long context<br/>over 32k tokens?"}
