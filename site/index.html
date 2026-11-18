@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-t6+dRnkENRuwsB8l77tytJqfLE1tqyruWYZrggiaGzQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gkCvWTpyrjifVWdZLhP10x9G9h6GbbSeTbaGHMazSR4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
@@ -546,6 +546,12 @@
     background: var(--gloss), var(--color-surface);
   }
   .search-hidden { display: none !important; }
+  .search-status {
+    margin: 0 0 var(--space-3);
+    color: var(--color-muted);
+    font-size: var(--fs-nav);
+  }
+  .search-status:empty { display: none; }
   nav.toc ul {
     list-style: none;
     margin: 0;
@@ -1033,6 +1039,7 @@
       <span class="visually-hidden">Search this page</span>
       <input type="search" id="site-search" placeholder="Search this page" autocomplete="off">
     </label>
+    <p id="search-status" class="search-status" aria-live="polite"></p>
     <ul><li><a href="#1-how-to-read-this-manual"><span class="n">01</span> How to read this manual</a></li><li><a href="#2-what-can-you-actually-run"><span class="n">02</span> What can you actually run?</a></li><li><a href="#3-the-thirteen-layer-stack"><span class="n">03</span> The thirteen-layer stack</a></li><li><a href="#4-the-design-method-hld-lld-and-the-rules"><span class="n">04</span> The design method: HLD, LLD and the rules</a></li><li><a href="#5-master-architecture"><span class="n">05</span> Master architecture</a></li><li><a href="#6-request-lifecycle"><span class="n">06</span> Request lifecycle</a></li><li><a href="#7-agent-control-loop"><span class="n">07</span> Agent control loop</a></li><li><a href="#8-rag-pipeline-internals"><span class="n">08</span> RAG pipeline internals</a></li><li><a href="#9-model-routing"><span class="n">09</span> Model routing</a></li><li><a href="#10-prompt-and-turn-contract"><span class="n">10</span> Prompt and turn contract</a></li><li><a href="#11-trust-boundaries"><span class="n">11</span> Trust boundaries</a></li><li><a href="#12-memory-and-data-tiers"><span class="n">12</span> Memory and data tiers</a></li><li><a href="#13-guardrails-evals-and-the-improvement-loop"><span class="n">13</span> Guardrails, evals and the improvement loop</a></li><li><a href="#14-deployment-topology"><span class="n">14</span> Deployment topology</a></li><li><a href="#15-data-lifecycle-deletion-and-re-indexing"><span class="n">15</span> Data lifecycle, deletion and re-indexing</a></li><li><a href="#16-databases-and-state"><span class="n">16</span> Databases and state</a></li><li><a href="#17-serving-budgets-and-rollback"><span class="n">17</span> Serving, budgets and rollback</a></li><li><a href="#18-identity-delegation-and-authority"><span class="n">18</span> Identity, delegation and authority</a></li><li><a href="#19-threat-model"><span class="n">19</span> Threat model</a></li><li><a href="#20-latency-budget"><span class="n">20</span> Latency budget</a></li><li><a href="#21-technology-catalogue"><span class="n">21</span> Technology catalogue</a></li><li><a href="#22-task-to-model-routing"><span class="n">22</span> Task-to-model routing</a></li><li><a href="#23-platform-and-sdk-choice"><span class="n">23</span> Platform and SDK choice</a></li><li><a href="#24-code-agents-the-full-landscape"><span class="n">24</span> Code agents: the full landscape</a></li><li><a href="#25-versioning-and-change-control"><span class="n">25</span> Versioning and change control</a></li><li><a href="#26-build-order-and-troubleshooting"><span class="n">26</span> Build order and troubleshooting</a></li><li><a href="#27-sources-and-verification"><span class="n">27</span> Sources and verification</a></li></ul>
   </nav>
   <main id="main">
@@ -2527,23 +2534,31 @@ accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude 
   }
 
   const search = document.getElementById("site-search");
+  const searchStatus = document.getElementById("search-status");
+  function sectionSearchText(section) {
+    const clone = section.cloneNode(true);
+    for (const node of clone.querySelectorAll("style")) node.remove();
+    return (clone.textContent || "").toLowerCase();
+  }
   if (search) {
     search.addEventListener("input", function () {
       const query = search.value.trim().toLowerCase();
-      const sections = document.querySelectorAll("main > section, main > h2, main > h3, main > p, main > div, main > figure, main > ol, main > ul");
-      const tocItems = document.querySelectorAll("nav.toc li");
+      const loose = document.querySelectorAll("main > section, main > h2, main > h3, main > p, main > div, main > figure, main > ol, main > ul");
       if (!query) {
-        for (const node of sections) node.classList.remove("search-hidden");
-        for (const item of tocItems) item.classList.remove("search-hidden");
+        for (const node of loose) node.classList.remove("search-hidden");
+        if (searchStatus) searchStatus.textContent = "";
         return;
       }
+      let shown = 0;
       for (const section of document.querySelectorAll("main > section")) {
-        const hit = (section.textContent || "").toLowerCase().includes(query);
+        const hit = sectionSearchText(section).includes(query);
         section.classList.toggle("search-hidden", !hit);
+        if (hit) shown += 1;
       }
-      for (const item of tocItems) {
-        const hit = (item.textContent || "").toLowerCase().includes(query);
-        item.classList.toggle("search-hidden", !hit);
+      if (searchStatus) {
+        searchStatus.textContent = shown === 0
+          ? "Nothing matches."
+          : (shown === 1 ? "1 section matches." : shown + " sections match.");
       }
     });
   }
