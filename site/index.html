@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gkCvWTpyrjifVWdZLhP10x9G9h6GbbSeTbaGHMazSR4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ACTO+NBNyBC5ViwYuHsuD1lB7R48Sp9cZMMWVmJKcGQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>The Open-Weight Agent Stack, Build Manual</title>
 <meta name="description" content="A performance-first build manual for agentic AI on open-weight models: hardware and serving, retrieval, memory, identity, security, and operations.">
 <link rel="canonical" href="https://mlvpatel.github.io/open-weight-agent-stack/">
@@ -111,8 +111,11 @@
     --toc-width: 232px;
     --shell-gap: 48px;
     --page-pad: 24px;
+    --shell-pad: var(--page-pad);
+    --section-inline: var(--space-6);
+    --section-border: 1px;
     --shell-side: max(0px, calc((100vw - var(--shell-max)) / 2));
-    --main-inset: calc(var(--shell-side) + var(--page-pad) + var(--toc-width) + var(--shell-gap));
+    --main-inset: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
     color-scheme: light;
   }
 
@@ -145,7 +148,7 @@
 
   @media (max-width: 1024px) {
     :root {
-      --main-inset: calc(var(--shell-side) + var(--page-pad));
+      --main-inset: calc(var(--shell-side) + var(--shell-pad));
       --shell-gap: 24px;
     }
   }
@@ -280,6 +283,7 @@
     line-height: var(--lh-tight);
     color: var(--color-foreground);
     max-width: 12ch;
+    hyphens: manual;
   }
   h1.hero-title { max-width: 14em; }
   .standfirst {
@@ -291,10 +295,12 @@
   }
   .stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(10rem, calc((100% - 2 * var(--space-4)) / 3)));
+    justify-content: center;
     gap: var(--space-4);
     width: min(100%, 680px);
     margin-top: var(--space-2);
+    margin-inline: auto;
   }
   .stat {
     text-align: center;
@@ -463,11 +469,24 @@
   .shell {
     max-width: var(--shell-max);
     margin: 0 auto;
-    padding: 0 var(--page-pad) var(--space-11);
+    padding: 0 var(--shell-pad) var(--space-11);
     display: grid;
     grid-template-columns: var(--toc-width) minmax(0, 1fr);
     gap: var(--shell-gap);
     align-items: start;
+    position: relative;
+  }
+  /* Page color over the contents column, so a full-bleed plate cannot show through it. */
+  .shell::before {
+    content: "";
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * var(--shell-side));
+    width: calc(var(--shell-side) + var(--shell-pad) + var(--toc-width) + var(--shell-gap));
+    background: var(--color-background);
+    pointer-events: none;
   }
 
   nav.toc {
@@ -476,7 +495,8 @@
     padding-top: var(--space-8);
     max-height: calc(100vh - var(--nav-height) - var(--space-6));
     overflow-y: auto;
-    z-index: 3;
+    z-index: 30;
+    background: var(--color-background);
   }
   nav.toc h2 {
     font-size: var(--fs-nav);
@@ -588,15 +608,15 @@
   main > section {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #f5f8fc 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
-    border: 1px solid var(--color-edge);
+    border: var(--section-border) solid var(--color-edge);
     box-shadow: var(--shadow-raise);
   }
   main > section:nth-child(even) {
     background: var(--gloss), linear-gradient(180deg, var(--color-white) 0%, #eef3f9 100%);
     margin-inline: 0;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--section-inline);
     border-radius: var(--radius-card);
   }
   main > section + section { margin-top: var(--space-7); }
@@ -645,7 +665,7 @@
 
   figure.plate {
     position: relative;
-    z-index: 2;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -653,7 +673,7 @@
     width: 100vw;
     max-width: 100vw;
     margin: var(--space-8) 0;
-    margin-left: calc(-1 * var(--main-inset));
+    margin-left: calc(-1 * (var(--main-inset) + var(--section-inline) + var(--section-border)));
     padding: var(--plate-pad);
     background: transparent;
   }
@@ -781,6 +801,9 @@
 
   .table-wrap {
     overflow-x: auto;
+    max-width: 100%;
+    min-width: 0;
+    -webkit-overflow-scrolling: touch;
     border: 1px solid var(--color-edge);
     border-radius: var(--radius-lg);
     background: var(--gloss), var(--color-surface);
@@ -789,6 +812,7 @@
   table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 40rem;
     font-size: var(--fs-table);
     font-variant-numeric: tabular-nums;
   }
@@ -804,8 +828,9 @@
     padding: var(--space-3) var(--space-5);
     vertical-align: top;
     border-bottom: 1px solid var(--color-border);
-    overflow-wrap: anywhere;
-    hyphens: auto;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
   }
   thead th {
     font-size: var(--fs-nav);
@@ -842,6 +867,10 @@
   }
   main code {
     overflow-wrap: anywhere;
+  }
+  table code {
+    overflow-wrap: normal;
+    word-break: normal;
   }
   pre {
     overflow-x: auto;
@@ -896,6 +925,7 @@
 
   @media (max-width: 1024px) {
     .shell { grid-template-columns: 1fr; }
+    .shell::before { content: none; }
     nav.toc {
       position: static;
       max-height: none;
@@ -911,9 +941,14 @@
   }
 
   @media (max-width: 640px) {
+    :root {
+      --shell-pad: var(--space-4);
+      --section-inline: var(--space-4);
+    }
     .hero-in { padding: var(--space-9) var(--space-4) var(--space-7); }
-    .shell { padding: 0 var(--space-4) var(--space-9); }
-    .stats { grid-template-columns: 1fr; gap: var(--space-4); }
+    h1:not(.hero-title) { max-width: none; }
+    .shell { padding: 0 var(--shell-pad) var(--space-9); }
+    .stats { grid-template-columns: 1fr; gap: var(--space-4); width: 100%; }
     .global-in {
       padding: 0 var(--space-3);
       flex-wrap: wrap;
@@ -931,7 +966,7 @@
     main > section,
     main > section:nth-child(even) {
       margin-inline: 0;
-      padding-inline: var(--space-4);
+      padding-inline: var(--section-inline);
     }
   }
 </style>
@@ -952,7 +987,7 @@
 </nav>
 <header class="hero">
   <div class="hero-in">
-    <h1>The Open-Weight<br>Agent Stack</h1>
+    <h1>The Open‑Weight<br>Agent Stack</h1>
     <p class="standfirst">CI fact-checks this manual's prose for agentic AI on open-weight models and opens a pull request when upstream model cards drift. That machinery is the differentiator; the manual is what it protects.</p>
     <dl class="stats"><div class="stat"><dt>Sections</dt><dd>27<span>hardware to sources</span></dd></div><div class="stat"><dt>Diagrams</dt><dd>20<span>standard Mermaid</span></dd></div></dl>
     <p class="hero-cta">
@@ -2517,24 +2552,32 @@ accDescr: Questions about hosting, vendor lock-in, and cloud lead to the Claude 
     return (clone.textContent || "").toLowerCase();
   }
   if (search) {
+    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
+    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
     search.addEventListener("input", function () {
       const query = search.value.trim().toLowerCase();
-      const loose = document.querySelectorAll("main > section, main > h2, main > h3, main > p, main > div, main > figure, main > ol, main > ul");
-      if (!query) {
-        for (const node of loose) node.classList.remove("search-hidden");
-        if (searchStatus) searchStatus.textContent = "";
-        return;
+      const hits = new Set();
+      for (const section of document.querySelectorAll("main > section")) {
+        const hit = !query || sectionSearchText(section).includes(query);
+        section.classList.toggle("search-hidden", Boolean(query) && !hit);
+        if (hit && section.id) hits.add(section.id);
+      }
+      for (const node of leadNodes) {
+        const text = (node.textContent || "").toLowerCase();
+        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
       }
       let shown = 0;
-      for (const section of document.querySelectorAll("main > section")) {
-        const hit = sectionSearchText(section).includes(query);
-        section.classList.toggle("search-hidden", !hit);
-        if (hit) shown += 1;
+      for (const item of tocItems) {
+        const link = item.querySelector("a[href^='#']");
+        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+        const hit = !query || hits.has(id);
+        item.classList.toggle("search-hidden", !hit);
+        if (query && hit) shown += 1;
       }
       if (searchStatus) {
-        searchStatus.textContent = shown === 0
-          ? "Nothing matches."
-          : (shown === 1 ? "1 section matches." : shown + " sections match.");
+        if (!query) searchStatus.textContent = "";
+        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
+        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
       }
     });
   }

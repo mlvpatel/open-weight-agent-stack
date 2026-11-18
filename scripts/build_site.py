@@ -173,7 +173,7 @@ def build(repo: Path = REPO) -> int:
     shared = {"SITE_URL": SITE_URL}
     manual_hero = {
         "HERO_TITLE_CLASS": "",
-        "HERO_TITLE": "The Open-Weight<br>Agent Stack",
+        "HERO_TITLE": "The Open\u2011Weight<br>Agent Stack",
         "STANDFIRST": MANUAL_STANDFIRST,
         "HERO_STATS": _stats(
             ("Sections", str(manual.section_count), "hardware to sources"),
@@ -226,7 +226,7 @@ def build(repo: Path = REPO) -> int:
         else:
             hero = {
                 "HERO_TITLE_CLASS": ' class="hero-title"',
-                "HERO_TITLE": "Open-weight model families and their licences",
+                "HERO_TITLE": "Open\u2011weight model families and their licences",
                 "STANDFIRST": "Licences are stated per model, never per family.",
                 "HERO_STATS": "",
                 "HERO_CTA": "Read the models",
