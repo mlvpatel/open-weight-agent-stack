@@ -158,14 +158,14 @@ Each has decision guidance, wiring notes, and a link for every tool named: **[do
 ## Repository map
 
 ```
-MANUAL.md            The manual. The only hand-edited source; diagrams render on GitHub.
+MANUAL.md            Page source, with docs/ARCHITECTURE.md, docs/MODELS.md, and scripts/build_site.py. Diagrams render on GitHub.
 docs/ARCHITECTURE.md The system in C4: context, containers, components, code.
 docs/MODELS.md       Per-model licences. Never per family: most families disagree internally.
 docs/layers/         Thirteen per-layer deep dives with tool links and wiring notes.
 docs/VERIFICATION.md What the automated checks do and do not prove.
 docs/FRESHNESS.md    How the upstream watcher works and how to enable pull requests.
 CONTRIBUTORS.md      Human accountability, evidenced AI assistance, and repository automation.
-site/template.html   Design chrome. site/index.html is GENERATED; never edit it by hand.
+site/template.html   Design chrome. site/index.html, site/architecture.html, and site/models.html are generated; never edit them by hand.
 diagrams/src/        All 20 diagrams as standalone .mmd files, reusable anywhere.
 assets/              The single Mermaid theme both the site and the SVGs render from.
 scripts/             Extract diagrams, generate the site, check invariants, watch upstream.
@@ -198,7 +198,7 @@ If you change the manual:
 ```bash
 npm ci
 python3 scripts/extract_diagrams.py   # refresh diagrams/src from the manual
-python3 scripts/build_site.py         # regenerate site/index.html
+python3 scripts/build_site.py         # regenerate the three site pages
 python3 scripts/check_invariants.py   # anchors, relative links, stated counts; --only offline skips date and network checks
 python3 scripts/test_watch_upstream.py
 npm test                              # offline regression suite and Python coverage
@@ -206,11 +206,21 @@ npm run validate:html                 # generated HTML validity
 npm run browser:check                 # generated site smoke test in Chromium
 ```
 
+## Change something
+
+Edit `MANUAL.md`, `docs/ARCHITECTURE.md`, or `docs/MODELS.md`.
+
+Run `python3 scripts/build_site.py`.
+
+Run `npm test`, `python3 scripts/check_invariants.py --only offline`, `npm run validate:html`, and `npm run browser:check`.
+
+Open a pull request.
+
 ## How this repository stays honest
 
 - **Tracked claims carry their basis.** Volatile model and tool facts in `MANUAL.md` are pinned to a primary source, dated arithmetic, or an explicit `indicative` marker. That is a golden-string regression pin on wording that has drifted before, not a proof that every sentence in the repository is sourced. [docs/VERIFICATION.md](docs/VERIFICATION.md) states the coverage number.
-- **Derived files cannot drift.** `site/index.html` is generated from `MANUAL.md`, and CI regenerates it and fails when the committed copy differs. The same check covers the extracted diagram sources and the container diagram embedded in the architecture document.
-- **Gates are tested for teeth.** Every check reports how many items it inspected and fails when it inspected none. CI additionally breaks an anchor on purpose and feeds the HTML validator a malformed document, failing if either still passes. A gate that only ever passes proves nothing.
+- **Derived files cannot drift.** `site/index.html`, `site/architecture.html`, and `site/models.html` are generated from `MANUAL.md`, `docs/ARCHITECTURE.md`, and `docs/MODELS.md`, and CI regenerates them and fails when a committed copy differs. The same check covers the extracted diagram sources and the container diagram embedded in the architecture document.
+- **Gates are tested for teeth.** Every check reports how many items it inspected and fails when it inspected none. CI additionally breaks an anchor on purpose and fails if the checker still passes. A gate that only ever passes proves nothing.
 - **Builds are reproducible.** Dependencies pinned by lockfile, Actions pinned by commit SHA, and diagram rendering byte-identical across runs.
 - **Model facts are re-checked after publication.** A weekly watcher compares licence, parameter count, availability, and flagship status for the models the manual names against their sources, and reports drift only once it has been confirmed across runs ([how it works](docs/FRESHNESS.md)).
 - **What CI cannot do is written down.** It cannot judge whether a source supports the claim it is cited for. [docs/VERIFICATION.md](docs/VERIFICATION.md) is explicit about that, and about the fact that this page has been wrong before.
