@@ -2,6 +2,7 @@
 """Regression tests for repository-document links in the generated site."""
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -20,6 +21,15 @@ GITHUB_BLOB = "https://github.com/mlvpatel/open-weight-agent-stack/blob/main/"
 
 
 class GeneratedSiteLinkTests(unittest.TestCase):
+    def main_html(self, document: str) -> str:
+        """Body markup only. The global nav also contains page links."""
+        match = re.search(r"<main\b[^>]*>(.*)</main>", document, re.S)
+        self.assertIsNotNone(match, "generated page is missing main")
+        return match.group(1)
+
+    def published_html_links(self, fragment: str) -> list[str]:
+        return re.findall(r'href="([\w.-]+\.html(?:#[^"]*)?)"', fragment)
+
     def build_site(self) -> str:
         result = subprocess.run(
             [sys.executable, "scripts/build_site.py"],
@@ -37,11 +47,26 @@ class GeneratedSiteLinkTests(unittest.TestCase):
 
         self.assertIn(f'href="{GITHUB_BLOB}docs/VERIFICATION.md"', html)
         self.assertNotIn('href="docs/VERIFICATION.md"', html)
-        self.assertIn('href="models.html"', html)
+        index_main = self.main_html(html)
+        self.assertIn('href="models.html"', index_main)
         self.assertNotIn(f'href="{GITHUB_BLOB}docs/MODELS.md"', html)
         self.assertNotIn('href="docs/MODELS.md"', html)
-        self.assertTrue((REPO / "site" / "architecture.html").is_file())
-        self.assertTrue((REPO / "site" / "models.html").is_file())
+
+        architecture = self.main_html((REPO / "site" / "architecture.html").read_text(encoding="utf-8"))
+        architecture_links = self.published_html_links(architecture)
+        self.assertEqual(len(architecture_links), 30)
+        self.assertTrue(all(link.startswith("index.html#") for link in architecture_links))
+        self.assertIn("index.html#18-identity-delegation-and-authority", architecture_links)
+
+        models = self.main_html((REPO / "site" / "models.html").read_text(encoding="utf-8"))
+        self.assertEqual(
+            self.published_html_links(models),
+            [
+                "index.html#22-task-to-model-routing",
+                "index.html#2-what-can-you-actually-run",
+                "index.html#27-sources-and-verification",
+            ],
+        )
 
     def test_converter_preserves_fragments_and_code_examples(self) -> None:
         markdown = (

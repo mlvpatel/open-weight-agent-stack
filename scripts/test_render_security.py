@@ -68,6 +68,7 @@ ALLOWED = [
     ("http", "[x](http://example.com)", "http://example.com"),
     ("fragment", "[x](#22-task-to-model-routing)", "#22-task-to-model-routing"),
     ("relative md", "[x](docs/MODELS.md)", "docs/MODELS.md"),
+    ("published html", "[x](index.html#5-master-architecture)", "index.html#5-master-architecture"),
     ("relative parent", "[x](../MANUAL.md#5-master-architecture)", "../MANUAL.md"),
     ("mailto", "[x](mailto:someone@example.com)", "mailto:someone@example.com"),
 ]
