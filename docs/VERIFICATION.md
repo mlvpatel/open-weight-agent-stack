@@ -25,7 +25,7 @@ Four deterministic jobs (`diagrams`, `generated`, `browser`, `invariants`) run o
 
 **`generated`**
 - The vendored Mermaid browser bundle is compared byte-for-byte against the version pinned in the lockfile.
-- `site/index.html` is regenerated from `MANUAL.md` and the build fails if the committed copy differs, so the published page cannot drift from its source.
+- `site/index.html`, `site/architecture.html`, and `site/models.html` are regenerated from `MANUAL.md`, `docs/ARCHITECTURE.md`, and `docs/MODELS.md`, and the build fails if a committed copy differs.
 - The regenerated document is valid HTML.
 
 **`browser`**
@@ -56,7 +56,7 @@ Section 27.1 through 27.3 together hold 54 evidence-table rows. Of those, 9 are 
 - The GitHub repository description agrees with the repository. That description lives outside the repository, so no generator can fix it.
 - package.json must match the latest GitHub release tag when `gh` can see one.
 
-The `codeql` workflow is configured locally to scan Python and JavaScript/TypeScript on pushes, pull requests, weekly schedules, and manual dispatch. It will upload findings to GitHub code scanning only after it is pushed and runs successfully; the owner can then add its checks to branch protection.
+The `codeql` workflow scans Python and JavaScript/TypeScript on pushes, pull requests, weekly schedules, and manual dispatch. Branch protection on `main` requires `Analyze (python)`, `Analyze (javascript-typescript)`, and `CodeQL`.
 
 The `freshness` workflow runs weekly and is not a gate: it compares the manual's model claims against their sources and opens a pull request when they drift. See [FRESHNESS.md](FRESHNESS.md).
 
@@ -70,8 +70,7 @@ This is the part that matters, and the part most repositories leave unsaid.
 - **Whether a recommendation is good.** Rankings, "best for" columns, and suggested defaults are editorial judgement informed by research. They are argued, not proven.
 - **Whether an `indicative` heuristic holds on your hardware.** It is a starting point for capacity planning, not a guarantee.
 - **Whether prose in `docs/` agrees with prose in the manual.** CI now fails if a layer file is missing or the index table drifts. It still cannot prove that a layer guide's wording matches the manual. The architecture document's container diagram is compared to `diagrams/src`; its surrounding prose is not.
-- **Whether CodeQL is required in GitHub branch protection.** This repository can commit the workflow, but the hosted required-check list is a GitHub setting and must be enabled after the first `codeql` run exists.
-- **Whether branch-protection trade-offs are accepted.** As verified on 16 August 2026, the required contexts are `diagrams`, `generated`, `invariants`, `html`, `links`, and `browser`. CodeQL remains pending owner action after its first successful hosted run exists. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
+- **Whether branch-protection trade-offs are accepted.** Required checks on `main` are `diagrams`, `generated`, `invariants`, `browser`, `Analyze (python)`, `Analyze (javascript-typescript)`, and `CodeQL`. Required signatures, administrator enforcement, linear history, and conversation resolution are off, while force pushes and branch deletions are disabled.
 
 ## What this means for you as a reader
 

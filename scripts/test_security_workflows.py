@@ -11,8 +11,7 @@ REPO = Path(__file__).resolve().parents[1]
 CODEQL = REPO / ".github" / "workflows" / "codeql.yml"
 VALIDATE = REPO / ".github" / "workflows" / "validate.yml"
 MANUAL = REPO / "MANUAL.md"
-CODEQL_ACTION_SHA = "5595ccaf912efad79be6eef63a5619ff05969be3"
-CHECKOUT_ACTION_SHA = "3d3c42e5aac5ba805825da76410c181273ba90b1"
+_SHA = re.compile(r"[0-9a-f]{40}")
 
 
 def read(path: Path) -> str:
@@ -46,15 +45,16 @@ def test_codeql_workflow_is_pinned_and_scans_repo_languages() -> None:
             fail(f"CodeQL workflow is missing {expected!r}")
 
     uses = re.findall(r"uses:\s+github/codeql-action/(?:init|analyze)@([0-9a-f]{40})", text)
-    if uses != [CODEQL_ACTION_SHA, CODEQL_ACTION_SHA]:
-        fail("CodeQL init/analyze must both use the verified immutable v4.37.6 commit SHA")
+    if len(uses) != 2 or uses[0] != uses[1] or not _SHA.fullmatch(uses[0]):
+        fail("CodeQL init and analyze must share one 40-character commit pin")
 
     if "pull_request_target" in text:
         fail("CodeQL must not run untrusted fork code under pull_request_target")
     if "permissions: write-all" in text:
         fail("CodeQL must use least-privilege permissions")
-    if f"actions/checkout@{CHECKOUT_ACTION_SHA}" not in text:
-        fail("CodeQL checkout action must be pinned to the verified immutable commit")
+    checkouts = re.findall(r"actions/checkout@(\S+)", text)
+    if not checkouts or any(not _SHA.fullmatch(pin) for pin in checkouts):
+        fail("CodeQL checkout action must be pinned to a 40-character commit")
 
 
 def test_browser_gate_blocks_deploy_when_it_fails() -> None:

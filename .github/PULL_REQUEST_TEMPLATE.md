@@ -3,6 +3,6 @@
 ## Primary source for any factual change
 
 ## Checklist
-- [ ] MANUAL.md edited (single source of truth); derived files regenerated if diagrams changed
+- [ ] Page source edited (`MANUAL.md`, `docs/ARCHITECTURE.md`, or `docs/MODELS.md`); `python3 scripts/build_site.py` run when a page changes
 - [ ] No em dashes or section symbols introduced
-- [ ] CI green: diagrams compile, links resolve
+- [ ] Local checks run: `npm test`, `python3 scripts/check_invariants.py --only offline`, `npm run validate:html`, `npm run browser:check`
