@@ -867,6 +867,9 @@
     border-radius: 6px;
     color: var(--color-foreground);
   }
+  main code {
+    overflow-wrap: anywhere;
+  }
   pre {
     overflow-x: auto;
     background: var(--color-surface-sunken);
@@ -874,7 +877,7 @@
     border-radius: var(--radius-lg);
     padding: var(--space-4);
   }
-  pre code { background: none; border: 0; padding: 0; }
+  pre code { background: none; border: 0; padding: 0; overflow-wrap: normal; }
   strong, b { color: var(--color-foreground); font-weight: 600; }
   .plate-body strong, .figview-body strong { color: inherit; }
 
