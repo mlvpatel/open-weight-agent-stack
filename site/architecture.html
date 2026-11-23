@@ -6,7 +6,7 @@
 <!-- Pages cannot send response headers, so this is a meta CSP. frame-ancestors,
      report-uri and sandbox are ignored in meta form per the CSP spec; everything
      else applies. style-src allows inline because Mermaid injects styles at render. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RaYr4n4JvA+GTLe0rFhDjXaW8x8m8QWlXlgqyGR2yds='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3V0BSSVJazrGkFOI3Bw4MomNrxfsIgIm5cczmk2/yxo='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <script>
 (function () {
   const root = document.documentElement;
@@ -33,31 +33,6 @@
     watchToc.observe(root, { childList: true, subtree: true });
   }
 
-  function humanPathLabel(path) {
-    const file = path.split("/").pop();
-    const stem = file.replace(/\.[^.]+$/, "");
-    const words = stem.split(/[-_]+/).filter(Boolean).map(function (word) {
-      return word.toLowerCase();
-    });
-    if (!words.length) return "Source file";
-    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
-    return words.join(" ");
-  }
-
-  function labelRepoPaths() {
-    const pathLabel = /^(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+\.(?:mmd|md)$/;
-    for (const link of document.querySelectorAll("a")) {
-      const path = (link.textContent || "").trim();
-      if (!pathLabel.test(path)) continue;
-      const visible = document.createElement("span");
-      visible.textContent = humanPathLabel(path);
-      const hidden = document.createElement("span");
-      hidden.className = "visually-hidden";
-      hidden.textContent = ", " + path;
-      link.replaceChildren(visible, hidden);
-    }
-  }
-
   async function boot() {
     function applyTheme(next) {
       theme = next;
@@ -73,7 +48,6 @@
         try { window.localStorage.setItem("theme", theme); } catch (e) { /* ignore */ }
       });
     }
-    labelRepoPaths();
     function markScrollingTables() {
       for (const wrap of document.querySelectorAll(".table-wrap")) {
         wrap.classList.toggle("scrolls", wrap.scrollWidth > wrap.clientWidth + 1);
@@ -101,198 +75,198 @@
     });
 
     const search = document.getElementById("site-search");
-  const searchStatus = document.getElementById("search-status");
-  function sectionSearchText(section) {
-    const clone = section.cloneNode(true);
-    for (const node of clone.querySelectorAll("style")) node.remove();
-    return (clone.textContent || "").toLowerCase();
-  }
-  if (search) {
-    const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
-    const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
-    search.addEventListener("input", function () {
-      const query = search.value.trim().toLowerCase();
-      const hits = new Set();
-      for (const section of document.querySelectorAll("main > section")) {
-        const hit = !query || sectionSearchText(section).includes(query);
-        section.classList.toggle("search-hidden", Boolean(query) && !hit);
-        if (hit && section.id) hits.add(section.id);
-      }
-      for (const node of leadNodes) {
-        const text = (node.textContent || "").toLowerCase();
-        node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
-      }
-      let shown = 0;
-      for (const item of tocItems) {
-        const link = item.querySelector("a[href^='#']");
-        const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
-        const hit = !query || hits.has(id);
-        item.classList.toggle("search-hidden", !hit);
-        if (query && hit) shown += 1;
-      }
-      if (searchStatus) {
-        if (!query) searchStatus.textContent = "";
-        else if (shown === 0) searchStatus.textContent = "No sections match that search.";
-        else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
-      }
-    });
-  }
-
-  const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
-  const diagramSources = new Map();
-  for (const diagram of diagrams) {
-    const plate = diagram.closest("figure.plate");
-    if (plate) diagramSources.set(plate, diagram.textContent);
-  }
-
-  function recoverUnrendered() {
-    for (const plate of document.querySelectorAll("figure.plate")) {
-      if (plate.querySelector("svg")) continue;
-      const body = plate.querySelector(".plate-body") || plate;
-      let source = body.querySelector("pre.mermaid");
-      const original = diagramSources.get(plate) || "";
-      if (!source) {
-        source = document.createElement("pre");
-        source.className = "mermaid";
-        source.textContent = original;
-        body.appendChild(source);
-      } else if (!source.textContent.trim() && original) {
-        source.textContent = original;
-      }
-      if (body.querySelector(".mermaid-fallback")) continue;
-      const fallback = document.createElement("p");
-      fallback.className = "mermaid-fallback";
-      fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
-      source.before(fallback);
+    const searchStatus = document.getElementById("search-status");
+    function sectionSearchText(section) {
+      const clone = section.cloneNode(true);
+      for (const node of clone.querySelectorAll("style")) node.remove();
+      return (clone.textContent || "").toLowerCase();
     }
-  }
+    if (search) {
+      const tocItems = Array.from(document.querySelectorAll("nav.toc li"));
+      const leadNodes = Array.from(document.querySelectorAll("main > :not(section)"));
+      search.addEventListener("input", function () {
+        const query = search.value.trim().toLowerCase();
+        const hits = new Set();
+        for (const section of document.querySelectorAll("main > section")) {
+          const hit = !query || sectionSearchText(section).includes(query);
+          section.classList.toggle("search-hidden", Boolean(query) && !hit);
+          if (hit && section.id) hits.add(section.id);
+        }
+        for (const node of leadNodes) {
+          const text = (node.textContent || "").toLowerCase();
+          node.classList.toggle("search-hidden", Boolean(query) && !text.includes(query));
+        }
+        let shown = 0;
+        for (const item of tocItems) {
+          const link = item.querySelector("a[href^='#']");
+          const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+          const hit = !query || hits.has(id);
+          item.classList.toggle("search-hidden", !hit);
+          if (query && hit) shown += 1;
+        }
+        if (searchStatus) {
+          if (!query) searchStatus.textContent = "";
+          else if (shown === 0) searchStatus.textContent = "No sections match that search.";
+          else searchStatus.textContent = shown === 1 ? "1 section matches." : shown + " sections match.";
+        }
+      });
+    }
 
-  const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
-  const tocFold = document.querySelector(".toc-fold");
-  if (tocFold) {
-    tocFold.addEventListener("click", function (event) {
-      const link = event.target.closest("a");
-      if (!link || !tocNarrow.matches) return;
-      tocFold.removeAttribute("open");
+    const diagrams = Array.from(document.querySelectorAll("pre.mermaid"));
+    const diagramSources = new Map();
+    for (const diagram of diagrams) {
+      const plate = diagram.closest("figure.plate");
+      if (plate) diagramSources.set(plate, diagram.textContent);
+    }
+
+    function recoverUnrendered() {
+      for (const plate of document.querySelectorAll("figure.plate")) {
+        if (plate.querySelector("svg")) continue;
+        const body = plate.querySelector(".plate-body") || plate;
+        let source = body.querySelector("pre.mermaid");
+        const original = diagramSources.get(plate) || "";
+        if (!source) {
+          source = document.createElement("pre");
+          source.className = "mermaid";
+          source.textContent = original;
+          body.appendChild(source);
+        } else if (!source.textContent.trim() && original) {
+          source.textContent = original;
+        }
+        if (body.querySelector(".mermaid-fallback")) continue;
+        const fallback = document.createElement("p");
+        fallback.className = "mermaid-fallback";
+        fallback.textContent = "Diagram unavailable: Mermaid rendering failed. See the manual source.";
+        source.before(fallback);
+      }
+    }
+
+    const tocLinks = Array.from(document.querySelectorAll("nav.toc a[href^='#']"));
+    const tocFold = document.querySelector(".toc-fold");
+    if (tocFold) {
+      tocFold.addEventListener("click", function (event) {
+        const link = event.target.closest("a");
+        if (!link || !tocNarrow.matches) return;
+        tocFold.removeAttribute("open");
+      });
+    }
+    if (tocLinks.length && window.IntersectionObserver) {
+      const tocObserver = new window.IntersectionObserver(function (entries) {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const id = entry.target.id;
+          for (const link of tocLinks) {
+            if (link.hash === "#" + id) link.setAttribute("aria-current", "true");
+            else link.removeAttribute("aria-current");
+          }
+        }
+      }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
+      for (const link of tocLinks) {
+        const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+        if (target) tocObserver.observe(target);
+      }
+    }
+
+    const viewer = document.createElement("dialog");
+    viewer.className = "figview";
+    viewer.innerHTML =
+      '<div class="figview-head"><h2 id="figview-title"></h2>' +
+      '<button type="button" class="figview-close">Close</button></div>' +
+      '<div class="figview-body"></div>';
+    viewer.setAttribute("aria-labelledby", "figview-title");
+    const viewerTitle = viewer.querySelector("#figview-title");
+    const viewerBody = viewer.querySelector(".figview-body");
+    viewer.querySelector(".figview-close").addEventListener("click", function () {
+      viewer.close();
     });
-  }
-  if (tocLinks.length && window.IntersectionObserver) {
-    const tocObserver = new window.IntersectionObserver(function (entries) {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const id = entry.target.id;
-        for (const link of tocLinks) {
-          if (link.hash === "#" + id) link.setAttribute("aria-current", "true");
-          else link.removeAttribute("aria-current");
+    viewer.addEventListener("close", function () { viewerBody.replaceChildren(); });
+    viewer.addEventListener("click", function (event) {
+      if (event.target === viewer) viewer.close();
+    });
+    document.body.appendChild(viewer);
+
+    let viewerSeq = 0;
+    function openViewer(svg, label) {
+      viewerTitle.textContent = label;
+      const copy = svg.cloneNode(true);
+      const oldId = svg.getAttribute("id");
+      if (oldId) {
+        const newId = oldId + "-fullsize-" + (viewerSeq += 1);
+        copy.innerHTML = copy.innerHTML.split(oldId).join(newId);
+        copy.setAttribute("id", newId);
+      }
+      copy.style.maxWidth = "none";
+      copy.style.width = svg.viewBox.baseVal.width + "px";
+      viewerBody.replaceChildren(copy);
+      viewer.showModal();
+      viewerBody.scrollLeft = Math.max(0, (viewerBody.scrollWidth - viewerBody.clientWidth) / 2);
+      viewerBody.scrollTop = 0;
+    }
+
+    function presentDiagram(plate) {
+      const svg = plate.querySelector(".plate-body svg");
+      const caption = plate.querySelector("figcaption");
+      if (!svg || !caption) return;
+      const box = svg.viewBox && svg.viewBox.baseVal;
+      const stage = plate.querySelector(".plate-body");
+      if (box && box.width && stage) {
+        const maxW = stage.clientWidth;
+        if (maxW > 0) {
+          const width = Math.min(maxW, box.width);
+          svg.style.width = width + "px";
+          svg.style.maxWidth = "100%";
+          svg.style.height = "auto";
+          svg.removeAttribute("height");
         }
       }
-    }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
-    for (const link of tocLinks) {
-      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
-      if (target) tocObserver.observe(target);
+      if (plate.querySelector(".plate-figtools")) return;
+      const label = (caption.textContent || "Diagram").trim();
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "plate-zoom";
+      button.setAttribute("aria-label", "View " + label + " at full size");
+      button.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>' +
+        '<path d="M11 8v6"></path><path d="M8 11h6"></path></svg>View full size';
+      button.addEventListener("click", function () { openViewer(svg, label); });
+      const tools = document.createElement("div");
+      tools.className = "plate-figtools";
+      tools.appendChild(button);
+      caption.insertAdjacentElement("afterend", tools);
     }
-  }
 
-  const viewer = document.createElement("dialog");
-  viewer.className = "figview";
-  viewer.innerHTML =
-    '<div class="figview-head"><h2 id="figview-title"></h2>' +
-    '<button type="button" class="figview-close">Close</button></div>' +
-    '<div class="figview-body"></div>';
-  viewer.setAttribute("aria-labelledby", "figview-title");
-  const viewerTitle = viewer.querySelector("#figview-title");
-  const viewerBody = viewer.querySelector(".figview-body");
-  viewer.querySelector(".figview-close").addEventListener("click", function () {
-    viewer.close();
-  });
-  viewer.addEventListener("close", function () { viewerBody.replaceChildren(); });
-  viewer.addEventListener("click", function (event) {
-    if (event.target === viewer) viewer.close();
-  });
-  document.body.appendChild(viewer);
-
-  let viewerSeq = 0;
-  function openViewer(svg, label) {
-    viewerTitle.textContent = label;
-    const copy = svg.cloneNode(true);
-    const oldId = svg.getAttribute("id");
-    if (oldId) {
-      const newId = oldId + "-fullsize-" + (viewerSeq += 1);
-      copy.innerHTML = copy.innerHTML.split(oldId).join(newId);
-      copy.setAttribute("id", newId);
+    function presentAll() {
+      for (const plate of document.querySelectorAll("figure.plate")) presentDiagram(plate);
     }
-    copy.style.maxWidth = "none";
-    copy.style.width = svg.viewBox.baseVal.width + "px";
-    viewerBody.replaceChildren(copy);
-    viewer.showModal();
-    viewerBody.scrollLeft = Math.max(0, (viewerBody.scrollWidth - viewerBody.clientWidth) / 2);
-    viewerBody.scrollTop = 0;
-  }
 
-  function presentDiagram(plate) {
-    const svg = plate.querySelector(".plate-body svg");
-    const caption = plate.querySelector("figcaption");
-    if (!svg || !caption) return;
-    const box = svg.viewBox && svg.viewBox.baseVal;
-    const stage = plate.querySelector(".plate-body");
-    if (box && box.width && stage) {
-      const maxW = stage.clientWidth;
-      if (maxW > 0) {
-        const width = Math.min(maxW, box.width);
-        svg.style.width = width + "px";
-        svg.style.maxWidth = "100%";
-        svg.style.height = "auto";
-        svg.removeAttribute("height");
-      }
-    }
-    if (plate.querySelector(".plate-figtools")) return;
-    const label = (caption.textContent || "Diagram").trim();
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "plate-zoom";
-    button.setAttribute("aria-label", "View " + label + " at full size");
-    button.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>' +
-      '<path d="M11 8v6"></path><path d="M8 11h6"></path></svg>View full size';
-    button.addEventListener("click", function () { openViewer(svg, label); });
-    const tools = document.createElement("div");
-    tools.className = "plate-figtools";
-    tools.appendChild(button);
-    caption.insertAdjacentElement("afterend", tools);
-  }
-
-  function presentAll() {
-    for (const plate of document.querySelectorAll("figure.plate")) presentDiagram(plate);
-  }
-
-  try {
-    if (!window.mermaid) {
-      throw new Error("Mermaid browser bundle did not load");
-    }
-    window.mermaid.initialize({ startOnLoad: false });
     try {
-      await window.mermaid.run({ nodes: diagrams });
+      if (!window.mermaid) {
+        throw new Error("Mermaid browser bundle did not load");
+      }
+      window.mermaid.initialize({ startOnLoad: false });
+      try {
+        await window.mermaid.run({ nodes: diagrams });
+      } catch (e) {
+        console.error("Mermaid failed to render diagrams", e);
+      }
+      recoverUnrendered();
+      presentAll();
+      let resizeTimer;
+      const refit = function () {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(presentAll, 150);
+      };
+      if (window.ResizeObserver) {
+        const observer = new window.ResizeObserver(refit);
+        for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
+      }
+      window.addEventListener("resize", refit);
     } catch (e) {
       console.error("Mermaid failed to render diagrams", e);
+      recoverUnrendered();
     }
-    recoverUnrendered();
-    presentAll();
-    let resizeTimer;
-    const refit = function () {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(presentAll, 150);
-    };
-    if (window.ResizeObserver) {
-      const observer = new window.ResizeObserver(refit);
-      for (const plate of document.querySelectorAll("figure.plate")) observer.observe(plate);
-    }
-    window.addEventListener("resize", refit);
-  } catch (e) {
-    console.error("Mermaid failed to render diagrams", e);
-    recoverUnrendered();
-  }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
@@ -512,7 +486,7 @@
   }
   .global-links {
     list-style: none;
-    margin: 0;
+    margin: 0 0 0 auto;
     padding: 0;
     display: flex;
     align-items: center;
@@ -568,7 +542,7 @@
   }
   .folio { margin: 0; }
   .folio span {
-    display: none;
+    display: inline-block;
     font-family: var(--font-text);
     font-size: var(--fs-nav);
     font-weight: 600;
@@ -578,11 +552,6 @@
     color: var(--color-on-accent);
     background: var(--color-accent);
     padding: var(--space-2) var(--space-3);
-  }
-  body:has(.global-links a[href="#main"][aria-current="page"]) .folio-manual,
-  body:has(.global-links a[href="architecture.html"][aria-current="page"]) .folio-architecture,
-  body:has(.global-links a[href="models.html"][aria-current="page"]) .folio-models {
-    display: inline-block;
   }
   .hero-copy {
     display: flex;
@@ -1334,7 +1303,9 @@
     .shell { grid-template-columns: 1fr; }
     .shell::before { content: none; }
     .global-in { flex-wrap: wrap; row-gap: 0; }
-    .global-links { width: 100%; justify-content: flex-start; }
+    /* The toggle shares the wordmark's row, so the scrolling links row never hides it. */
+    .theme-toggle { margin-left: auto; }
+    .global-links { order: 1; width: 100%; margin-left: 0; justify-content: flex-start; }
     nav.toc {
       position: static;
       max-height: none;
@@ -1390,14 +1361,14 @@
       <li><a href="architecture.html" aria-current="page">Architecture</a></li>
       <li><a href="models.html">Models</a></li>
       <li><a href="https://github.com/mlvpatel/open-weight-agent-stack">GitHub</a></li>
-      <li><button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false"><span class="theme-word-dark">Dark</span><span class="theme-word-light">Light</span></button></li>
     </ul>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false"><span class="theme-word-dark">Dark</span><span class="theme-word-light">Light</span></button>
   </div>
 </nav>
 <header class="hero">
   <div class="hero-in">
     <div class="hero-copy">
-      <p class="folio" aria-hidden="true"><span class="folio-manual">Manual</span><span class="folio-architecture">Architecture</span><span class="folio-models">Models</span></p>
+      <p class="folio" aria-hidden="true"><span>Architecture</span></p>
       <h1 class="hero-title">Architecture, in C4</h1>
       <p class="standfirst">The four C4 levels: context, containers, components, code.</p>
     <dl class="stats"><div class="stat"><dt>Levels</dt><dd>4<span>context to code</span></dd></div></dl>
