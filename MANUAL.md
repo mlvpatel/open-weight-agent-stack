@@ -84,11 +84,11 @@ not prove is set out in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 Every diagram in this manual is standard Mermaid. Use GitHub's renderer or another compatible Mermaid viewer; rendering details can vary by viewer version.
 
-## 2. What can you actually run?
+## 2. What can you run?
 
 Ring: Harness. An inner-ring failure here is a 16 GB card asked to host a 110B MoE.
 
-Everything after this section is the same architecture regardless of your hardware. What *changes* with hardware is which models you can serve locally, which runtime you use, and where the ceiling sits. Find your row, then read the rest normally.
+Everything from section 3 on is the same architecture regardless of your hardware. What *changes* with hardware is which models you can serve locally, which runtime you use, and where the ceiling sits. Find your row, then read the rest normally.
 
 **A first sizing pass:** at 4-bit, weights are often about **parameters × 0.5-0.6 GB**, where the quant format decides the exact point in that band. The 7B, 32B, and 70B examples below are illustrative estimates, not capacity guarantees: a 7B can land near 4 GB, a 32B near 16-18 GB, and a 70B near 35-40 GB before runtime overhead. KV-cache memory is roughly `batch × context × layers × 2 × KV heads × head dimension × bytes per element`; it depends on architecture, KV-head count, precision, batch, and context length, so measure the exact serving configuration before buying hardware.
 
@@ -156,7 +156,7 @@ accDescr: Questions about accelerator, memory, and operating system lead to a ru
     class NONE none
 ```
 
-**Mac versus NVIDIA, honestly.** Apple Silicon's unified memory means a 64 GB Mac can hold a 70B model that a 24 GB discrete GPU simply cannot, no offloading, no 2 tok/s crawl. NVIDIA wins decisively on *throughput*: continuous batching, tensor parallelism, and serving many users at once. Mac for development and single-user work; NVIDIA for anything serving a team.
+**Mac versus NVIDIA.** Apple Silicon's unified memory means a 64 GB Mac can hold a 70B model that a 24 GB discrete GPU cannot, with no offloading and no 2 tok/s crawl. NVIDIA wins decisively on *throughput*: continuous batching, tensor parallelism, and serving many users at once. Mac for development and single-user work; NVIDIA for anything serving a team.
 
 **On Apple Silicon, prefer MLX.** It was built for the unified-memory architecture and runs faster than llama.cpp, published comparisons range from ~20% to ~87%, on models under 14B. The advantage narrows on larger models, where memory bandwidth dominates, and at contexts beyond ~40K. Recent Ollama builds use MLX underneath on M-series, so you may already be getting it. 70B-on-64GB only works if macOS will wire that much GPU memory: set `iogpu.wired_limit_mb` (reboot required) so the GPU can take most of unified memory rather than leaving it to the CPU. gpt-oss-120b fits one 80 GB card because its native MXFP4 packing is denser than a naive 4-bit cast.
 
@@ -229,7 +229,7 @@ For everything else, the code is the LLD.
 3. Fail closed: a missing scope returns nothing, never everything (8, 18).
 4. Bound every loop, retries, rework cycles, budgets, and a kill-switch (7, 17).
 5. Idempotency at every side-effecting boundary, so retries are safe (11, 17).
-6. Backpressure is designed, not discovered: bounded queues, explicit load-shedding (17).
+6. Backpressure is designed in from the start: bounded queues, explicit load-shedding (17).
 7. Version together whatever deploys together, prompt, model, index, policy (17).
 8. Measure before optimising; the latency budget names the long pole (20).
 9. Design deletion and rollback with the feature, never after it (15, 17).
@@ -241,7 +241,7 @@ The HLD names parts and their contracts; the LLD makes one part buildable. The C
 levels their names: context (level 1, the system among its neighbours), containers (level 2,
 deployable units, which is what section 5 draws), components (level 3, modules inside one unit)
 and code (level 4, which this manual leaves to the repository). Stop drawing at the level where
-the next decision lives; a diagram nobody could disagree with is decoration, not design.
+the next decision lives; a diagram nobody could disagree with decides nothing.
 
 Work in this order, and let each artifact answer exactly one question:
 
@@ -507,7 +507,7 @@ accDescr: The user, frontend, gateway, guardrails, and orchestrator pass a reque
 
 Ring: Loop. An inner-ring failure here is an unbounded rework cycle.
 
-The state machine the orchestrator actually runs. Every terminal path is explicit, so the agent
+The state machine the orchestrator runs. Every terminal path is explicit, so the agent
 cannot spin forever.
 
 ```mermaid
@@ -589,7 +589,7 @@ when you can name the failure you are fixing.
 
 | Variant | The failure it fixes | Cost |
 |---|---|---|
-| Hybrid + rerank (this section) | The baseline, start here | Low |
+| Hybrid + rerank (section 8) | The baseline, start here | Low |
 | Agentic RAG | Multi-hop questions; the model decides when and what to retrieve, and can search again | More model calls per answer |
 | GraphRAG | "Who is connected to what" questions across a corpus; entity and relationship queries | Expensive index build and upkeep |
 | Corrective / Self-RAG | Retrieval quality must be verified before answering; high-stakes accuracy | Extra verification pass per query |
@@ -696,7 +696,7 @@ accDescr: Sources are parsed, chunked, redacted, enriched, and stored in a vecto
 Ring: Loop. An inner-ring failure here is sending extraction to the frontier model.
 
 Sending every request to the largest model is a common cost and latency mistake. Route by
-task shape, not by preference. The verifier is a separate prompt from the one that produced the
+task shape. The verifier is a separate prompt from the one that produced the
 answer, a model grading its own output is not a gate, and rework is bounded at two cycles.
 
 ```mermaid
@@ -749,8 +749,8 @@ coordinate reduces to a single well-specified turn. Order matters: hard constrai
 in the middle, the task and output schema last, because placing critical instructions near the head
 and tail can help attention in long contexts. It is a mitigation to evaluate, not a guarantee.
 
-Two properties make groundedness structural rather than hoped-for. Claims may only cite chunk ids
-that the window actually supplied, and the policy is restated *after* the untrusted content, so the
+Two properties make groundedness structural. Claims may only cite chunk ids
+that the window supplied, and the policy is restated *after* the untrusted content, so the
 last thing the model reads is your contract rather than an attacker's payload.
 
 ```mermaid
@@ -931,7 +931,7 @@ One boundary before the tiers: your transactional system of record, Postgres, My
 stays outside the agent entirely. The agent reaches it through tools and reads it into context; it
 never replaces it with memory, and memory never becomes a second copy of it.
 
-Summarise on turn end is not a policy. Compaction, in this order: drop the oldest tool payloads first (keep the tool name and a one-line result), then fold earlier assistant turns into a dated summary, keep the latest user turn and the current scratchpad verbatim. Never compact the citation ids still needed by the output guard. Bound the packed window to the serving `max-model-len`, not to a hope.
+Summarise on turn end is not a policy. Compaction, in this order: drop the oldest tool payloads first (keep the tool name and a one-line result), then fold earlier assistant turns into a dated summary, keep the latest user turn and the current scratchpad verbatim. Never compact the citation ids still needed by the output guard. Bound the packed window to the serving `max-model-len`.
 
 ```mermaid
 flowchart LR
@@ -1043,7 +1043,7 @@ Evals do not replace tests; they sit above them. Seven levels, cheapest and fast
 | Before release | Red-team, chaos, load | The gate that decides shipping |
 
 Determinism rules: temperature 0 and pinned seeds for anything asserted exactly. For judged
-metrics, run three times and take the median; a single judge run is a biased coin, not a verdict.
+metrics, run three times and take the median; a single judge run is a biased coin.
 
 ```mermaid
 flowchart TB
@@ -1197,7 +1197,7 @@ Ring: Context. An inner-ring failure here is a delete that never reached the vec
 Every store below the source of truth is a **derived copy**, and each one needs its own delete path.
 This is the gap that turns a right-to-erasure request into an incident: the document is removed from
 the corpus, and its content survives in the vector index, the extracted memory, the answer cache, the
-traces and the eval set. Deletion has to fan out, and it has to be verified rather than assumed.
+traces and the eval set. Deletion has to fan out, and each deletion has to be verified.
 
 The second half is the migration nobody plans for. Changing the embedding model invalidates every
 vector you have, the new model's space is not comparable with the old one, so there is no partial
@@ -1248,7 +1248,7 @@ where your retention policy, legal basis, and deletion commitments allow it. Dur
 user-visible retention and deletion rule; eval cases need a documented purpose, minimisation, and
 retention period rather than indefinite storage by default.
 
-Corpus freshness is a schedule, not an aspiration. Re-ingest changed sources with whatever
+Corpus freshness runs on a schedule. Re-ingest changed sources with whatever
 orchestrator you already run, Airflow, Prefect, Dagster, or plain cron, and stamp every chunk
 with its ingestion time so retrieval can filter or prefer by recency.
 
@@ -1269,7 +1269,7 @@ store must stay rebuildable from the source of truth (section 15).
 | Vector | pgvector · Qdrant · Milvus · Weaviate · LanceDB · Chroma | Start with pgvector when keeping vectors beside relational data simplifies the system. `indicative`: pgvector is comfortable to around 10M vectors on one well-indexed node; beyond that, measure latency, filtering, index build time, and operations before moving | Qdrant and Milvus ship gRPC and REST clients for every stack language; Pinecone when managed-only is acceptable |
 | Key-value and cache | Redis · Valkey | Semantic cache, embedding cache keyed by content hash, rate limits, queues, session scratch | redis-py and ioredis; Valkey is the open fork and protocol-compatible |
 | Document | MongoDB · Postgres JSONB | Payloads with no stable schema; MERN teams already fluent in it | JSONB covers most document needs without adding a second database |
-| Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query genuinely needs multi-hop traversal |
+| Graph | Neo4j · Memgraph | GraphRAG, entity memory, permission graphs traversed at depth | Cypher clients in every language; skip until a query needs multi-hop traversal |
 | Search | OpenSearch · Meilisearch | BM25 for hybrid retrieval, log search, faceting | Qdrant sparse vectors cover hybrid RAG at small scale without a second engine |
 | Analytics | ClickHouse · DuckDB | Trace analytics and eval dashboards past what Postgres aggregates comfortably | DuckDB embeds in-process; ClickHouse when volume outgrows one machine |
 | Object storage | S3 · MinIO · R2 | Documents, model artifacts, checkpoints, cold traces | Every SDK speaks the S3 API; MinIO self-hosts it |
@@ -1278,7 +1278,7 @@ Handling rules. Migrations are code: Alembic, Prisma Migrate or Flyway run in CI
 never by hand against production. Pool connections at the process edge (PgBouncer for Postgres),
 because agent fan-out multiplies connections faster than human users ever did. Async work goes
 through a queue with a dead-letter path: Redis Streams, Celery for Python task fan-out, Postgres SKIP LOCKED at small scale, Kafka when event volume outgrows a database.
-And test restores on a schedule (section 17); an unrestored backup is a hope, not a plan.
+And test restores on a schedule (section 17); a backup nobody has restored is untested.
 
 ---
 
@@ -1371,7 +1371,7 @@ overloaded, timeout, invalid_output, tool_failed) and give every hop a timeout s
 caller's, so failures surface where they can be handled rather than where they happened. Retry
 only idempotent calls, with exponential backoff plus jitter, capped by the turn budget. A circuit
 breaker per provider stops retry storms; the fallback chain rides behind it. Tool calls that write
-need idempotency keys so a retried call is applied once by a server that honours them. The user sees one honest sentence and a retry
+need idempotency keys so a retried call is applied once by a server that honours them. The user sees one plain sentence and a retry
 control, never a stack trace; the trace carries the detail.
 
 ---
@@ -1486,7 +1486,7 @@ skips a row should know exactly why.
 Two of these deserve their own drawing, because they are the two write paths an attacker reaches
 first.
 
-**Durable memory is an input, not a by-product.** Prompt injection lasts one turn; a poisoned memory
+**Durable memory is an input to every later turn.** Prompt injection lasts one turn; a poisoned memory
 lasts until deleted. Anything promoted from conversation into long-term storage passes the same bar
 as retrieved content: it carries provenance, it needs corroboration, and an unverifiable claim waits
 in quarantine rather than becoming permanent.
@@ -1554,7 +1554,7 @@ accDescr: A turn is promoted to durable memory only when it can be checked, othe
 Ring: Loop. An inner-ring failure here is treating rewrite and fan-out as noise.
 
 The ranges below are `indicative` for a 7-32B model on one modern NVIDIA GPU at
-batch 1. There are two shapes, not one. On the **no-rewrite path**, retrieval and regex-style
+batch 1. There are two shapes. On the **no-rewrite path**, retrieval and regex-style
 guards are noise and generation is everything. On the **RAG-heavy path** that section 8 draws,
 query rewrite and 3-to-5 paraphrase fan-out are extra model calls and extra searches, and they
 are not absorbed by "hybrid retrieval 20 to 80 ms".
@@ -1611,7 +1611,7 @@ Use the no-rewrite chain when the question is already a search string. Use the R
 
 Worked batch-32 example, `indicative`, assumptions stated: continuous batching keeps per-token latency close to the batch-1 figure because decode is memory-bandwidth-bound, not compute-bound, so the GPU still takes about 12.5 seconds (500 tokens ÷ 40 tok/s) to finish a turn but now finishes 32 of them in that window, for 32 × 288 = 9,216 turns/hour. Divide the same $0.4-1.2/hour rent across that many turns: $0.4 ÷ 9,216 to $1.2 ÷ 9,216 is $0.00004-0.00013 per turn, more than an order of magnitude below the batch-1 figure and the reason continuous batching, not a faster card, is the lever that moves this number.
 
-An API mid-tier priced per million tokens is cheaper at low volume and loses once a busy node is running batched near its KV ceiling. DeepSeek V4 Flash's output price, `indicative` for 19 August 2026 and not a quote, was $0.66-1.32 per million tokens off-peak to peak on `api-docs.deepseek.com/quick_start/pricing`; at 500 output tokens a turn, counting output tokens only, that is $0.00033-0.00066 on the API, below the $0.001-0.004 batch-1 self-host figure but above the $0.00004-0.00013 batch-32 figure. Break-even is utilisation, and the numbers above give the threshold: the rent is $9.6-28.8/day whether the card works or idles, so against the $0.66-1.32 output price the GPU pays for itself somewhere between 7M and 44M output tokens a day, `indicative` and output-only. Below that daily volume the API wins on cost alone; above it, or once input tokens and prompt-cache reuse enter the ledger, self-host the mid-tier and still call K3-class weights as an API. Put the spend ledger on the trace, not in a spreadsheet. DeepSeek's list prices are vendor-controlled and change; `api-docs.deepseek.com/quick_start/pricing` carried a current rate card as of 19 August 2026, so check it directly before budgeting.
+An API mid-tier priced per million tokens is cheaper at low volume and loses once a busy node is running batched near its KV ceiling. DeepSeek V4 Flash's output price, `indicative` for 19 August 2026 and not a quote, was $0.66-1.32 per million tokens off-peak to peak on `api-docs.deepseek.com/quick_start/pricing`; at 500 output tokens a turn, counting output tokens only, that is $0.00033-0.00066 on the API, below the $0.001-0.004 batch-1 self-host figure but above the $0.00004-0.00013 batch-32 figure. Break-even is utilisation, and the numbers above give the threshold: the rent is $9.6-28.8/day whether the card works or idles, so against the $0.66-1.32 output price the GPU pays for itself somewhere between 7M and 44M output tokens a day, `indicative` and output-only. Below that daily volume the API wins on cost alone; above it, or once input tokens and prompt-cache reuse enter the ledger, self-host the mid-tier and still call K3-class weights as an API. Put the spend ledger on the trace. DeepSeek's list prices are vendor-controlled and change; `api-docs.deepseek.com/quick_start/pricing` carried a current rate card as of 19 August 2026, so check it directly before budgeting.
 
 Two measurements to separate, because they respond to different fixes. **Time to first token** is
 prefill: compute-bound, driven by how much context you pushed in, fixed by pruning and prefix reuse.
@@ -1826,10 +1826,10 @@ exact checkpoint ID, never the family name (section 25).
 |---|---|---|---|
 | Extraction, classification, routing | Qwen 3.5 9B · Phi-4-mini · Gemma 4 | Claude Haiku 4.5 | Constrained decoding matters more than model size. Self-host this tier on 16-24 GB. GLM-4.5-Air is a fast-decode 110B-class MoE; plan ~55-60 GB at 4-bit, not this row. |
 | General agentic + tool calling | Kimi K3 | Claude Sonnet 5 · Qwen 3.8 Max (API only) | Kimi reports 60 on the Artificial Analysis Intelligence Index in its max configuration. A 57 default-config figure is not visible on the cited page as of 16 August 2026; do not treat 57 as current. |
-| Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice actually shows up in output quality. |
+| Hard reasoning, long-horizon | DeepSeek V4 Pro | Claude Opus 5 | The tier where model choice shows up most in output quality. |
 | Coding and terminal work | DeepSeek V4 Pro · GLM-5.2 · Qwen3-Coder-Next | Claude Opus 5 | V4 Pro's card reports 79.4% SWE-bench Verified at Think High and 80.6% at Think Max. It does not label a default effort. GLM-5.2 is strong on terminal-style benchmarks. |
 | High-volume, cost-sensitive | DeepSeek V4 Flash | Claude Haiku 4.5 | Flash is 284B/13B active on the card. DeepSeek's rate card moves; check `api-docs.deepseek.com/quick_start/pricing` for current pricing before budgeting. |
-| Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you actually send. |
+| Long context | Kimi K3 | Claude Opus 5 (1M) · Qwen 3.8 Max (API only) | All are 1M-class. Prefill cost still scales with what you send. |
 | Vision, documents, charts | Qwen 3.8 27B (vision encoder on the downloadable 3.8 27B line) | Claude Opus 5 · Qwen 3.8 Max (API only) | Give the model crop/zoom tools, cheaper than raising reasoning effort. Qwen 3.6 27B is the earlier checkpoint in the same line and is also vision-capable, not a text-only substitute. |
 
 
@@ -1880,7 +1880,7 @@ of full-tuning cost. Tooling, Unsloth (fastest single-GPU path), Axolotl and LLa
 Serving folds back into the stack you already have: vLLM and SGLang load LoRA adapters at runtime,
 including several adapters on one base model, one deployment, many specialised behaviours.
 
-**Pick two, not seven.** A fast tier and a frontier tier covers almost everything; every extra model is another prompt to tune, another eval set to maintain, and another cache that never warms. Add a third only when a measured gap justifies it.
+**Pick two models.** A fast tier and a frontier tier covers almost everything; every extra model is another prompt to tune, another eval set to maintain, and another cache that never warms. Add a third only when a measured gap justifies it.
 
 ---
 
@@ -2009,7 +2009,7 @@ servers are language-independent to call but mostly published as Node or Python 
 
 A layer below code frameworks sits the visual automation stack, flowchart builders where each box
 can be a model call, a tool, or a trigger. This is where operations teams and non-developers build
-real automations, and where many production agent systems actually start.
+real automations, and where many production agent systems start.
 
 | Tool | Licence / hosting | Best for |
 |---|---|---|
@@ -2041,9 +2041,9 @@ adopt everything in this manual.
 | Managed model endpoints | Bedrock · Vertex AI · Microsoft Foundry · HF Inference Endpoints | No serving ops at all; pay per token |
 
 The trade is always the same: each row down means less operational burden and less control. Pick the
-highest row your team can actually operate.
+highest row your team can operate.
 
-**The hybrid that actually ships:** frontier API for reasoning, self-hosted mid-tier for anything that must not leave your network, one router in front. The architecture in sections 1-16 does not change, only which endpoint the LLM layer points at.
+**The common hybrid:** frontier API for reasoning, self-hosted mid-tier for anything that must not leave your network, one router in front. The architecture in sections 1-16 does not change, only which endpoint the LLM layer points at.
 
 ---
 
@@ -2239,7 +2239,7 @@ services:
 
 Ring: Eval. An inner-ring failure here is a number with no dated source.
 
-This section records primary sources for the model, runtime, version-floor, and tool claims that are
+These are the primary sources for the model, runtime, version-floor, and tool claims that are
 most likely to change. Link and generated-artifact checks run in CI; the freshness workflow monitors a
 tracked set of volatile model and tool claims, rather than proving that every sentence or external page
 remains current. Model facts age fastest: re-verify the sections 21 and 22 rows against their cards
