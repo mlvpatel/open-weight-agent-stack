@@ -214,7 +214,7 @@ C4 leaves level 4 to the repository, and so does this repo. The mapping from con
 | Whole system | [5](../MANUAL.md#5-master-architecture), [6](../MANUAL.md#6-request-lifecycle) | `master-architecture.mmd` · `request-lifecycle.mmd` |
 | Orchestrator | [7](../MANUAL.md#7-agent-control-loop), [9](../MANUAL.md#9-model-routing), [10](../MANUAL.md#10-prompt-and-turn-contract) | `agent-control-loop.mmd` · `model-routing.mmd` · `prompt-contract.mmd` |
 | RAG pipeline | [8](../MANUAL.md#8-rag-pipeline-internals), [15](../MANUAL.md#15-data-lifecycle-deletion-and-re-indexing) | `rag-pipeline.mmd` · `data-lifecycle.mmd` |
-| Model serving | [2](../MANUAL.md#2-what-can-you-actually-run), [14](../MANUAL.md#14-deployment-topology), [20](../MANUAL.md#20-latency-budget) | `hardware-paths.mmd` · `deployment-topology.mmd` · `latency-budget.mmd` |
+| Model serving | [2](../MANUAL.md#2-what-can-you-run), [14](../MANUAL.md#14-deployment-topology), [20](../MANUAL.md#20-latency-budget) | `hardware-paths.mmd` · `deployment-topology.mmd` · `latency-budget.mmd` |
 | Tools and trust | [11](../MANUAL.md#11-trust-boundaries) | `trust-boundaries.mmd` |
 | Memory | [12](../MANUAL.md#12-memory-and-data-tiers), [16](../MANUAL.md#16-databases-and-state) | `memory-tiers.mmd` |
 | Guards and evals | [13](../MANUAL.md#13-guardrails-evals-and-the-improvement-loop) | `guardrails-evals.mmd` |

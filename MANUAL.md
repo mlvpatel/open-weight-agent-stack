@@ -84,7 +84,7 @@ not prove is set out in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 Every diagram in this manual is standard Mermaid. Use GitHub's renderer or another compatible Mermaid viewer; rendering details can vary by viewer version.
 
-## 2. What can you actually run?
+## 2. What can you run?
 
 Ring: Harness. An inner-ring failure here is a 16 GB card asked to host a 110B MoE.
 
