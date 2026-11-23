@@ -677,6 +677,15 @@
     padding: var(--plate-pad);
     background: transparent;
   }
+  /* Beside the sticky contents list, a plate bleeds right only, so the list never covers a diagram. */
+  @media (min-width: 1025px) {
+    figure.plate {
+      width: calc(100vw - var(--main-inset));
+      max-width: none;
+      margin-left: calc(-1 * (var(--section-inline) + var(--section-border)));
+      padding-left: 0;
+    }
+  }
   .plate-body {
     order: 1;
     width: min(1600px, 100%);
@@ -808,6 +817,18 @@
     border-radius: var(--radius-lg);
     background: var(--gloss), var(--color-surface);
     box-shadow: var(--shadow-raise);
+  }
+  /* A table wider than its frame says so, pinned to the frame's left edge while it scrolls.
+     Screen readers skip the hint, since they move through a table cell by cell. */
+  .table-wrap.scrolls::before {
+    content: "Scroll sideways for more columns" / "";
+    position: sticky;
+    left: 0;
+    display: block;
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--fs-small);
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-border);
   }
   table {
     border-collapse: collapse;
@@ -1095,6 +1116,14 @@
       try { window.localStorage.setItem("theme", theme); } catch (e) { /* ignore */ }
     });
   }
+
+  function markScrollingTables() {
+    for (const wrap of document.querySelectorAll(".table-wrap")) {
+      wrap.classList.toggle("scrolls", wrap.scrollWidth > wrap.clientWidth + 1);
+    }
+  }
+  markScrollingTables();
+  window.addEventListener("resize", markScrollingTables);
 
   const search = document.getElementById("site-search");
   const searchStatus = document.getElementById("search-status");
