@@ -122,18 +122,18 @@ Four different people arrive here wanting four different things. Pick the row th
 
 | If you are | Start here | Then |
 |---|---|---|
-| **Deciding what you can run** | [Section 2](MANUAL.md#2-what-can-you-actually-run) gives a runtime path for Mac, NVIDIA, AMD, Intel, CPU-only, edge, and cloud | [Section 22](MANUAL.md#22-task-to-model-routing) maps task shape to model |
+| **Deciding what you can run** | [Section 2](MANUAL.md#2-what-can-you-run) gives a runtime path for Mac, NVIDIA, AMD, Intel, CPU-only, edge, and cloud | [Section 22](MANUAL.md#22-task-to-model-routing) maps task shape to model |
 | **Designing a system** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) walks all four C4 levels | [Section 4](MANUAL.md#4-the-design-method-hld-lld-and-the-rules) for the HLD and LLD method |
 | **Building one layer** | [docs/layers/](docs/layers/) has a file per layer with decision guidance and every tool linked | The matching manual section, linked from each file |
 | **Checking a claim** | [Section 27](MANUAL.md#27-sources-and-verification) links a primary source for every volatile claim | [docs/VERIFICATION.md](docs/VERIFICATION.md) states what CI does and does not prove |
 
-Two shortcuts worth knowing. If you only read one page, read [section 2](MANUAL.md#2-what-can-you-actually-run): the sizing rule there answers most hardware questions. If something is already broken, go straight to the [first-hour troubleshooting table](MANUAL.md#261-when-it-breaks-the-first-hour-table).
+Two shortcuts worth knowing. If you only read one page, read [section 2](MANUAL.md#2-what-can-you-run): the sizing rule there answers most hardware questions. If something is already broken, go straight to the [first-hour troubleshooting table](MANUAL.md#261-when-it-breaks-the-first-hour-table).
 
 ### Reading paths by question
 
 | You want to know | Go to |
 |---|---|
-| What can my machine actually run? | [Section 2](MANUAL.md#2-what-can-you-actually-run) |
+| What can my machine actually run? | [Section 2](MANUAL.md#2-what-can-you-run) |
 | The whole system on one diagram | [Section 5](MANUAL.md#5-master-architecture) |
 | Which model for which task | [Section 22](MANUAL.md#22-task-to-model-routing) |
 | Which licence a model actually carries | [docs/MODELS.md](docs/MODELS.md) |
