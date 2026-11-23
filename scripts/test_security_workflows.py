@@ -86,7 +86,7 @@ def test_pages_deploy_is_split_dispatchable_and_offline_gated() -> None:
     # Upload and deploy in one job raced: deploy-pages saw no github-pages artifact.
     if "actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9" not in build:
         fail("the build job must upload the Pages artifact with the pinned action")
-    if "actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128" not in deploy:
+    if "actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346" not in deploy:
         fail("the deploy job must run the pinned deploy-pages action")
     if "upload-pages-artifact" in deploy or "deploy-pages" in build:
         fail("upload-pages-artifact and deploy-pages must run in separate jobs")
