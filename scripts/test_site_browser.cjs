@@ -270,6 +270,40 @@ async function inspectNormalSite(page) {
   });
 }
 
+// At desktop width the contents list is sticky beside the manual, so a diagram must start to its
+// right, and Mermaid must not lay one edge label over another.
+async function inspectDesktopLayout(page, baseUrl) {
+  await page.setViewport({ width: 1440, height: 900 });
+  await page.goto(baseUrl, { waitUntil: "networkidle0" });
+  await page.waitForFunction(() => document.querySelectorAll(".plate-body svg").length > 0, { timeout: 30000 });
+  return page.evaluate(() => {
+    const failures = [];
+    const toc = document.querySelector("nav.toc");
+    const tocRight = toc.getBoundingClientRect().right;
+    for (const body of document.querySelectorAll(".plate-body")) {
+      if (body.getBoundingClientRect().left < tocRight) {
+        const label = body.closest("figure").querySelector(".fno")?.textContent || "a figure";
+        failures.push(`${label} starts under the contents list`);
+      }
+    }
+    for (const svg of document.querySelectorAll(".plate-body svg")) {
+      const labels = Array.from(svg.querySelectorAll(".edgeLabel p"))
+        .filter((label) => label.textContent.trim())
+        .map((label) => ({ text: label.textContent.trim(), box: label.getBoundingClientRect() }));
+      for (let i = 0; i < labels.length; i += 1) {
+        for (let j = i + 1; j < labels.length; j += 1) {
+          const a = labels[i].box;
+          const b = labels[j].box;
+          if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) {
+            failures.push(`diagram labels overlap: "${labels[i].text}" and "${labels[j].text}"`);
+          }
+        }
+      }
+    }
+    return failures;
+  });
+}
+
 async function inspectMermaidFailure(page) {
   await page.waitForFunction((expected) => document.querySelectorAll(".mermaid-fallback").length === expected, { timeout: 30000 }, EXPECTED_DIAGRAMS);
   return page.evaluate(() => Array.from(document.querySelectorAll(".mermaid-fallback"), (element) => ({
@@ -375,6 +409,10 @@ async function run() {
     if (contrastFailures.length) throw new Error(`text below WCAG AA contrast:\n${contrastFailures.join("\n")}`);
     console.log("browser contrast-path passed: every visible text element meets WCAG AA in light and dark themes");
     console.log("browser companion-path passed: architecture.html and models.html are deploy-safe");
+
+    const layoutFailures = await inspectDesktopLayout(page, baseUrl);
+    if (layoutFailures.length) throw new Error(`desktop layout:\n${layoutFailures.join("\n")}`);
+    console.log("browser layout-path passed: diagrams clear the contents list and no edge labels overlap at 1440px");
   } finally {
     if (browser) await browser.close();
     await closeServer(server);

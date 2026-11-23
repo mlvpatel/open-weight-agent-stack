@@ -1,10 +1,10 @@
 # L6: Model layer
 
-> The serving runtime and the models it runs. Ring: prompt. Manual: [section 2](../../MANUAL.md#2-what-can-you-actually-run), [section 20](../../MANUAL.md#20-latency-budget), [section 22](../../MANUAL.md#22-task-to-model-routing).
+> The serving runtime and the models it runs. Ring: prompt. Manual: [section 2](../../MANUAL.md#2-what-can-you-run), [section 20](../../MANUAL.md#20-latency-budget), [section 22](../../MANUAL.md#22-task-to-model-routing).
 
 ## What this layer does
 
-Turns weights into tokens per second. The runtime choice is hardware-shaped (see the full matrix in [section 2](../../MANUAL.md#2-what-can-you-actually-run)); the model choice is task-shaped ([section 22](../../MANUAL.md#22-task-to-model-routing)). For a first estimate, 4-bit weights often need roughly 0.5 to 0.6 GB per billion parameters before KV cache; architecture, precision, batch, context, and runtime overhead decide the actual requirement.
+Turns weights into tokens per second. The runtime choice is hardware-shaped (see the full matrix in [section 2](../../MANUAL.md#2-what-can-you-run)); the model choice is task-shaped ([section 22](../../MANUAL.md#22-task-to-model-routing)). For a first estimate, 4-bit weights often need roughly 0.5 to 0.6 GB per billion parameters before KV cache; architecture, precision, batch, context, and runtime overhead decide the actual requirement.
 
 ## How to choose
 
@@ -12,7 +12,7 @@ Turns weights into tokens per second. The runtime choice is hardware-shaped (see
 - On supported NVIDIA hardware, evaluate TensorRT-LLM when peak single-GPU throughput is the goal.
 - One developer, any machine: Ollama for convenience, llama.cpp for control, LM Studio for a GUI.
 - Apple Silicon: MLX, with pre-converted checkpoints from mlx-community.
-- Quant format decides the runtime: GGUF for the llama.cpp family, AWQ/GPTQ/FP8 for the GPU servers ([section 2](../../MANUAL.md#2-what-can-you-actually-run)).
+- Quant format decides the runtime: GGUF for the llama.cpp family, AWQ/GPTQ/FP8 for the GPU servers ([section 2](../../MANUAL.md#2-what-can-you-run)).
 
 ## The options
 

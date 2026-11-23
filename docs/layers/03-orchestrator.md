@@ -24,7 +24,7 @@ The orchestrator turns a goal into bounded work: decompose, act, observe, verify
 | CrewAI | Role-based crews | [github.com/crewAIInc/crewAI](https://github.com/crewAIInc/crewAI) |
 | LlamaIndex | Retrieval-centric workflows | [github.com/run-llama/llama_index](https://github.com/run-llama/llama_index) |
 | Pydantic AI | Typed agents, schema-validated boundaries | [github.com/pydantic/pydantic-ai](https://github.com/pydantic/pydantic-ai) |
-| Microsoft Agent Framework | .NET and Python, enterprise integration | [github.com/microsoft/agent-framework](https://github.com/microsoft/agent-framework) |
+| Microsoft Agent Framework | .NET and Python, enterprise integration | [learn.microsoft.com/agent-framework](https://learn.microsoft.com/agent-framework/) |
 | AWS Strands | Model-driven agents on AWS | [github.com/strands-agents/sdk-python](https://github.com/strands-agents/sdk-python) |
 | smolagents | Minimal code-first agents | [github.com/huggingface/smolagents](https://github.com/huggingface/smolagents) |
 | Temporal | Durable execution under any framework | [github.com/temporalio/temporal](https://github.com/temporalio/temporal) |

@@ -63,7 +63,7 @@ class GeneratedSiteLinkTests(unittest.TestCase):
             self.published_html_links(models),
             [
                 "index.html#22-task-to-model-routing",
-                "index.html#2-what-can-you-actually-run",
+                "index.html#2-what-can-you-run",
                 "index.html#27-sources-and-verification",
             ],
         )

@@ -63,7 +63,7 @@ accDescr: Clients reach a gateway and input guard, then an orchestrator that can
     subgraph L9["9 · Memory, Data and Cache"]
         direction LR
         D1["Working state<br/>LangGraph store"]
-        D2["Semantic cache<br/>Redis · keyed by query PLUS scope"]
+        D2["Semantic cache, checked before spending tokens<br/>Redis · keyed by query PLUS scope"]
         D3["Long-term memory<br/>vectors plus SQL"]
         D4B["Analytics<br/>DuckDB · Supabase"]
     end
@@ -111,7 +111,7 @@ accDescr: Clients reach a gateway and input guard, then an orchestrator that can
     GO --> RESP["Response with citations<br/>streamed back to the client"]
 
     STATE <-.-> D1
-    ROUTE <-.->|check before spending tokens| D2
+    ROUTE <-.-> D2
     PLAN -.->|redacted traces| O1
     RESP -.->|redacted traces and feedback| O1
     O1 --> O2

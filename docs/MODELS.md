@@ -114,4 +114,4 @@ Check the individual checkpoint every time: [nvidia](https://huggingface.co/nvid
 
 ## Using this page
 
-Which model for which task: [MANUAL.md section 22](../MANUAL.md#22-task-to-model-routing). What your hardware can hold: [section 2](../MANUAL.md#2-what-can-you-actually-run). Every specific claim's source: [section 27](../MANUAL.md#27-sources-and-verification). What automated checks do and do not prove: [VERIFICATION.md](VERIFICATION.md).
+Which model for which task: [MANUAL.md section 22](../MANUAL.md#22-task-to-model-routing). What your hardware can hold: [section 2](../MANUAL.md#2-what-can-you-run). Every specific claim's source: [section 27](../MANUAL.md#27-sources-and-verification). What automated checks do and do not prove: [VERIFICATION.md](VERIFICATION.md).
