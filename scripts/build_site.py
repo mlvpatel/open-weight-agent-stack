@@ -152,6 +152,7 @@ def _nav(current: str) -> dict[str, str]:
     for key, href in (("manual", "index.html"), ("architecture", "architecture.html"), ("models", "models.html")):
         facts[f"NAV_{key.upper()}_HREF"] = "#main" if key == current == "manual" else href
         facts[f"NAV_{key.upper()}_CUR"] = ' aria-current="page"' if key == current else ""
+    facts["FOLIO"] = current.capitalize()
     return facts
 
 
